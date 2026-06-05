@@ -27,6 +27,8 @@ export {
   utf8ToBytes,
   concatBytes,
   randomBytes,
+  sha256,
+  base64,
   isHex64,
   parsePubkey,
   parseEventId,

@@ -1,0 +1,83 @@
+{
+  "name": "@nostragent/nips",
+  "version": "0.0.0",
+  "description": "Velvet NIPs — every NIP as a tree-shakeable subpath: typed event factories, parsers, and actions.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./nip02": {
+      "types": "./dist/nip02.d.ts",
+      "import": "./dist/nip02.js"
+    },
+    "./nip09": {
+      "types": "./dist/nip09.d.ts",
+      "import": "./dist/nip09.js"
+    },
+    "./nip10": {
+      "types": "./dist/nip10.d.ts",
+      "import": "./dist/nip10.js"
+    },
+    "./nip18": {
+      "types": "./dist/nip18.d.ts",
+      "import": "./dist/nip18.js"
+    },
+    "./nip23": {
+      "types": "./dist/nip23.d.ts",
+      "import": "./dist/nip23.js"
+    },
+    "./nip25": {
+      "types": "./dist/nip25.d.ts",
+      "import": "./dist/nip25.js"
+    },
+    "./nip27": {
+      "types": "./dist/nip27.d.ts",
+      "import": "./dist/nip27.js"
+    },
+    "./nip47": {
+      "types": "./dist/nip47.d.ts",
+      "import": "./dist/nip47.js"
+    },
+    "./nip51": {
+      "types": "./dist/nip51.d.ts",
+      "import": "./dist/nip51.js"
+    },
+    "./nip57": {
+      "types": "./dist/nip57.d.ts",
+      "import": "./dist/nip57.js"
+    },
+    "./nip59": {
+      "types": "./dist/nip59.d.ts",
+      "import": "./dist/nip59.js"
+    },
+    "./nip17": {
+      "types": "./dist/nip17.d.ts",
+      "import": "./dist/nip17.js"
+    },
+    "./nip98": {
+      "types": "./dist/nip98.d.ts",
+      "import": "./dist/nip98.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test:cov": "bun test && (bun test --coverage || true)",
+    "typecheck": "tsc --noEmit",
+    "lint:publish": "publint && attw --pack . --profile esm-only"
+  },
+  "dependencies": {
+    "@nostragent/core": "workspace:*",
+    "@nostragent/signers": "workspace:*"
+  }
+}

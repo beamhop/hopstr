@@ -37,6 +37,14 @@
         "valibot": "1.4.1",
       },
     },
+    "packages/nips": {
+      "name": "@nostragent/nips",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nostragent/core": "workspace:*",
+        "@nostragent/signers": "workspace:*",
+      },
+    },
     "packages/pool": {
       "name": "@nostragent/pool",
       "version": "0.0.0",
@@ -176,6 +184,8 @@
     "@nostragent/client": ["@nostragent/client@workspace:packages/client"],
 
     "@nostragent/core": ["@nostragent/core@workspace:packages/core"],
+
+    "@nostragent/nips": ["@nostragent/nips@workspace:packages/nips"],
 
     "@nostragent/pool": ["@nostragent/pool@workspace:packages/pool"],
 

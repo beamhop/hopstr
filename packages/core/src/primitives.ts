@@ -1,8 +1,10 @@
 // Low-level byte/hex/utf8 helpers and branded id types.
 // We lean on @noble/hashes utils so the package stays isomorphic (no Buffer, no node:crypto).
 import { bytesToHex, hexToBytes, concatBytes, utf8ToBytes, randomBytes } from '@noble/hashes/utils.js'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { base64 } from '@scure/base'
 
-export { bytesToHex, hexToBytes, concatBytes, utf8ToBytes, randomBytes }
+export { bytesToHex, hexToBytes, concatBytes, utf8ToBytes, randomBytes, sha256, base64 }
 
 const decoder = /* @__PURE__ */ new TextDecoder()
 export function bytesToUtf8(bytes: Uint8Array): string {
