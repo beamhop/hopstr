@@ -1,0 +1,10 @@
+# Root config. Coverage thresholds are enforced PER PACKAGE (each package has its
+# own bunfig.toml), because Bun's coverage only tracks files relative to the cwd
+# where `bun test` runs — running from the monorepo root attributes 0% to
+# packages/*/src. So `test:cov` runs inside each package. See packages/*/bunfig.toml.
+[install]
+exact = true
+
+[test]
+coverageReporter = ["text", "lcov"]
+coverageSkipTestFiles = true

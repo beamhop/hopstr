@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+apps/docs/dist/
+apps/docs/.vocs/
+apps/docs/docs/api/
+.turbo/

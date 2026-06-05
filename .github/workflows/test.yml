@@ -1,0 +1,40 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: bun run typecheck
+      - name: Unit tests + 100% coverage gate
+        run: bun test --coverage
+      - name: Build all packages
+        run: bun run build
+      - name: Lint published output (publint + attw)
+        run: bun run lint:publish
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      strfry:
+        image: dockurr/strfry
+        ports:
+          - 7777:7777
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: End-to-end against local relays
+        run: E2E=1 bun test tests/e2e

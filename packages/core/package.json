@@ -1,0 +1,39 @@
+{
+  "name": "@nostragent/core",
+  "version": "0.0.0",
+  "description": "Velvet core — pure Nostr event model, NIP-01 ids, schnorr, NIP-19/21/44, and the drop-in client facade.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": ["dist"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./nip19": "./src/nip19.ts",
+    "./nip21": "./src/nip21.ts",
+    "./nip44": "./src/nip44.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+      "./nip19": { "types": "./dist/nip19.d.ts", "import": "./dist/nip19.js" },
+      "./nip21": { "types": "./dist/nip21.d.ts", "import": "./dist/nip21.js" },
+      "./nip44": { "types": "./dist/nip44.d.ts", "import": "./dist/nip44.js" },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test:cov": "bun test --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint:publish": "publint && attw --pack ."
+  },
+  "dependencies": {
+    "@noble/ciphers": "2.2.0",
+    "@noble/curves": "2.2.0",
+    "@noble/hashes": "2.2.0",
+    "@scure/base": "2.2.0",
+    "valibot": "1.4.1"
+  }
+}
