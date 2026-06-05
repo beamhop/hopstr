@@ -1,0 +1,26 @@
+{
+  "name": "@nostragent/agent",
+  "version": "0.0.0",
+  "description": "Velvet's easy-mode facade — the drop-in NostrClient (post/reply/feed/DMs) and the autonomous runAgent loop, over the full @nostragent stack.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": ["dist"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "tsdown",
+    "test:cov": "bun test && (bun test --coverage || true)",
+    "typecheck": "tsc --noEmit",
+    "lint:publish": "publint && attw --pack . --profile esm-only"
+  },
+  "dependencies": {
+    "@nostragent/core": "workspace:*",
+    "@nostragent/client": "workspace:*",
+    "@nostragent/nips": "workspace:*",
+    "@nostragent/signers": "workspace:*"
+  }
+}

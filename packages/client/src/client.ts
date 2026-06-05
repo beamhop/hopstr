@@ -71,6 +71,14 @@ export class Nostr {
     return new Nostr(opts)
   }
 
+  /**
+   * Synchronous constructor for when you already have a signer or secret (no
+   * async runtime setup needed). The facade and tests use this.
+   */
+  static fromOptions(options: NostrOptions): Nostr {
+    return new Nostr(options)
+  }
+
   /** The signer, or throw a helpful error if this is a read-only client. */
   get signer(): Signer {
     if (!this.#signer) throw new Error('this client has no signer; pass { signer } or { secretKey } to create()')

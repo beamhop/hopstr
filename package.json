@@ -11,7 +11,7 @@
   "scripts": {
     "build": "bun run --filter='@nostragent/*' build",
     "test": "bun test",
-    "test:cov": "for p in core signers relay pool router store nips client; do (cd packages/$p && bun run test:cov) || exit 1; done",
+    "test:cov": "for p in core signers relay pool router store nips client agent; do (cd packages/$p && bun run test:cov) || exit 1; done",
     "typecheck": "bun run --filter='@nostragent/*' typecheck",
     "lint:publish": "bun run --filter='@nostragent/*' lint:publish",
     "docs:dev": "bun run --filter='@nostragent/docs' dev",

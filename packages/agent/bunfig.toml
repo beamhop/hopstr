@@ -1,0 +1,19 @@
+# Like @nostragent/client and /nips, this package triggers Bun 1.3.10's coverage-
+# finalizer bug (cross-package dist deps), so coverage is OFF by default — `bun test`
+# is a strict pass/fail gate — and `test:cov` reports coverage in a non-gating step.
+# See packages/core/bunfig.toml and the bun-coverage memory.
+[test]
+coverage = false
+coverageReporter = ["text"]
+coverageSkipTestFiles = true
+coveragePathIgnorePatterns = [
+  "**/*.test.ts",
+  "**/*.d.ts",
+  "src/index.ts",
+  "tests/**",
+  "dist/**",
+  "**/node_modules/**",
+  "**/core/dist/**",
+  "**/client/dist/**",
+  "**/nips/dist/**",
+]
