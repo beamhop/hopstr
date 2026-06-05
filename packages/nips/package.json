@@ -65,6 +65,26 @@
       "types": "./dist/nip98.d.ts",
       "import": "./dist/nip98.js"
     },
+    "./kinds": {
+      "types": "./dist/kinds.d.ts",
+      "import": "./dist/kinds.js"
+    },
+    "./media": {
+      "types": "./dist/media.d.ts",
+      "import": "./dist/media.js"
+    },
+    "./moderation": {
+      "types": "./dist/moderation.d.ts",
+      "import": "./dist/moderation.js"
+    },
+    "./discovery": {
+      "types": "./dist/discovery.d.ts",
+      "import": "./dist/discovery.js"
+    },
+    "./extra": {
+      "types": "./dist/extra.d.ts",
+      "import": "./dist/extra.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
