@@ -1,0 +1,28 @@
+{
+  "name": "@nostragent/router",
+  "version": "0.0.0",
+  "description": "Velvet router — the outbox/gossip model (NIP-65): pick which relays to read from and write to, by weighted relay selection with policy injection.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test:cov": "bun test --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint:publish": "publint && attw --pack . --profile esm-only"
+  },
+  "dependencies": {
+    "@nostragent/core": "workspace:*"
+  }
+}

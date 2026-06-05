@@ -40,6 +40,13 @@
         "@nostragent/core": "workspace:*",
       },
     },
+    "packages/router": {
+      "name": "@nostragent/router",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nostragent/core": "workspace:*",
+      },
+    },
     "packages/signers": {
       "name": "@nostragent/signers",
       "version": "0.0.0",
@@ -51,6 +58,13 @@
         "@scure/base": "2.2.0",
         "@scure/bip32": "2.2.0",
         "@scure/bip39": "2.2.0",
+      },
+    },
+    "packages/store": {
+      "name": "@nostragent/store",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nostragent/core": "workspace:*",
       },
     },
   },
@@ -153,7 +167,11 @@
 
     "@nostragent/relay": ["@nostragent/relay@workspace:packages/relay"],
 
+    "@nostragent/router": ["@nostragent/router@workspace:packages/router"],
+
     "@nostragent/signers": ["@nostragent/signers@workspace:packages/signers"],
+
+    "@nostragent/store": ["@nostragent/store@workspace:packages/store"],
 
     "@oxc-project/types": ["@oxc-project/types@0.134.0", "", {}, "sha512-T0xuRRKrQFmocH8y+jGfpmSkGcheaJExY9lEihmR1Gm2aH+75B8CzgU2rABRQSzzDxLjZ15Sc0bRVLj5lVeNXQ=="],
 
