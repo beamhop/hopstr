@@ -1,3 +1,4 @@
+'use client'
 // A live island: streams real kind-1 notes from public relays, in the browser,
 // using the actual published @nostragent/pool. Defensive by design — multi-relay,
 // a timeout, connection-state UI — so it never blocks render or hangs the page.

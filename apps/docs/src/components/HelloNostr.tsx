@@ -1,3 +1,4 @@
+'use client'
 // The marquee island: generates a CLEARLY-LABELED EPHEMERAL throwaway key, signs a
 // note with the real @nostragent/client, and publishes it to a test relay — all in
 // the reader's browser. The demo IS the pitch: "it actually works, watch."
