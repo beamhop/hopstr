@@ -32,6 +32,7 @@ export {
   parseEventId,
   parseSignature,
   parseSecretKeyHex,
+  toSecretBytes,
 } from './primitives.ts'
 
 export {
