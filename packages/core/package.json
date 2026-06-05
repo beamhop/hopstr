@@ -5,29 +5,36 @@
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
-    ".": "./src/index.ts",
-    "./nip19": "./src/nip19.ts",
-    "./nip21": "./src/nip21.ts",
-    "./nip44": "./src/nip44.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./nip19": {
+      "types": "./dist/nip19.d.ts",
+      "import": "./dist/nip19.js"
+    },
+    "./nip21": {
+      "types": "./dist/nip21.d.ts",
+      "import": "./dist/nip21.js"
+    },
+    "./nip44": {
+      "types": "./dist/nip44.d.ts",
+      "import": "./dist/nip44.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "access": "public",
-    "exports": {
-      ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-      "./nip19": { "types": "./dist/nip19.d.ts", "import": "./dist/nip19.js" },
-      "./nip21": { "types": "./dist/nip21.d.ts", "import": "./dist/nip21.js" },
-      "./nip44": { "types": "./dist/nip44.d.ts", "import": "./dist/nip44.js" },
-      "./package.json": "./package.json"
-    }
+    "access": "public"
   },
   "scripts": {
     "build": "tsdown",
     "test:cov": "bun test --coverage",
     "typecheck": "tsc --noEmit",
-    "lint:publish": "publint && attw --pack ."
+    "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
     "@noble/ciphers": "2.2.0",

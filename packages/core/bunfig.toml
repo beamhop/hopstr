@@ -10,4 +10,7 @@ coveragePathIgnorePatterns = [
   "tests/**",
   "dist/**",
   "**/*.types.ts",
+  "**/fixtures/**",
+  "**/*.csv",
+  "**/*.json",
 ]
