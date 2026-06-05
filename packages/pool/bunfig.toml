@@ -12,5 +12,5 @@ coveragePathIgnorePatterns = [
   "dist/**",
   "**/node_modules/**",
   "**/core/dist/**",
-  "**/fixtures/**",
+  "**/relay/dist/**",
 ]

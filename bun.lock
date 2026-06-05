@@ -25,6 +25,21 @@
         "valibot": "1.4.1",
       },
     },
+    "packages/pool": {
+      "name": "@nostragent/pool",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nostragent/core": "workspace:*",
+        "@nostragent/relay": "workspace:*",
+      },
+    },
+    "packages/relay": {
+      "name": "@nostragent/relay",
+      "version": "0.0.0",
+      "dependencies": {
+        "@nostragent/core": "workspace:*",
+      },
+    },
     "packages/signers": {
       "name": "@nostragent/signers",
       "version": "0.0.0",
@@ -133,6 +148,10 @@
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
 
     "@nostragent/core": ["@nostragent/core@workspace:packages/core"],
+
+    "@nostragent/pool": ["@nostragent/pool@workspace:packages/pool"],
+
+    "@nostragent/relay": ["@nostragent/relay@workspace:packages/relay"],
 
     "@nostragent/signers": ["@nostragent/signers@workspace:packages/signers"],
 

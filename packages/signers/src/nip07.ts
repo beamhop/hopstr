@@ -11,6 +11,9 @@ export interface Nip07Provider {
   nip04?: { encrypt(peer: string, plaintext: string): Promise<string>; decrypt(peer: string, ciphertext: string): Promise<string> }
 }
 
+/** Swallow a settled promise's value/error (used to advance the call queue). */
+function ignore(): void {}
+
 function resolveProvider(provided?: Nip07Provider): Nip07Provider {
   if (provided) return provided
   const w = (globalThis as { nostr?: Nip07Provider }).nostr
@@ -30,11 +33,10 @@ export class Nip07Signer implements Signer {
 
   #serialize<T>(task: () => Promise<T>): Promise<T> {
     // Run `task` once the queue is idle, whether the previous call resolved or
-    // rejected (an earlier failure must not wedge later calls). `settle` ignores
-    // the prior outcome; `run` is the caller's real result.
-    const settle = this.#queue.catch(() => undefined)
-    const run = settle.then(task)
-    this.#queue = run.catch(() => undefined)
+    // rejected (an earlier failure must not wedge later calls). `ignore` swallows
+    // a prior outcome; `run` is the caller's real result.
+    const run = this.#queue.catch(ignore).then(task)
+    this.#queue = run.catch(ignore)
     return run
   }
 
