@@ -133,6 +133,14 @@ export class EventStore {
     }
   }
 
+  /** Remove an event by id (e.g. an optimistic publish that was undone). */
+  delete(id: string): void {
+    const event = this.#backend.get(id)
+    if (!event) return
+    this.#backend.delete(id)
+    if (this.#coords.get(addressOf(event)) === id) this.#coords.delete(addressOf(event))
+  }
+
   /** Get one event by id (skips expired). */
   get(id: string): NostrEvent | undefined {
     const event = this.#backend.get(id)

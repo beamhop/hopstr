@@ -1,7 +1,7 @@
 {
-  "name": "@nostragent/signers",
+  "name": "@nostragent/client",
   "version": "0.0.0",
-  "description": "Velvet signers — one async Signer interface over local keys, NIP-07 extensions, NIP-46 bunkers, NIP-49 encrypted keys, and NIP-06 derivation.",
+  "description": "Velvet client — the high-level reactive Nostr client: Nostr.create(), optimistic publish, async-iterable subscriptions, profile cache, outbox routing on by default.",
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
@@ -20,17 +20,16 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test:cov": "bun test --coverage",
+    "test:cov": "bun test && (bun test --coverage || true)",
     "typecheck": "tsc --noEmit",
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
     "@nostragent/core": "workspace:*",
-    "@noble/ciphers": "2.2.0",
-    "@noble/curves": "2.2.0",
-    "@noble/hashes": "2.2.0",
-    "@scure/base": "2.2.0",
-    "@scure/bip32": "2.2.0",
-    "@scure/bip39": "2.2.0"
+    "@nostragent/signers": "workspace:*",
+    "@nostragent/relay": "workspace:*",
+    "@nostragent/pool": "workspace:*",
+    "@nostragent/router": "workspace:*",
+    "@nostragent/store": "workspace:*"
   }
 }

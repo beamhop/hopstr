@@ -163,7 +163,7 @@ export class Relay {
     const id = `velvet-${subCounter++}`
     this.#subs.set(id, { filters, handlers, eosed: false })
     if (this.#state === 'open') this.#send(['REQ', id, ...filters])
-    else void this.connect()
+    else this.#ensureConnected()
     return () => {
       this.#subs.delete(id)
       if (this.#state === 'open') this.#send(['CLOSE', id])
@@ -179,8 +179,13 @@ export class Relay {
       }, this.#opts.publishTimeout)
       this.#pendingPublish.set(event.id, { resolve, timer })
       this.#send(['EVENT', event])
-      void this.connect()
+      this.#ensureConnected()
     })
+  }
+
+  /** Start connecting; swallow a failed attempt (the FSM reconnects on its own). */
+  #ensureConnected(): void {
+    this.connect().catch(() => {})
   }
 
   /** Send a one-shot COUNT (NIP-45); resolves the count or rejects on CLOSED. */

@@ -43,6 +43,20 @@ describe('basic add/get/query', () => {
   test('get returns undefined for unknown id', () => {
     expect(new EventStore().get('ff'.repeat(32))).toBeUndefined()
   })
+
+  test('delete removes an event (and clears its coordinate)', () => {
+    const store = new EventStore()
+    const note = mk({ content: 'x' })
+    const profile = mk({ kind: 0, content: 'p', created_at: 5 })
+    store.add(note)
+    store.add(profile)
+    store.delete(note.id)
+    store.delete(profile.id)
+    store.delete('ff'.repeat(32)) // unknown id is a no-op
+    expect(store.get(note.id)).toBeUndefined()
+    expect(store.getReplaceable(addressOf(profile))).toBeUndefined()
+    expect(store.size).toBe(0)
+  })
 })
 
 describe('replaceable (kind 0/3/1xxxx)', () => {
