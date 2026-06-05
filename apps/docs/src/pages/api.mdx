@@ -1,0 +1,30 @@
+---
+title: API Reference
+---
+
+# API Reference
+
+The full, auto-generated API reference for every `@nostragent` package is built
+from the source TSDoc with TypeDoc.
+
+```bash
+bun run docs:api      # generates docs/pages/api/generated from the packages
+```
+
+Once generated, browse it under [`/api/generated`](/api/generated). Each package's
+public surface — types, functions, classes — is documented from the same source
+the library ships, so it can never drift from the code.
+
+## Packages at a glance
+
+| Package | What it owns |
+| --- | --- |
+| `@nostragent/core` | event model, NIP-01 ids, schnorr, NIP-19/21/44, kernel helpers |
+| `@nostragent/signers` | the async `Signer` — local / NIP-07 / NIP-46 / NIP-49 / NIP-06 |
+| `@nostragent/relay` | one resilient relay connection (reconnect, NIP-11/42) |
+| `@nostragent/pool` | many relays, dedup, async-iterable subscriptions |
+| `@nostragent/router` | NIP-65 outbox routing |
+| `@nostragent/store` | reactive event store (dedup, replaceable, NIP-09/40) |
+| `@nostragent/nips` | every NIP, tree-shakeable |
+| `@nostragent/client` | the high-level reactive `Nostr` client |
+| `@nostragent/agent` | the drop-in `NostrClient` facade + autonomous loop |

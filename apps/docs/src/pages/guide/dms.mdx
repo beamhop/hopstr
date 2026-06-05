@@ -1,0 +1,44 @@
+---
+title: Private DMs (NIP-17)
+---
+
+# Private DMs — NIP-17 gift wrap
+
+Velvet's direct messages use **NIP-17 + NIP-59 gift wrap**: the message is sealed
+with your key, then wrapped again with a *fresh ephemeral key per recipient*, with
+back-dated timestamps. That hides not just the content but the metadata — who is
+talking to whom, and when.
+
+## The easy way (`@nostragent/agent`)
+
+```ts twoslash
+import { NostrClient, createIdentity } from '@nostragent/agent'
+const nostr = new NostrClient(createIdentity())
+const bob = createIdentity().npub
+// ---cut---
+await nostr.sendDM(bob, 'private hello')    // gift-wrapped to bob, with a copy to you
+const convo = await nostr.readDMs(bob)      // [{ from, text, at }] — NIP-17 + legacy kind-4
+```
+
+The facade sends NIP-17 and also *reads* old kind-4 conversations, so nothing
+disappears in the upgrade.
+
+## The explicit way (`@nostragent/nips/nip17`)
+
+```ts twoslash
+import { sealDirectMessage, openDirectMessage } from '@nostragent/nips/nip17'
+import { createIdentity } from '@nostragent/core'
+const me = createIdentity()
+const bobPubkey = createIdentity().pubkey
+const giftWrap = sealDirectMessage({ text: 'hi', to: [bobPubkey] }, me.secretKey)[0]!.wrap
+// ---cut---
+// one gift wrap per recipient PLUS one to yourself
+const wraps = sealDirectMessage({ text: 'hey', to: [bobPubkey] }, me.secretKey)
+
+// unwrap on the receiving side
+const message = openDirectMessage(giftWrap, me.secretKey)
+//    ^?
+```
+
+Under the hood the unwrap verifies the seal's signature and that the rumor author
+matches it — a forged message is rejected, and a third party can't open your wrap.

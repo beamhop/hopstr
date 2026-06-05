@@ -1,0 +1,51 @@
+---
+title: '@nostragent/nips'
+---
+
+# @nostragent/nips — every NIP, tree-shakeable
+
+Each NIP is a focused subpath import — a typed factory + parser (+ an action where
+it applies). Pull in only what you use.
+
+```ts twoslash
+// @noErrors
+import { article } from '@nostragent/nips/nip23'        // long-form
+import { react } from '@nostragent/nips/nip25'          // reactions
+import { zapRequest } from '@nostragent/nips/nip57'      // zaps
+import { fileMetadata } from '@nostragent/nips/media'    // NIP-94
+import { report, label } from '@nostragent/nips/moderation'
+import { resolveNip05 } from '@nostragent/nips/discovery'
+import { kindInfo } from '@nostragent/nips/kinds'        // the kind registry
+```
+
+## Zaps (NIP-57)
+
+```ts twoslash
+import { zapRequest, fetchZapInvoice } from '@nostragent/nips/nip57'
+import { createIdentity, finalizeEvent } from '@nostragent/core'
+const recipient = createIdentity().pubkey
+const relays = ['wss://relay.damus.io']
+const lnurl = 'lnurl1…'
+// ---cut---
+const req = zapRequest({ recipient, amountMsat: 21_000, relays, lnurl, comment: 'great post' })
+const signed = finalizeEvent(req, createIdentity().secretKey)
+const { invoice } = await fetchZapInvoice('alice@wallet.com', signed, 21_000, lnurl)
+```
+
+## Describe any kind
+
+```ts twoslash
+import { kindInfo } from '@nostragent/nips/kinds'
+// ---cut---
+kindInfo(30023)
+// ^?
+```
+
+## Every NIP has a home — and it's a test
+
+The package ships a coverage meta-test that enumerates the entire canonical NIP
+index and asserts each one resolves to a real module, a kernel-stack feature, the
+kind registry, or an explicit parse-only note. "Supports all NIPs" is mechanically
+verified, not aspirational.
+
+See the full table in the [package README](https://github.com/nostragent/velvet/tree/main/packages/nips).

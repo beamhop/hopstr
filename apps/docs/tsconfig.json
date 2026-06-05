@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["react", "react-dom"],
+    "isolatedDeclarations": false,
+    "declaration": false,
+    "declarationMap": false,
+    "verbatimModuleSyntax": false,
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src/components", "vocs.config.ts"]
+}

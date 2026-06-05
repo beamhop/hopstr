@@ -8,5 +8,5 @@ coverage/
 .env.*
 apps/docs/dist/
 apps/docs/.vocs/
-apps/docs/docs/api/
+apps/docs/src/pages/api/generated/
 .turbo/

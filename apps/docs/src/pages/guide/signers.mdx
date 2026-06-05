@@ -1,0 +1,47 @@
+---
+title: Identities & signers
+---
+
+# Identities & signers
+
+A Nostr identity is just a keypair. Velvet has **one async `Signer` interface** that every backend implements, so your signing/encryption code is identical no matter where the key lives.
+
+## Create or load an identity
+
+```ts twoslash
+import { createIdentity, loadIdentity } from '@nostragent/core'
+// ---cut---
+const me = createIdentity()               // { secretKey, pubkey, nsec, npub }
+const same = loadIdentity(me.nsec)         // from nsec, hex, or raw bytes
+```
+
+## The Signer interface
+
+```ts twoslash
+import type { Signer } from '@nostragent/signers'
+//            ^?
+```
+
+Three backends, one interface:
+
+```ts twoslash
+// @noErrors
+import { privateKeySigner, nip07Signer, bunkerSigner } from '@nostragent/signers'
+// ---cut---
+const local = privateKeySigner('nsec1…')                 // a local key
+const ext = nip07Signer()                                 // a browser extension (window.nostr)
+const bunker = await bunkerSigner('bunker://…', { clientSecret, transport })  // a remote signer
+```
+
+## Keys at rest & derivation
+
+```ts twoslash
+import { encryptKey, decryptKey, privateKeyHexFromSeedWords } from '@nostragent/signers'
+// ---cut---
+const ncryptsec = encryptKey('nsec1…', 'my password')     // NIP-49, scrypt + XChaCha20-Poly1305
+const back = decryptKey(ncryptsec, 'my password')
+
+const hex = privateKeyHexFromSeedWords('leader monkey parrot ring …')  // NIP-06
+```
+
+Both NIP-49 and NIP-06 are verified against the official test vectors.

@@ -1,0 +1,53 @@
+---
+title: Getting Started
+---
+
+# Getting Started
+
+## Install
+
+```bash
+bun add @nostragent/client
+```
+
+For the batteries-included "just be on Nostr" experience, use `@nostragent/agent`:
+
+```bash
+bun add @nostragent/agent
+```
+
+## Two lines to hello-world
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+// ---cut---
+const nostr = await Nostr.create()        // random key, sane relays, outbox on
+await nostr.note('hello nostr')
+```
+
+`Nostr.create()` auto-detects the runtime — browser, Bun, Node, Deno, workers — with no WebSocket boilerplate.
+
+## Bring your own key
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+// ---cut---
+const nostr = await Nostr.create({
+  secretKey: 'nsec1…',                    // or hex, or a Uint8Array
+  relays: ['wss://relay.damus.io', 'wss://nos.lol'],
+})
+const me = await nostr.pubkey()
+//    ^?
+```
+
+## The shape of everything
+
+Five decisions make Velvet ergonomic — read them once and the whole API follows:
+
+1. **One async `Signer`.** Local key, NIP-07 extension, NIP-46 bunker — same `publish()` code.
+2. **Subscriptions are `AsyncIterable`.** `for await`, `break` to close.
+3. **`publish()` returns per-relay results, never throws** on partial failure.
+4. **Branded types** make illegal states (publishing an unsigned event) unrepresentable.
+5. **Outbox routing on by default**, overridable per call.
+
+Next: [identities & signers →](/guide/signers)

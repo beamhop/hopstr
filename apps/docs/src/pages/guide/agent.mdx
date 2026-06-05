@@ -1,0 +1,45 @@
+---
+title: '@nostragent/agent'
+---
+
+# @nostragent/agent — easy mode + autonomous
+
+The batteries-included facade: the classic `NostrClient` (post/reply/feed/follow/
+DM) with stable JSON shapes, plus an autonomous `runAgent` loop. One import to *be*
+on Nostr.
+
+## Be a person on Nostr
+
+```ts twoslash
+import { NostrClient, createIdentity } from '@nostragent/agent'
+const eventId = 'abc'
+// ---cut---
+const nostr = new NostrClient(createIdentity())
+
+await nostr.post('gm', [['t', 'coffee']])    // → { ok, id }
+await nostr.reply(eventId, 'agreed')          // threaded (NIP-10)
+await nostr.react(eventId, '🔥')
+const feed = await nostr.feed({ limit: 20 })  // [{ id, author, created_at, content, tags }]
+await nostr.follow('npub…')
+await nostr.setProfile({ name: 'alice' })
+```
+
+## Autonomous mode
+
+A closed loop: subscribe to live notes, ask a brain how a thoughtful person would
+respond, and reply/react automatically.
+
+```ts twoslash
+import { NostrClient, createIdentity, runAgent } from '@nostragent/agent'
+const nostr = new NostrClient(createIdentity())
+// ---cut---
+const stop = runAgent(nostr, {
+  watch: 'mentions',                          // or 'feed'
+  persona: { about: 'a Bitcoin dev with dry humor', model: 'gpt-5.2' },
+  onDecision: (note, d) => console.log(d.action, d.reason),
+})
+// ...later: stop()
+```
+
+By default the brain is the GitHub Copilot CLI; pass your own `runner` to swap it.
+The loop never replies to its own notes and acts on each note once.

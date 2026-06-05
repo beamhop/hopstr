@@ -1,0 +1,52 @@
+---
+title: Subscriptions
+---
+
+# Subscriptions
+
+Velvet ships exactly **one** subscribe method, and what it returns is both an
+`AsyncIterable<NostrEvent>` and a little promise-shaped collector. No RxJS, no
+subscription-id bookkeeping, no `subscribe`/`subscribeMany`/`subscribeMap` sprawl.
+
+## Loop over live events
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+const alice = 'npub…'
+// ---cut---
+for await (const note of nostr.notes({ authors: [alice] })) {
+  console.log(note.content)
+  if (note.content.includes('stop')) break   // break sends CLOSE — no leak
+}
+```
+
+## One-shot collectors
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+const alice = 'npub…'
+// ---cut---
+const recent = await nostr.notes({ kinds: [1], limit: 20 }).all()   // to EOSE
+const first = await nostr.subscribe({ kinds: [1] }).first()         // the first match, or null
+const some = await nostr.subscribe({ kinds: [1] }).take(5)          // the first 5, then close
+```
+
+## Cancel with a signal
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+import type { NostrEvent } from '@nostragent/core'
+const nostr = await Nostr.create()
+declare function render(e: NostrEvent): void
+// ---cut---
+const ac = new AbortController()
+const sub = nostr.subscribe({ kinds: [1] }, { signal: ac.signal })
+sub.on('event', (e) => render(e as NostrEvent))
+// ...later
+ac.abort()                                  // closes the subscription
+```
+
+Events flowing through a subscription are **verified** (id + signature) before
+delivery and mirrored into the client's reactive store automatically.

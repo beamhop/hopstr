@@ -1,0 +1,61 @@
+---
+title: Publishing
+---
+
+# Publishing
+
+`publish()` (and its sugar `note()`) returns a **thunk** — the event is signed and
+added to your local store immediately, but the network I/O is deferred until you
+`await` it. That gives you optimistic UX plus honest, per-relay results.
+
+## A note
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+const results = await nostr.note('gm')
+//    ^?
+```
+
+Each entry is `{ relay, ok, reason }`. **Partial success is normal** — Velvet never
+throws just because one relay rejected you.
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+const results = await nostr.note('gm')
+if (results.some((r) => r.ok)) console.log('it is on Nostr')
+```
+
+## Chained options & escape hatches
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+await nostr.note('to a specific relay').to(['wss://my.relay']).timeout(8_000)
+await nostr.note('must land somewhere').orThrow()      // throws only if EVERY relay rejects
+```
+
+## Optimistic undo
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+const pub = nostr.note('oops, wrong window')
+const event = await pub.event()            // already in the local store
+pub.undo()                                 // rolls it back, before the network send
+```
+
+## Any event kind
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+import { article } from '@nostragent/nips/nip23'
+const nostr = await Nostr.create()
+// ---cut---
+await nostr.publish(article({ slug: 'hello', title: 'Hello', markdown: '# hi' }))  // kind 30023
+```

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "entryPoints": [
+    "../../packages/core/src/index.ts",
+    "../../packages/signers/src/index.ts",
+    "../../packages/relay/src/index.ts",
+    "../../packages/pool/src/index.ts",
+    "../../packages/router/src/index.ts",
+    "../../packages/store/src/index.ts",
+    "../../packages/client/src/index.ts",
+    "../../packages/agent/src/index.ts"
+  ],
+  "tsconfig": "./tsconfig.typedoc.json",
+  "out": "./src/pages/api/generated",
+  "readme": "none",
+  "githubPages": false,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "entryFileName": "index"
+}

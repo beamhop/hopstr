@@ -1,0 +1,50 @@
+---
+title: Outbox routing (NIP-65)
+---
+
+# Outbox routing — NIP-65
+
+To find someone's notes you read *their* write relays; to reach someone you write
+to *their* read relays. Velvet does this routing for you by default, using each
+author's published NIP-65 relay list, so notes actually find their audience
+instead of getting stuck on the relays you happen to use.
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const aliceHex = '00'.repeat(32)
+const bobHex = '11'.repeat(32)
+// ---cut---
+const nostr = await Nostr.create({ outbox: true })   // on by default
+// reading these authors fans out to THEIR write relays:
+const feed = await nostr.notes({ authors: [aliceHex, bobHex] }).all()
+// publishing routes to YOUR write relays + any mentioned user's inbox:
+await nostr.note('hey @bob', [['p', bobHex]])
+```
+
+Override the routing whenever you want:
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+await nostr.note('to here, exactly').to(['wss://my.relay'])
+const feed = await nostr.notes({ kinds: [1] }, { relays: ['wss://relay.damus.io'] }).all()
+```
+
+The router is a weighted, log-dampened set-cover that keeps the chosen relay set
+small and spreads load — it lives in [`@nostragent/router`](/guide/nips) if you want
+to drive it directly.
+
+```ts twoslash
+import { Router } from '@nostragent/router'
+import { parsePubkey } from '@nostragent/core'
+declare function relayListFor(pubkey: string, use: 'read' | 'write'): string[]
+const authorPubkey = parsePubkey('00'.repeat(32))
+const mentionedPubkeys = [parsePubkey('11'.repeat(32))]
+// ---cut---
+const router = new Router({
+  getPubkeyRelays: (pubkey, use) => relayListFor(pubkey, use),  // use is 'read' | 'write'
+  getDefaultRelays: () => ['wss://relay.damus.io', 'wss://nos.lol'],
+})
+const where = router.publishEvent(authorPubkey, mentionedPubkeys)
+```

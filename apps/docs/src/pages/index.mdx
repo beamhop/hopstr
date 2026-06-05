@@ -1,0 +1,45 @@
+---
+layout: landing
+title: Velvet — the ergonomic Nostr toolkit
+content:
+  width: 60rem
+---
+
+import { HelloNostr } from '../components/HelloNostr'
+
+# Velvet
+
+**The Nostr toolkit that feels like velvet** — every NIP, zero ceremony, runs anywhere TypeScript does.
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+// ---cut---
+const nostr = await Nostr.create()        // random key, sane relays, outbox on
+await nostr.note('hello nostr')           // signs + routes to your write relays
+```
+
+<div style={{ margin: '2rem 0' }}>
+  <HelloNostr />
+</div>
+
+## Why it feels different
+
+- **One async `Signer`** — the same `publish()` works with a local key, a browser extension (NIP-07), or a remote bunker (NIP-46).
+- **Subscriptions are `AsyncIterable`** — `for await` over events, `break` to close. One method, not five.
+- **`publish()` never throws on partial failure** — you get an honest per-relay result array, with `.orThrow()` when you want it.
+- **Branded types** — you physically cannot publish an unsigned event; the compiler stops you.
+- **Outbox routing on by default** (NIP-65), overridable per call with `.to(relays)`.
+- **Every NIP has a home** — and it's a passing test, not a marketing line.
+
+## Read a live feed, reactively
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+// ---cut---
+const nostr = await Nostr.create()
+for await (const note of nostr.notes({ kinds: [1], limit: 20 })) {
+  console.log(note.content)               // a plain loop — no RxJS, no sub-id bookkeeping
+}
+```
+
+[Get started →](/guide/getting-started) · [See it run live →](/live)
