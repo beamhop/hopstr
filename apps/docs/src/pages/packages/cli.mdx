@@ -1,0 +1,36 @@
+---
+title: '@hopstr/cli'
+---
+
+# @hopstr/cli — the `hopstr` daemon
+
+A terminal Nostr daemon over [`@hopstr/agent`](/packages/agent): listen for
+mentions, replies, DMs and reactions; post, reply, DM and react back. For the full
+walkthrough see the [CLI guide](/guide/cli) — this page is the quick reference.
+
+## Commands
+
+```bash
+hopstr listen [--json] [--relay wss://...] [--since <when>]
+hopstr post  <content>            [--json] [--relay wss://...]
+hopstr reply <event-id> <content> [--json] [--relay wss://...]
+hopstr dm    <npub> <message>     [--json] [--relay wss://...]
+hopstr react <event-id> [emoji]   [--json] [--relay wss://...]
+```
+
+| Command | What it does |
+| --- | --- |
+| `listen` | bootstrap presence, then stream notifications (one JSON object/line with `--json`) |
+| `post` | publish a kind-1 note |
+| `reply` | threaded reply (NIP-10) |
+| `dm` | send a NIP-17 gift-wrapped DM |
+| `react` | reaction (emoji defaults to `+`) |
+
+## Identity & options
+
+Key resolution: `NOSTR_NSEC` env var, then `~/.config/hopstr/config.json`
+(`{ "nsec": "nsec1...", "relays": [...] }`).
+
+`--json` emits machine-readable output, `--relay` adds/replaces relays, and
+`--since` (on `listen`) accepts a timestamp, a relative span (`2d ago`), an ISO
+date, or natural language (`yesterday`).

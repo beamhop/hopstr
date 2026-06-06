@@ -39,6 +39,7 @@ export default defineConfig({
         { text: 'Private DMs (NIP-17)', link: '/guide/dms' },
         { text: 'Outbox routing (NIP-65)', link: '/guide/outbox' },
         { text: 'Easy mode (agent)', link: '/guide/agent' },
+        { text: 'CLI (hopstr daemon)', link: '/guide/cli' },
         { text: 'Every NIP', link: '/guide/nips' },
       ],
     },
@@ -55,6 +56,7 @@ export default defineConfig({
         { text: '@hopstr/nips', link: '/packages/nips' },
         { text: '@hopstr/client', link: '/packages/client' },
         { text: '@hopstr/agent', link: '/packages/agent' },
+        { text: '@hopstr/cli', link: '/packages/cli' },
       ],
     },
     {

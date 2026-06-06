@@ -1,0 +1,85 @@
+---
+title: CLI (hopstr daemon)
+---
+
+# The `hopstr` CLI
+
+`hopstr` is a Nostr daemon for your terminal, built on [`@hopstr/agent`](/packages/agent).
+Run `hopstr listen` to stream your notifications (mentions, replies, DMs, reactions)
+as they arrive, and use the one-shot commands to post, reply, DM, or react.
+
+## Run it
+
+The CLI is a Bun entrypoint — no build step:
+
+```bash
+bun run packages/cli/src/index.ts --help
+# or, once linked on your PATH:
+hopstr --help
+```
+
+## Identity
+
+`hopstr` finds your key in priority order:
+
+1. the `NOSTR_NSEC` environment variable
+2. `~/.config/hopstr/config.json` → `{ "nsec": "nsec1...", "relays": ["wss://..."] }`
+
+```bash
+export NOSTR_NSEC=nsec1...
+hopstr listen
+```
+
+## Listen — your live notification stream
+
+```bash
+hopstr listen --json | jq .
+```
+
+On startup, `listen` **bootstraps your network presence** — it publishes your
+profile (kind-0), relay list (kind-10002), DM relay list (kind-10050), and contact
+list (kind-3) so other clients can discover and message you. Without the DM relay
+list, apps like iris refuse to send you DMs (see the [DM guide](/guide/dms)). This
+is idempotent: an existing profile or follow list is never overwritten.
+
+Then it streams one event per line. With `--json`, each line is a JSON object:
+
+| `type` | extra fields |
+| --- | --- |
+| `mention` / `reply` | `id`, `content` |
+| `dm` | `text`, `dmKind` (`nip17` or `nip04`) |
+| `reaction` | `emoji`, `targetId` |
+
+Every event carries `from` (an npub) and `at` (unix seconds). Legacy NIP-04 DMs are
+decrypted inline, so `text` is always plaintext. Drop `--json` for a human-readable,
+labelled feed.
+
+```bash
+hopstr listen                      # pretty, labelled output
+hopstr listen --since "2d ago"     # replay the last two days first
+hopstr listen --relay wss://relay.example.com
+```
+
+## Post & interact
+
+```bash
+hopstr post "hello nostr"
+hopstr reply <event-id> "totally agree"      # threaded (NIP-10)
+hopstr dm npub1xyz… "hey!"                    # sent as NIP-17 gift wrap
+hopstr react nevent1abc… 🤙                    # emoji defaults to +
+```
+
+## Options
+
+| Flag | Meaning |
+| --- | --- |
+| `--json` | one JSON object per line (machine-readable) |
+| `--relay <url>` | add a relay (repeatable); **replaces** the defaults when given |
+| `--since <when>` | for `listen`: unix timestamp, relative (`1h`, `2d ago`, `30m`), ISO date (`2025-06-01`), or natural (`yesterday`, `last week`) |
+| `--help`, `-h` | show help |
+
+## Pair it with an agent
+
+`listen --json` is a clean event stream — pipe it into your own tooling, or skip the
+CLI entirely and drive the same behaviour from code with
+[`runAgent`](/guide/agent#autonomous-mode) for autonomous replies.
