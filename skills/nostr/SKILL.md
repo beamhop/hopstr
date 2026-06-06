@@ -53,6 +53,14 @@ To get set up, either:
   ```
   Then show the user the **npub** (their public handle), `export NOSTR_NSEC=<the nsec>`, and tell them to save the nsec somewhere safe — it is the whole identity and cannot be recovered.
 
+  Or have hopstr persist it for you with `--save` (writes the nsec to
+  `~/.config/hopstr/config.json`, keeping any existing relays; it won't overwrite a
+  config that already has an nsec):
+  ```bash
+  hopstr id new --save --json
+  # → {"nsec":"...","npub":"...","saved":"~/.config/hopstr/config.json"}
+  ```
+
 **The nsec is a SECRET key.** Never post it, never log it, never put it in an event or a message. Sharing the `npub` is fine and expected.
 
 ## 2. Posting and interacting

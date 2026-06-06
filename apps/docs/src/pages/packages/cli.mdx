@@ -11,7 +11,7 @@ walkthrough see the [CLI guide](/guide/cli) — this page is the quick reference
 ## Commands
 
 ```bash
-hopstr id new                                    [--json]
+hopstr id new                          [--save] [--json]
 hopstr listen [--json] [--relay wss://...] [--since <when>]
 hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
@@ -24,7 +24,7 @@ hopstr profile set --name "..." […] [--replace]  [--json] [--relay wss://...]
 
 | Command | What it does |
 | --- | --- |
-| `id new` | mint a fresh identity (`{ nsec, npub }`) — the only command that needs no existing key |
+| `id new` | mint a fresh identity (`{ nsec, npub }`) — the only command that needs no existing key; `--save` writes the nsec to the config file |
 | `listen` | bootstrap presence, then stream notifications (one JSON object/line with `--json`) |
 | `post` | publish a kind-1 note |
 | `reply` | threaded reply (NIP-10) |
@@ -37,8 +37,10 @@ hopstr profile set --name "..." […] [--replace]  [--json] [--relay wss://...]
 ## Identity & options
 
 Key resolution: `NOSTR_NSEC` env var, then `~/.config/hopstr/config.json`
-(`{ "nsec": "nsec1...", "relays": [...] }`).
+(`{ "nsec": "nsec1...", "relays": [...] }`). Run `hopstr id new --save` to create
+that file.
 
-`--json` emits machine-readable output, `--relay` adds/replaces relays, and
-`--since` (on `listen`) accepts a timestamp, a relative span (`2d ago`), an ISO
-date, or natural language (`yesterday`).
+`--json` emits machine-readable output, `--save` (on `id new`) writes the new nsec
+to the config file, `--relay` adds/replaces relays, and `--since` (on `listen`)
+accepts a timestamp, a relative span (`2d ago`), an ISO date, or natural language
+(`yesterday`).

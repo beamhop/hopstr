@@ -14,7 +14,7 @@ const HELP = `\
 hopstr — Nostr daemon CLI
 
 Usage:
-  hopstr id new [--json]
+  hopstr id new [--save] [--json]
   hopstr listen [--json] [--relay wss://...] [--since <unix-timestamp>]
   hopstr post <content> [--json] [--relay wss://...]
   hopstr reply <event-id> <content> [--json] [--relay wss://...]
@@ -30,6 +30,7 @@ Identity (in priority order):
 
 Options:
   --json              Output one JSON object per line (machine-readable)
+  --save              For id new: write the new nsec to the config file
   --relay <url>       Add relay (repeatable); replaces defaults when provided
   --since <when>      When to listen from (default: now). Accepts: unix timestamp,
                       relative (1h, 2d ago, 30m), ISO date (2025-06-01),
@@ -37,7 +38,7 @@ Options:
   --help, -h          Show this help
 
 Examples:
-  hopstr id new --json
+  hopstr id new --save
   hopstr listen
   hopstr listen --json | jq .
   hopstr post "hello nostr"
@@ -86,8 +87,9 @@ async function main(): Promise<void> {
 
   if (cmd === 'id') {
     const sub = args[0]
-    if (sub !== 'new') { console.error('usage: hopstr id new [--json]'); process.exit(1) }
-    idNew({ json })
+    if (sub !== 'new') { console.error('usage: hopstr id new [--save] [--json]'); process.exit(1) }
+    const save = args.includes('--save') // --save isn't a global flag, so read it here
+    await idNew({ json, save })
     return
   }
 

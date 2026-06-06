@@ -35,11 +35,21 @@ hopstr id new --json
 ```
 
 The `nsec` is the whole identity (keep it secret); the `npub` is your public handle.
+Add `--save` to write the new nsec straight into `~/.config/hopstr/config.json` so
+you're ready to go without exporting anything:
+
+```bash
+hopstr id new --save
+# mints a key, saves it to the config file (existing relays are preserved)
+```
+
+`--save` refuses to overwrite a config that already has an `nsec`, so you can't clobber
+an existing identity by accident.
 
 ## Commands
 
 ```bash
-hopstr id new                     [--json]
+hopstr id new            [--save]  [--json]
 hopstr listen [--json] [--relay wss://...] [--since <when>]
 hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
@@ -149,6 +159,7 @@ hopstr profile set --name "Alice" --about "starting fresh" --replace
 | Flag | Meaning |
 | --- | --- |
 | `--json` | one JSON object per line (machine-readable) |
+| `--save` | for `id new`: write the new nsec to `~/.config/hopstr/config.json` |
 | `--relay <url>` | add a relay (repeatable); **replaces** the defaults when given |
 | `--since <when>` | for `listen`: where to start. Accepts a unix timestamp, relative (`1h`, `2d ago`, `30m`), ISO date (`2025-06-01`), or natural (`yesterday`, `last week`) |
 | `--help`, `-h` | show help |

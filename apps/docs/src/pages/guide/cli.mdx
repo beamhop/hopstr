@@ -38,8 +38,17 @@ hopstr id new --json
 # → {"nsec":"nsec1...","npub":"npub1..."}
 ```
 
-The `nsec` is the whole identity — keep it secret (set it as `NOSTR_NSEC` or save it
-in the config file). The `npub` is your public handle, safe to share.
+The `nsec` is the whole identity — keep it secret. The `npub` is your public handle,
+safe to share.
+
+Pass `--save` and `id new` writes the new nsec straight into the config file, so
+you're set up in one step (existing relays are kept; an existing nsec is never
+overwritten):
+
+```bash
+hopstr id new --save
+# mints a key and saves it to ~/.config/hopstr/config.json
+```
 
 ## Listen — your live notification stream
 
