@@ -26,15 +26,17 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      # Docs import each package's built dist, so build the packages first.
-      # Exclude @hopstr/docs here — we build it statically (with basePath) below.
+      # Docs import each package's built dist, so build the packages first. Use a
+      # path filter (only ./packages/*) so the docs app isn't built here — it has
+      # to build last, after the API reference exists, or its /api links are dead.
       - name: Build packages
-        run: bun run --filter='@hopstr/*' --filter='!@hopstr/docs' build
+        run: bun run --filter './packages/*' build
       - name: Generate API reference
         run: bun run --filter='@hopstr/docs' api
       - name: Build static docs
         # DOCS_BASE_PATH makes Vocs emit a full-static site under the repo subpath
-        # (https://beamhop.github.io/hopstr/).
+        # (https://beamhop.github.io/hopstr/). Runs after the API reference is
+        # generated so the /api pages exist and aren't flagged as dead links.
         env:
           DOCS_BASE_PATH: /hopstr
         run: bun run --filter='@hopstr/docs' build
