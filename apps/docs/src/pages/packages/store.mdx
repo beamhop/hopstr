@@ -1,0 +1,62 @@
+---
+title: '@nostragent/store'
+---
+
+# @nostragent/store — reactive event store
+
+An in-memory store that dedups by id, honors replaceable/addressable kinds, applies
+NIP-09 deletions and NIP-40 expiration, and streams matching events as they arrive.
+The [client](/packages/client) keeps one warm behind every subscription.
+
+## `EventStore`
+
+```ts twoslash
+import { EventStore } from '@nostragent/store'
+import { createIdentity, finalizeEvent, build } from '@nostragent/core'
+const event = finalizeEvent(build(1, 'gm'), createIdentity().secretKey)
+// ---cut---
+const store = new EventStore()
+
+store.add(event)                       // → AddResult ('added' | 'duplicate' | 'replaced' | …)
+store.get(event.id)                    // a single event by id
+store.query([{ kinds: [1] }])          // synchronous filter match → NostrEvent[]
+store.size                             // count
+```
+
+| Member | What it does |
+| --- | --- |
+| `new EventStore(options?)` | construct; `options` can inject a `StoreBackend` |
+| `add(event)` | insert with full kind semantics → `AddResult` |
+| `get(id)` | one event by id, or `undefined` |
+| `getReplaceable(coord)` | latest event for a `kind:pubkey:d` coordinate |
+| `query(filters)` | all stored events matching any filter |
+| `delete(id)` | remove an event |
+| `get size` | number of stored events |
+| `stream(filters, signal?)` | `AsyncGenerator` — existing matches, then live ones |
+
+### Live streaming
+
+`stream()` replays everything already in the store that matches, then yields new
+matches as they're added — pass an `AbortSignal` to stop:
+
+```ts twoslash
+import { EventStore } from '@nostragent/store'
+const store = new EventStore()
+const ac = new AbortController()
+// ---cut---
+for await (const event of store.stream([{ kinds: [1] }], ac.signal)) {
+  console.log(event.content)
+}
+```
+
+### Kind semantics, handled for you
+
+- **Replaceable / addressable** — a newer event supersedes the old one in place.
+- **NIP-09 deletions** (kind 5) — a delete from the author removes the target.
+- **NIP-40 expiration** — events past their `expiration` tag are dropped.
+
+`AddResult` (`'added' | 'duplicate' | 'replaced' | 'outdated' | 'deleted' |
+'expired'`) tells you which of those happened, so a UI can react precisely.
+
+Provide your own `StoreBackend` (`get` / `set` / `delete` / `values`) to back the
+store with something other than an in-memory `Map`.

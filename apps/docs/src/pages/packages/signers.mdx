@@ -1,0 +1,74 @@
+---
+title: '@nostragent/signers'
+---
+
+# @nostragent/signers — one interface, every backend
+
+A signer is *the only thing that touches a secret*. Local key, browser extension,
+or remote bunker — they all implement the same async `Signer`, so your
+publish/encrypt code never changes.
+
+## The `Signer` interface
+
+```ts twoslash
+// @noErrors
+interface Signer {
+  readonly backend: 'local' | 'nip07' | 'nip46'
+  getPublicKey(): Promise<Pubkey>
+  signEvent(template: EventTemplate): Promise<NostrEvent>  // returns the WHOLE signed event
+  nip44Encrypt(peer: Pubkey, plaintext: string): Promise<string>
+  nip44Decrypt(peer: Pubkey, ciphertext: string): Promise<string>
+  nip04Decrypt?(peer: Pubkey, ciphertext: string): Promise<string>  // legacy read-only
+  toPayload(): string   // serialize to rebuild later (never leaks a remote secret)
+}
+```
+
+`signEvent` returns the full `NostrEvent` (not a bare signature), so callers never
+reassemble it.
+
+## Backends
+
+| Factory | NIP | Use |
+| --- | --- | --- |
+| `new LocalSigner(secret)` / `privateKeySigner(secret)` | — | a key you hold (nsec / hex / bytes) |
+| `nip07Signer(provider?)` / `new Nip07Signer()` | NIP-07 | a browser extension (`window.nostr`) |
+| `bunkerSigner(uri, deps)` / `new BunkerSigner(...)` | NIP-46 | a remote signer / bunker |
+
+```ts twoslash
+import { LocalSigner } from '@nostragent/signers'
+import { createIdentity } from '@nostragent/core'
+// ---cut---
+const signer = new LocalSigner(createIdentity().secretKey)
+const pubkey = await signer.getPublicKey()
+const event = await signer.signEvent({ kind: 1, content: 'gm', tags: [] })
+```
+
+For NIP-46, `parseBunkerUri(uri)` splits a `bunker://…` connection string.
+
+## Persistence — `toPayload` / `fromPayload`
+
+`signer.toPayload()` serializes a signer to a tagged JSON string; `fromPayload(str,
+deps)` rebuilds it. Remote signers never serialize a bare secret.
+
+## Mnemonics (NIP-06)
+
+```ts twoslash
+import { generateSeedWords, privateKeyFromSeedWords, validateWords } from '@nostragent/signers'
+// ---cut---
+const words = generateSeedWords()
+validateWords(words)                                  // true
+const sk = privateKeyFromSeedWords(words)             // Uint8Array
+```
+
+Also `privateKeyHexFromSeedWords` for the hex form.
+
+## Encrypted keys at rest (NIP-49)
+
+`encryptKey(secret, password, security?)` → an `ncryptsec1…` string;
+`decryptKey` / `decryptKeyHex` reverse it. `KeySecurity` flags how the key was
+handled.
+
+## Legacy decrypt (NIP-04)
+
+`nip04Decrypt(secret, peer, ciphertext)` reads old kind-4 DMs. Read-only on
+purpose — Velvet only *sends* the modern NIP-44/NIP-17 path.

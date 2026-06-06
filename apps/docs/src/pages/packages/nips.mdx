@@ -1,0 +1,62 @@
+---
+title: '@nostragent/nips'
+---
+
+# @nostragent/nips — every NIP, tree-shakeable
+
+One focused module per NIP: a typed factory + parser (+ an action where it
+applies). Import the whole namespace or a single subpath — bundlers drop the rest.
+
+```ts twoslash
+// @noErrors
+import * as nips from '@nostragent/nips'          // everything, namespaced
+import { article } from '@nostragent/nips/nip23'   // just one NIP, tree-shaken
+```
+
+For the narrative intro (zaps end-to-end, the kind registry, the coverage test),
+see the [NIPs guide](/guide/nips). This page is the module map.
+
+## The modules
+
+| Import | NIP | Key exports |
+| --- | --- | --- |
+| `nip02` | Contact lists | `followList`, `parseFollowList`, `followedPubkeys` |
+| `nip09` | Deletions | `deleteEvents`, `deleteAddresses`, `parseDeletion` |
+| `nip10` | Threading | `parseThread`, `replyTags` |
+| `nip17` | Private DMs | `sealDirectMessage`, `openDirectMessage`, `dmRelayList` |
+| `nip18` | Reposts | `repost`, `quote`, `genericRepost`, `parseRepost` |
+| `nip23` | Long-form | `article`, `draft`, `parseArticle` |
+| `nip25` | Reactions | `react`, `customReact`, `parseReaction` |
+| `nip27` | Mentions | `referenceTags`, `findReferences` |
+| `nip47` | Wallet Connect | `buildRequest`, `parseResponse`, `payInvoice`, `parseConnectionUri` |
+| `nip51` | Lists | `buildList`, `parseList`, `addBookmark`, `addMute` (+ kind consts) |
+| `nip57` | Zaps | `zapRequest`, `zapCallbackUrl`, `parseZapReceipt`, `lud16ToUrl` |
+| `nip59` | Gift wrap | `createRumor`, `wrap`, `unwrap`, `wrapTemplate` |
+| `nip98` | HTTP Auth | `httpAuthTemplate`, `authHeader`, `validateHttpAuth` |
+
+## Clusters
+
+A few related NIPs are grouped so you import a theme, not a number:
+
+| Import | Covers | Key exports |
+| --- | --- | --- |
+| `@nostragent/nips/media` | NIP-94/92/68/71 | `fileMetadata`, `imetaTag`, `picturePost`, `videoEvent` |
+| `@nostragent/nips/moderation` | NIP-56/32/36 | `report`, `label`, `withContentWarning` |
+| `@nostragent/nips/discovery` | NIP-65/89 | `relayListMetadata`, `handlerRecommendation` |
+| `@nostragent/nips/extra` | the long tail | `searchFilter`, `appData`, `highlight`, `poll`, `comment`, `status`, `createChannel`, `classifiedListing`, `withExpiration`, `asProtected` |
+
+## The kind registry
+
+```ts twoslash
+import { kindInfo, nipsWithKinds } from '@nostragent/nips/kinds'
+// ---cut---
+kindInfo(30023)        // { kind, nip, name, class, … }
+//  ^?
+```
+
+- `kindInfo(kind)` — describe any kind
+- `KIND_REGISTRY` — the full table
+- `nipsWithKinds()` — which NIPs define kinds
+
+Every entry in the canonical NIP index resolves to a module, a kernel-stack
+feature, the registry, or an explicit parse-only note — and a meta-test asserts it.

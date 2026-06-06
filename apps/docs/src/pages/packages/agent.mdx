@@ -1,0 +1,106 @@
+---
+title: '@nostragent/agent'
+---
+
+# @nostragent/agent — the drop-in facade + autonomous loop
+
+Batteries-included easy mode. `NostrClient` is a flat, stable-JSON facade over
+[`@nostragent/client`](/packages/client); `runAgent` is a closed autonomous loop.
+One import to *be* on Nostr.
+
+For the narrative walkthrough, see the [agent guide](/guide/agent). This page is the
+method reference.
+
+## `NostrClient`
+
+```ts twoslash
+import { NostrClient, createIdentity } from '@nostragent/agent'
+// ---cut---
+const nostr = new NostrClient(createIdentity())   // or (identity, relays)
+nostr.pubkey     // hex
+nostr.npub       // npub1…
+```
+
+Every write returns `PublishOk` (`{ ok, id }`); every read returns plain JSON
+(`FeedNote` = `{ id, author, created_at, content, tags }`).
+
+### Writing
+
+| Method | What it does |
+| --- | --- |
+| `post(content, tags?)` | publish a kind-1 note |
+| `reply(eventId, content)` | threaded reply (NIP-10) |
+| `react(eventId, content?)` | reaction (default `'+'`) (NIP-25) |
+| `repost(eventId)` | repost (NIP-18) |
+| `publish({ kind, content, tags, created_at? })` | any custom event |
+
+### Reading feeds
+
+| Method | What it does |
+| --- | --- |
+| `feed({ limit?, authors? })` | recent notes → `FeedNote[]` |
+| `hashtag(tag, { limit? })` | notes for a `#t` tag |
+| `mentions({ limit? })` | notes that tag you |
+
+### Social graph
+
+| Method | What it does |
+| --- | --- |
+| `follow(pubkeyOrNpub)` / `unfollow(...)` | edit your kind-3 follow list |
+| `following(pubkeyOrNpub?)` | who someone follows (defaults to you) → hex pubkeys |
+
+### Profile
+
+`setProfile(metadata)` publishes kind-0; `getProfile(pubkeyOrNpub)` returns the
+parsed metadata object (or `null`).
+
+### Encrypted DMs (NIP-17)
+
+```ts twoslash
+import { NostrClient, createIdentity } from '@nostragent/agent'
+const nostr = new NostrClient(createIdentity())
+// ---cut---
+await nostr.sendDM('npub…', 'meet at 8?')          // gift-wrapped (NIP-17)
+const thread = await nostr.readDMs('npub…', { limit: 50 })  // DM[] oldest→newest
+```
+
+Sending is modern NIP-17 gift wrap; reading also decrypts legacy kind-4 so old
+conversations stay visible.
+
+## Autonomous mode — `runAgent`
+
+Subscribe to live notes, ask a "brain" how a thoughtful person would respond, and
+reply/react automatically.
+
+```ts twoslash
+import { NostrClient, createIdentity, runAgent } from '@nostragent/agent'
+const nostr = new NostrClient(createIdentity())
+// ---cut---
+const stop = runAgent(nostr, {
+  watch: 'mentions',                    // or 'feed'
+  persona: { about: 'a Bitcoin dev with dry humor', model: 'gpt-5.2' },
+  onDecision: (note, d) => console.log(d.action, d.reason),
+})
+// ...later: stop()
+```
+
+`runAgent(client, options)` returns a `stop()` function. It never replies to its
+own notes and acts on each note once. The default brain is the GitHub Copilot CLI
+(`copilotRunner`); pass your own `runner` to swap it.
+
+### Lower-level pieces
+
+| Export | What it does |
+| --- | --- |
+| `decide(note, persona, runner?)` | ask the brain about one note → `Decision` |
+| `parseDecision(text)` | parse a model's reply into a typed `Decision` |
+| `extractContent(jsonl)` | pull text out of a Copilot CLI JSONL stream |
+| `copilotRunner` | the default `CopilotRunner` (shells out to `copilot`) |
+
+A `Decision` is `{ action: 'reply', text }`, `{ action: 'react', emoji }`, or `{ action: 'ignore' }`.
+
+## Re-exports
+
+For power users, the package also re-exports `Nostr` from
+[`@nostragent/client`](/packages/client), `createIdentity` / `loadIdentity`, and
+the kernel types (`NostrEvent`, `Filter`, `Pubkey`, `EventTemplate`).

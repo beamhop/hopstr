@@ -1,0 +1,152 @@
+---
+title: NIP coverage
+---
+
+# NIP coverage
+
+Velvet aims to give **every NIP a home** — a dedicated factory/parser, a feature in
+the kernel stack, a generically-handled kind in the registry, or an explicit
+parse-only round-trip. This isn't a marketing claim: a
+[coverage meta-test](https://github.com/nostragent/velvet/blob/main/packages/nips/tests/coverage.test.ts)
+enumerates the entire canonical [`nostr-protocol/nips`](https://github.com/nostr-protocol/nips)
+index and asserts each one resolves to a real home. This page is that table, rendered.
+
+## Legend
+
+| Mark | Meaning |
+| --- | --- |
+| 🟢 **Module** | A dedicated typed factory + parser in [`@nostragent/nips`](/packages/nips) |
+| 🔵 **Kernel** | First-class feature in [core](/packages/core) / [signers](/packages/signers) / [relay](/packages/relay) / [pool](/packages/pool) / [router](/packages/router) / [store](/packages/store) / [client](/packages/client) |
+| ⚪ **Registry** | The kind is in the [kind registry](/packages/nips#the-kind-registry) — classifiable & renderable generically |
+| ◽ **Parse-only** | Reserved-kind round-trip at v1 (typically a heavy external spec) |
+
+Many NIPs carry more than one mark — e.g. NIP-40 has a builder *and* store-level
+expiry; NIP-65 has a module *and* the router.
+
+## Module NIPs — dedicated builders & parsers
+
+Import the whole namespace or a single subpath: `import { article } from
+'@nostragent/nips/nip23'`.
+
+| NIP | Title | Import | Key exports |
+| --- | --- | --- | --- |
+| 🟢 02 | Follow List | `@nostragent/nips/nip02` | `followList`, `parseFollowList`, `followedPubkeys` |
+| 🟢 05 | DNS identifiers | `@nostragent/nips/discovery` | `resolveNip05`, `verifyNip05` |
+| 🟢 08 | Mentions (legacy) | `@nostragent/nips/nip27` | parsed → re-emitted as NIP-27 |
+| 🟢 09 | Event Deletion | `@nostragent/nips/nip09` | `deleteEvents`, `deleteAddresses`, `parseDeletion` |
+| 🟢 10 | Text Notes & Threads | `@nostragent/nips/nip10` | `parseThread`, `replyTags` |
+| 🟢 14 | Subject tag | `@nostragent/nips/extra` | `withSubject` |
+| 🟢 17 | Private DMs | `@nostragent/nips/nip17` | `sealDirectMessage`, `openDirectMessage`, `dmRelayList` |
+| 🟢 18 | Reposts | `@nostragent/nips/nip18` | `repost`, `quote`, `genericRepost`, `parseRepost` |
+| 🟢 22 | Comment | `@nostragent/nips/extra` | `comment` |
+| 🟢 23 | Long-form | `@nostragent/nips/nip23` | `article`, `draft`, `parseArticle` |
+| 🟢 25 | Reactions | `@nostragent/nips/nip25` | `react`, `customReact`, `parseReaction` |
+| 🟢 27 | Text Note References | `@nostragent/nips/nip27` | `referenceTags`, `findReferences` |
+| 🟢 28 | Public Chat | `@nostragent/nips/extra` | `createChannel`, `channelMessage` |
+| 🟢 30 | Custom Emoji | `@nostragent/nips/nip25` | `customReact` (emoji tags) |
+| 🟢 32 | Labeling | `@nostragent/nips/moderation` | `label`, `parseLabels` |
+| 🟢 36 | Sensitive Content | `@nostragent/nips/moderation` | `withContentWarning`, `contentWarning` |
+| 🟢 38 | User Statuses | `@nostragent/nips/extra` | `status` |
+| 🟢 40 | Expiration | `@nostragent/nips/extra` | `withExpiration` |
+| 🟢 47 | Wallet Connect | `@nostragent/nips/nip47` | `buildRequest`, `parseResponse`, `payInvoice` |
+| 🟢 50 | Search | `@nostragent/nips/extra` | `searchFilter` |
+| 🟢 51 | Lists | `@nostragent/nips/nip51` | `buildList`, `parseList`, `addBookmark`, `addMute` |
+| 🟢 56 | Reporting | `@nostragent/nips/moderation` | `report`, `parseReport` |
+| 🟢 57 | Zaps | `@nostragent/nips/nip57` | `zapRequest`, `zapCallbackUrl`, `parseZapReceipt` |
+| 🟢 59 | Gift Wrap | `@nostragent/nips/nip59` | `createRumor`, `wrap`, `unwrap` |
+| 🟢 65 | Relay List | `@nostragent/nips/discovery` | `relayListMetadata` (+ [router](/packages/router)) |
+| 🟢 68 | Picture feeds | `@nostragent/nips/media` | `picturePost` |
+| 🟢 70 | Protected Events | `@nostragent/nips/extra` | `asProtected`, `isProtected` |
+| 🟢 71 | Video | `@nostragent/nips/media` | `videoEvent` |
+| 🟢 78 | App data | `@nostragent/nips/extra` | `appData`, `parseAppData` |
+| 🟢 84 | Highlights | `@nostragent/nips/extra` | `highlight` |
+| 🟢 88 | Polls | `@nostragent/nips/extra` | `poll`, `pollResponse` |
+| 🟢 89 | App Handlers | `@nostragent/nips/discovery` | `handlerRecommendation`, `parseHandlerInfo` |
+| 🟢 92 | imeta | `@nostragent/nips/media` | `imetaTag`, `parseImeta` |
+| 🟢 94 | File Metadata | `@nostragent/nips/media` | `fileMetadata`, `parseFileMetadata` |
+| 🟢 98 | HTTP Auth | `@nostragent/nips/nip98` | `httpAuthTemplate`, `authHeader`, `validateHttpAuth` |
+| 🟢 99 | Classifieds | `@nostragent/nips/extra` | `classifiedListing` |
+
+## Kernel NIPs — built into the stack
+
+These are protocol-level features that live in the core packages, not the NIP
+catalog.
+
+| NIP | Title | Package | Where |
+| --- | --- | --- | --- |
+| 🔵 01 | Basic protocol flow | [core](/packages/core) | event model, ids, serialization, filters |
+| 🔵 04 | Encrypted DMs (legacy) | [signers](/packages/signers) | `nip04Decrypt` (read-only) |
+| 🔵 06 | Key derivation | [signers](/packages/signers) | `privateKeyFromSeedWords`, `generateSeedWords` |
+| 🔵 07 | window.nostr | [signers](/packages/signers) | `Nip07Signer` (+ [client](/packages/client)) |
+| 🔵 11 | Relay Information | [relay](/packages/relay) | `fetchRelayInformation`, `supportsNip` |
+| 🔵 13 | Proof of Work | [core](/packages/core) | `mine`, `countLeadingZeroBits` |
+| 🔵 19 | bech32 entities | [core](/packages/core) | `nip19` (`encodeNpub`/`decodeNpub`/…/`decode`) |
+| 🔵 21 | nostr: URI | [core](/packages/core) | `nip21` |
+| 🔵 24 | Extra metadata | [core](/packages/core) | extra kind-0 fields (+ registry) |
+| 🔵 40 | Expiration | [store](/packages/store) | event expiry on `add` (+ `extra` builder) |
+| 🔵 42 | Auth | [relay](/packages/relay) | NIP-42 AUTH, `buildAuthTemplate` (kind 22242) |
+| 🔵 44 | Encrypted Payloads | [core](/packages/core) | `nip44` (the modern DM/seal primitive) |
+| 🔵 45 | Counting | [relay](/packages/relay) / [pool](/packages/pool) | `COUNT` |
+| 🔵 46 | Remote Signing | [signers](/packages/signers) | `BunkerSigner` (+ [client](/packages/client)) |
+| 🔵 49 | Private Key Encryption | [signers](/packages/signers) | `encryptKey` / `decryptKey` (`ncryptsec`) |
+| 🔵 50 | Search | [core](/packages/core) | `filter.search` (+ `extra.searchFilter`) |
+| 🔵 62 | Request to Vanish | [store](/packages/store) | best-effort vanish (+ registry kind 62) |
+| 🔵 65 | Relay List | [router](/packages/router) | NIP-65 outbox routing (+ `discovery` module) |
+| 🔵 66 | Relay Monitoring | [router](/packages/router) | monitor announcements as router input |
+| 🔵 73 | External Content IDs | [core](/packages/core) | `i`-tag |
+| 🔵 77 | Negentropy | [pool](/packages/pool) | set-reconciliation sync |
+
+## Registry & parse-only NIPs
+
+These NIPs are covered generically: their kinds are in the
+[kind registry](/packages/nips#the-kind-registry) (so they're classified and
+renderable), and/or they round-trip as reserved kinds at v1. Reach for
+`kindInfo(kind)` to describe any of them.
+
+| NIP | Title | Coverage |
+| --- | --- | --- |
+| ◽ 03 | OpenTimestamps | registry (kind 1040) + parse-only |
+| ◽ 15 | Marketplace | registry (kinds 30017–30020) + parse-only (deprecated) |
+| ◽ 26 | Delegation | parse-only (discouraged) |
+| ◽ 29 | Relay Groups | registry (kind 10009) + parse-only |
+| 🔵 31 | Alt tag | kernel (`alt` tag) + registry |
+| ◽ 34 | git | registry (git kinds) + parse-only |
+| ◽ 35 | Torrents | registry (torrent kinds) + parse-only |
+| ◽ 37 | Draft Events | registry (kind 31234) + parse-only |
+| ◽ 39 | External Identities | registry (kind 10011) + parse-only |
+| ◽ 43 | Relay Access Metadata | registry + parse-only |
+| ◽ 48 | Bridged Events | parse-only (proxy tag) |
+| ◽ 52 | Calendar | registry (calendar kinds) + parse-only |
+| ◽ 53 | Live Streaming | registry (live event kinds) + parse-only |
+| ◽ 54 | Wiki | registry (wiki kinds) + parse-only |
+| ◽ 55 | Android Signer | signers (interface-shaped) + parse-only |
+| ◽ 58 | Badges | registry (badge kinds) + parse-only |
+| ◽ 5A | nsites | registry (nsite kinds) + parse-only |
+| ◽ 60 | Cashu Wallet | registry (cashu kinds) + parse-only |
+| ◽ 61 | Nutzaps | registry (nutzap kinds) + parse-only |
+| ◽ 64 | Chess | registry (kind 64) + parse-only |
+| ◽ 69 | P2P Orders | registry (kind 38383) + parse-only |
+| ◽ 72 | Communities | registry (kinds 4550/34550) + parse-only |
+| ◽ 75 | Zap Goals | registry (kind 9041) + parse-only |
+| ◽ 7D | Forum Threads | registry (kind 11) + parse-only |
+| ◽ 85 | Trusted Assertions | registry (assertion kinds) + parse-only |
+| ◽ 86 | Relay Management API | parse-only (uses NIP-98 auth) |
+| ◽ 87 | Cashu Discoverability | registry (mint announcement kinds) + parse-only |
+| ◽ A0 | Voice Messages | registry (voice kinds) + parse-only |
+| ◽ A4 | Public Messages | registry (kind 24) + parse-only |
+| ◽ B0 | Web Bookmarks | registry (kind 39701) + parse-only |
+| ◽ B7 | Blossom | registry (blossom kinds) + parse-only |
+| ◽ C0 | Code Snippets | registry (kind 1337) + parse-only |
+| ◽ C7 | Chats | registry (kind 9) + parse-only |
+| ◽ CC | Geocaching | registry (geocache kinds) + parse-only |
+| ◽ F4 | Podcasts | registry (podcast kinds) + parse-only |
+
+## Verifying coverage yourself
+
+```bash
+bun test packages/nips/tests/coverage.test.ts
+```
+
+The test fails if any canonical NIP lacks a home, if the home table lists a NIP
+that no longer exists upstream, or if a NIP claimed as a module stops exporting
+anything — so this page can't quietly drift from what the code actually ships.

@@ -1,0 +1,93 @@
+---
+title: '@nostragent/core'
+---
+
+# @nostragent/core — the pure Nostr kernel
+
+Zero dependencies on the rest of Velvet. Owns the event model, NIP-01 ids and
+schnorr signing, the primitive codecs, and NIP-19/21/44. Everything else is built
+on top of this.
+
+```ts twoslash
+// @noErrors
+import {
+  createIdentity, finalizeEvent, verifyEvent, build, buildNote,
+  parsePubkey, classifyKind, nip19,
+} from '@nostragent/core'
+```
+
+## Identities
+
+| Function | Returns |
+| --- | --- |
+| `createIdentity()` | `{ secretKey, pubkey, npub, nsec }` — a fresh random key |
+| `loadIdentity(nsec \| hex \| bytes)` | the same `Identity` from existing material |
+| `npubOf(pubkey)` | the bech32 `npub` for a hex pubkey |
+| `secretHex(identity)` | the hex secret key |
+
+```ts twoslash
+import { createIdentity } from '@nostragent/core'
+// ---cut---
+const me = createIdentity()
+me.npub  // npub1…
+//   ^?
+```
+
+## Building & signing events
+
+`build(kind, content?)` and `buildNote(content?)` return a chainable
+`TemplateBuilder` (`.tag()`, `.addTags()`, `.text()`, `.at()`, `.mention()`,
+`.replyTo()`). The builder *is* an `EventTemplate`, so a signer can consume it
+directly.
+
+```ts twoslash
+import { build, finalizeEvent, verifyEvent, createIdentity } from '@nostragent/core'
+const sk = createIdentity().secretKey
+// ---cut---
+const template = build(1, 'gm').tag('t', 'coffee')
+const event = finalizeEvent(template, sk)   // hashes, signs, brands → NostrEvent
+verifyEvent(event)                          // true
+```
+
+Lower-level helpers: `serializeEvent`, `getEventHash`, `getPublicKey`, `hasValidId`.
+
+## Classifying kinds
+
+`classifyKind(kind)` → `'regular' | 'replaceable' | 'ephemeral' | 'addressable'`,
+with the predicates `isReplaceable`, `isEphemeral`, `isAddressable`,
+`isParameterizedReplaceable`, and `addressOf(event)` for the `kind:pubkey:d` coord.
+
+## Filters
+
+`matchFilter(filter, event)` / `matchFilters(filters, event)` evaluate a NIP-01
+`Filter` locally (used by the store and for client-side checks).
+
+## Primitives & encodings
+
+Byte/hex/base64 codecs (`bytesToHex`, `hexToBytes`, `utf8ToBytes`, `base64`,
+`sha256`, `randomBytes`), branded parsers (`parsePubkey`, `parseEventId`,
+`parseSignature`, `parseSecretKeyHex`, `toSecretBytes`), and the `isHex64` guard.
+
+## NIP-19 / 21 / 44
+
+Re-exported as namespaces, also available as tree-shakeable subpaths
+(`@nostragent/core/nip19`, etc.):
+
+```ts twoslash
+import { nip19, createIdentity } from '@nostragent/core'
+const pubkey = createIdentity().pubkey
+// ---cut---
+const npub = nip19.encodeNpub(pubkey)
+const back = nip19.decodeNpub(npub)         // → hex pubkey
+const decoded = nip19.decode(npub)          // → { type, data } for any entity
+```
+
+- `nip19` — bech32 `npub`/`nsec`/`note`/`nprofile`/`nevent`/`naddr` encode + decode
+  (`encodeNpub`/`decodeNpub`, `encodeNevent`/`decodeNevent`, …, plus a generic `decode`)
+- `nip21` — `nostr:` URI parsing
+- `nip44` — versioned encrypted payloads (the modern DM/sealing primitive)
+
+## Proof of work (NIP-13)
+
+`mine(template, difficulty)` grinds a `nonce` tag to the target leading-zero-bit
+count; `countLeadingZeroBits(hex)` measures it.

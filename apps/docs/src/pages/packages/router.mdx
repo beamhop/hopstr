@@ -1,0 +1,55 @@
+---
+title: '@nostragent/router'
+---
+
+# @nostragent/router — NIP-65 outbox routing
+
+The gossip/outbox model: read each author from *their* write relays, publish so
+each recipient sees it on *their* read relays. The [client](/packages/client) wires
+this in automatically — use `Router` directly to compute relay selections yourself.
+
+See the [Outbox routing guide](/guide/outbox) for the why.
+
+## `Router`
+
+A `Router` is built from a `RouterPolicy` — your source of per-pubkey relay lists:
+
+```ts twoslash
+// @noErrors
+interface RouterPolicy {
+  getPubkeyRelays(pubkey: Pubkey, use: 'read' | 'write'): string[]
+  getDefaultRelays(): string[]
+  getRelayQuality?(url: string): number   // optional ranking
+  getLimit?(): number                      // optional cap on relays/selection
+}
+```
+
+```ts twoslash
+// @noErrors
+import { Router } from '@nostragent/router'
+const policy = {} as any
+// ---cut---
+const router = new Router(policy)
+
+router.forPubkeys([alice, bob])   // where to READ these authors → Selection[]
+router.toPubkeys([alice, bob])    // where to REACH these recipients → Selection[]
+router.publishEvent(author, mentionedPubkeys)  // relay URLs to publish an event to
+```
+
+A `Selection` is `{ relay, pubkeys }` — a relay paired with the authors it covers.
+`forPubkeys`/`toPubkeys` solve a set-cover so you hit the fewest relays that still
+reach everyone.
+
+## Relay lists (NIP-65)
+
+| Function | What it does |
+| --- | --- |
+| `parseRelayList(event)` | a kind-10002 event → `RelayListEntry[]` |
+| `readRelays(entries)` / `writeRelays(entries)` | filter to read / write URLs |
+| `normalizeRelayUrl(url)` | canonical form (for dedup) |
+
+## Relay hints
+
+`hintsFromTags(tags)` and `hintsFromPointer(pointer)` pull relay hints out of event
+tags and NIP-19 pointers, so a `Router` can route even before it has a full relay
+list for a pubkey.

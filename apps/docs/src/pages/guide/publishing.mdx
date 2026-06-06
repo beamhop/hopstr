@@ -50,7 +50,76 @@ const event = await pub.event()            // already in the local store
 pub.undo()                                 // rolls it back, before the network send
 ```
 
-## Any event kind
+## Custom events
+
+`publish()` takes any **event template** — a `{ kind, tags, content }` object. The
+signer fills in `pubkey`, `created_at`, `id`, and `sig`, so you only describe the
+event itself. That's all you need to publish a kind Velvet has never heard of.
+
+### With the fluent builder
+
+`build(kind, content?)` from `@nostragent/core` is the ergonomic way. Every method
+chains, and the builder is itself a valid template, so you can hand it straight to
+`publish()`.
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+import { build } from '@nostragent/core'
+const nostr = await Nostr.create()
+// ---cut---
+await nostr.publish(
+  build(30078, 'my app data')      // kind 30078: arbitrary app-specific data (NIP-78)
+    .tag('d', 'settings')          // a 'd' tag makes it addressable/replaceable
+    .tag('t', 'velvet')
+)
+```
+
+Handy builder methods: `.tag(...values)` for a raw tag, `.addTags([...])` for
+several, `.text(content)`, `.mention(pubkey)`, and `.at(created_at)` to pin the
+timestamp (otherwise the signer stamps "now").
+
+### From a raw object
+
+If you'd rather not import anything, pass the template literally:
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+await nostr.publish({
+  kind: 30078,
+  content: JSON.stringify({ theme: 'dark', relays: 3 }),
+  tags: [
+    ['d', 'settings'],   // identifier for an addressable (NIP-33) event
+    ['t', 'velvet'],
+  ],
+})
+```
+
+JSON-in-content is a common convention — set `content` to your stringified payload
+and reach for tags only for the fields you want relays to index and filter on.
+
+### Reading it back
+
+A custom kind is queried like any other event — by `kinds`, and for addressable
+events by the `d` tag via `#d`:
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+const me = await nostr.pubkey()
+// ---cut---
+const settings = await nostr.queryOne({
+  kinds: [30078],
+  authors: [me],
+  '#d': ['settings'],
+})
+```
+
+## NIP helpers
+
+For well-known kinds, `@nostragent/nips` ships typed builders so you don't hand-roll
+the tags:
 
 ```ts twoslash
 import { Nostr } from '@nostragent/client'

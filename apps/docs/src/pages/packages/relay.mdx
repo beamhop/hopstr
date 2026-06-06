@@ -1,0 +1,60 @@
+---
+title: '@nostragent/relay'
+---
+
+# @nostragent/relay — one resilient connection
+
+A single, self-healing connection to a single relay: auto-reconnect with backoff,
+NIP-11 capability discovery, and NIP-42 AUTH. The [pool](/packages/pool) layers
+many of these together — reach for `Relay` directly only when you want raw control.
+
+## `Relay`
+
+```ts twoslash
+import { Relay } from '@nostragent/relay'
+import { build, finalizeEvent, createIdentity } from '@nostragent/core'
+const signedEvent = finalizeEvent(build(1, 'gm'), createIdentity().secretKey)
+// ---cut---
+const relay = new Relay('wss://relay.damus.io')
+await relay.connect()
+relay.state                       // 'connecting' | 'open' | 'closed' | …
+await relay.publish(signedEvent)  // → Promise<PublishResult>
+relay.close()
+```
+
+| Member | What it does |
+| --- | --- |
+| `new Relay(url, options?)` | construct; `options` can inject a `WebSocketFactory` |
+| `connect()` | open (idempotent); resolves when the socket is ready |
+| `get state` | the current `ConnectionState` |
+| `publish(event)` | send an `EVENT`, resolve with the relay's `OK` |
+| `subscribe(filters, handlers)` | open a `REQ`; `handlers` get `event` / `eose` / `closed` |
+| `close()` | tear the connection down |
+
+`RelayOptions` covers reconnect backoff, AUTH behavior, and a custom
+`WebSocketLike` factory for non-browser runtimes.
+
+## Messages
+
+Low-level NIP-01 wire helpers, if you're building your own transport:
+
+- `parseRelayMessage(data)` → a typed `RelayMessage` (`EVENT` / `OK` / `EOSE` / …)
+- `serializeClientMessage(msg)` → the JSON to send
+- `reasonPrefix(reason)` → the NIP-01 machine-readable `ReasonPrefix`
+
+## NIP-11 relay info
+
+```ts twoslash
+import { fetchRelayInformation, supportsNip } from '@nostragent/relay'
+// ---cut---
+const info = await fetchRelayInformation('wss://relay.damus.io')
+supportsNip(info, 50)          // does it support NIP-50 search?
+```
+
+`infoUrl(wssUrl)` builds the `https` document URL; `clampLimit(info, n)` caps a
+requested limit to what the relay advertises.
+
+## NIP-42 AUTH
+
+`buildAuthTemplate(relayUrl, challenge)` produces the kind-22242 template to sign
+when a relay challenges you.

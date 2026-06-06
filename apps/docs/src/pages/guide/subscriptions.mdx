@@ -5,48 +5,220 @@ title: Subscriptions
 # Subscriptions
 
 Velvet ships exactly **one** subscribe method, and what it returns is both an
-`AsyncIterable<NostrEvent>` and a little promise-shaped collector. No RxJS, no
+`AsyncIterable<NostrEvent>` and a small promise-shaped collector. No RxJS, no
 subscription-id bookkeeping, no `subscribe`/`subscribeMany`/`subscribeMap` sprawl.
 
-## Loop over live events
+A subscription has two phases, just like the protocol:
+
+1. **Stored events** — everything already on the relays that matches your filter,
+   delivered until the relay says **EOSE** ("end of stored events").
+2. **Live events** — new matching events as they arrive, until you stop listening.
+
+The collector helpers (`.all()`, `.first()`, `.take()`) stop at phase 1; iterating
+or listening keeps you in phase 2 until you `break`, `close()`, or abort.
+
+## The whole API
 
 ```ts twoslash
 import { Nostr } from '@nostragent/client'
 const nostr = await Nostr.create()
-const alice = 'npub…'
 // ---cut---
-for await (const note of nostr.notes({ authors: [alice] })) {
-  console.log(note.content)
-  if (note.content.includes('stop')) break   // break sends CLOSE — no leak
+const sub = nostr.subscribe({ kinds: [1], limit: 20 })
+
+// pick ONE way to consume it:
+await sub.all()        // → NostrEvent[]  collect to EOSE, then close
+await sub.first()      // → NostrEvent | null  the first match, then close
+await sub.take(5)      // → NostrEvent[]  the first 5, then close
+for await (const e of sub) { /* live loop */ break }   // break = close
+sub.on('event', (e) => {})    // callback style; returns an unsubscribe fn
+sub.close()            // stop now (sends CLOSE to every relay)
+```
+
+`subscribe(filter, options?)` takes any NIP-01 `Filter`. `options` are
+`{ relays?, signal? }`: `relays` overrides outbox routing, `signal` is an
+`AbortSignal` that closes the subscription when aborted.
+
+There's also `nostr.notes(filter?, options?)` — sugar for
+`subscribe({ kinds: [1], ...filter })`.
+
+## Example: a one-shot query
+
+Collect a page of recent notes and stop. `.all()` waits for EOSE, then closes the
+subscription for you.
+
+```ts twoslash
+// @noErrors
+import { Nostr } from '@nostragent/client'
+
+const nostr = await Nostr.create({ relays: ['wss://relay.damus.io'] })
+
+// Grab the 20 most recent notes that mention #nostr, to EOSE.
+const notes = await nostr.notes({ '#t': ['nostr'], limit: 20 }).all()
+
+for (const note of notes) {
+  console.log(new Date(note.created_at * 1000).toISOString(), note.content)
 }
+console.log(`got ${notes.length} notes`)
+
+nostr.close()   // drop every relay connection when you're done
 ```
 
-## One-shot collectors
+For the common cases there are even shorter forms — `nostr.query(filter)` is
+exactly `subscribe(filter).all()`, and `nostr.queryOne(filter)` returns the single
+newest match (or `null`):
 
 ```ts twoslash
+// @noErrors
 import { Nostr } from '@nostragent/client'
 const nostr = await Nostr.create()
-const alice = 'npub…'
 // ---cut---
-const recent = await nostr.notes({ kinds: [1], limit: 20 }).all()   // to EOSE
-const first = await nostr.subscribe({ kinds: [1] }).first()         // the first match, or null
-const some = await nostr.subscribe({ kinds: [1] }).take(5)          // the first 5, then close
+const profile = await nostr.queryOne({ kinds: [0], authors: [somePubkey] })
+const lastTen = await nostr.query({ kinds: [1], authors: [somePubkey], limit: 10 })
 ```
 
-## Cancel with a signal
+## Example: a live feed with `for await`
+
+Iterate to process events as they arrive. Stored events come first (up to EOSE),
+then it stays open streaming live ones until you `break` — which sends `CLOSE` to
+the relays, so there's no leak.
 
 ```ts twoslash
+// @noErrors
+import { Nostr } from '@nostragent/client'
+
+const nostr = await Nostr.create()
+const me = await nostr.pubkey()
+
+console.log('watching my mentions — Ctrl-C to quit')
+
+// kind-1 notes that tag me, newest first.
+for await (const note of nostr.notes({ '#p': [me] })) {
+  console.log(`@${note.pubkey.slice(0, 8)}: ${note.content}`)
+
+  if (note.content.toLowerCase().includes('unsubscribe')) {
+    console.log('asked to stop — closing the subscription')
+    break   // leaves the loop AND tears down the relay subscriptions
+  }
+}
+
+nostr.close()
+```
+
+### Separating "stored" from "live"
+
+If you want to render a backlog first and only then react to new events, listen for
+`eose`. Everything before it is history; everything after is live.
+
+```ts twoslash
+// @noErrors
 import { Nostr } from '@nostragent/client'
 import type { NostrEvent } from '@nostragent/core'
+
 const nostr = await Nostr.create()
-declare function render(e: NostrEvent): void
-// ---cut---
-const ac = new AbortController()
-const sub = nostr.subscribe({ kinds: [1] }, { signal: ac.signal })
-sub.on('event', (e) => render(e as NostrEvent))
-// ...later
-ac.abort()                                  // closes the subscription
+
+const sub = nostr.notes({ limit: 50 })
+let live = false
+
+sub.on('eose', () => {
+  live = true
+  console.log('--- caught up; now streaming live ---')
+})
+
+sub.on('event', (e) => {
+  const note = e as NostrEvent
+  console.log(live ? '🔴 live' : '📜 backlog', note.content.slice(0, 60))
+})
+
+// later, when this view goes away:
+// sub.close()
 ```
 
-Events flowing through a subscription are **verified** (id + signature) before
-delivery and mirrored into the client's reactive store automatically.
+## Example: callbacks for a UI
+
+When you're wiring a subscription into a component instead of a loop, use `.on()`.
+Each call returns an **unsubscribe** function, and `.close()` ends the whole
+subscription. This sketch shows the typical mount/unmount shape.
+
+```ts twoslash
+// @noErrors
+import { Nostr } from '@nostragent/client'
+import type { NostrEvent } from '@nostragent/core'
+
+declare function renderNote(e: NostrEvent): void
+declare function showSpinner(on: boolean): void
+
+const nostr = await Nostr.create()
+
+function mountFeed() {
+  showSpinner(true)
+
+  const sub = nostr.notes({ limit: 30 })
+  const offEvent = sub.on('event', (e) => renderNote(e as NostrEvent))
+  const offEose = sub.on('eose', () => showSpinner(false))
+
+  // return a cleanup function for unmount
+  return () => {
+    offEvent()
+    offEose()
+    sub.close()   // closing alone also stops delivery; the off* calls are belt-and-suspenders
+  }
+}
+
+const teardown = mountFeed()
+// ...on unmount: teardown()
+```
+
+## Example: cancelling with an `AbortSignal`
+
+Pass a `signal` to tie a subscription's lifetime to something you already cancel
+elsewhere — a request, a timeout, a route change. Aborting closes it.
+
+```ts twoslash
+// @noErrors
+import { Nostr } from '@nostragent/client'
+import type { NostrEvent } from '@nostragent/core'
+
+declare function render(e: NostrEvent): void
+const nostr = await Nostr.create()
+
+const ac = new AbortController()
+
+// auto-stop after 10 seconds
+setTimeout(() => ac.abort(), 10_000)
+
+const sub = nostr.subscribe({ kinds: [1] }, { signal: ac.signal })
+sub.on('event', (e) => render(e as NostrEvent))
+
+// calling ac.abort() anywhere else also closes it cleanly
+```
+
+## Example: routing a subscription to specific relays
+
+By default, reads are routed by the [outbox model](/guide/outbox) — each author is
+queried on the relays *they* publish to. Pass `relays` to override that and hit an
+exact set instead (handy for a search relay, a private relay, or testing).
+
+```ts twoslash
+// @noErrors
+import { Nostr } from '@nostragent/client'
+
+const nostr = await Nostr.create()
+
+// NIP-50 search on a relay that supports it — bypass outbox routing.
+const results = await nostr
+  .subscribe({ kinds: [1], search: 'zaps', limit: 20 }, { relays: ['wss://relay.nostr.band'] })
+  .all()
+
+console.log(`${results.length} hits`)
+```
+
+## What you get for free
+
+Every event a subscription delivers is **verified** — its id is recomputed and its
+schnorr signature checked — before you ever see it. Invalid events are dropped, so
+you never hand-roll verification.
+
+Delivered events are also mirrored into the client's reactive
+[store](/packages/store), which dedups across relays. So overlapping subscriptions
+don't double-deliver the same event id, and a follow-up `nostr.query(...)` can be
+served warm from what you've already seen.

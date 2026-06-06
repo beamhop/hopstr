@@ -1,0 +1,98 @@
+---
+title: '@nostragent/client'
+---
+
+# @nostragent/client — the high-level `Nostr` client
+
+Configure once, then read and write. `Nostr` wires a [pool](/packages/pool),
+[router](/packages/router), [store](/packages/store), and
+[signer](/packages/signers) together, with NIP-65 outbox routing on by default.
+This is the package most apps import.
+
+## Creating a client
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+// ---cut---
+const nostr = await Nostr.create()                 // fresh random key
+const withKey = await Nostr.create({ secretKey: 'nsec1…' })
+const readOnly = await Nostr.create({ readOnly: true })  // reading works; signing throws
+```
+
+`NostrOptions`: `signer`, `secretKey`, `relays`, `outbox` (default `true`), `pool`,
+`store`, `readOnly`. `Nostr.fromOptions(...)` is the synchronous form when you
+already hold a signer or secret. `DEFAULT_RELAYS` is the sane public set used when
+you pass none.
+
+`nostr.pool`, `nostr.store`, `nostr.router`, and `nostr.relays` are exposed for
+direct access; `await nostr.pubkey()` returns your public key.
+
+## Writing
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+await nostr.note('gm')                              // kind-1 text note
+await nostr.publish({ kind: 30078, content: '…', tags: [['d', 'settings']] })
+```
+
+| Method | What it does |
+| --- | --- |
+| `note(content, tags?)` | publish a kind-1 note → `PublishThunk` |
+| `publish(template)` | sign + publish any event template → `PublishThunk` |
+
+See the [Publishing guide](/guide/publishing) for custom events and the thunk
+ergonomics below.
+
+### `PublishThunk`
+
+`publish()` signs the event and adds it to the local store *immediately*, but
+defers the network send until you `await` it — so the chained options run first:
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+const pub = nostr.note('hello')
+await pub.event()                        // the signed event (already in the store)
+await pub.to(['wss://my.relay']).timeout(8_000)   // override relays + per-publish timeout
+// pub.undo()                            // roll back the optimistic add before sending
+await nostr.note('must land').orThrow()  // throw only if EVERY relay rejected
+```
+
+Awaiting a thunk resolves to `PoolPublishResult[]` — `{ relay, ok, reason }` per
+relay.
+
+## Reading
+
+```ts twoslash
+import { Nostr } from '@nostragent/client'
+const nostr = await Nostr.create()
+// ---cut---
+const feed = nostr.notes({ limit: 20 })            // live kind-1 subscription
+for await (const note of feed) { console.log(note.content); break }
+
+const recent = await nostr.query({ kinds: [1], limit: 50 })  // one-shot to EOSE
+const latest = await nostr.queryOne({ kinds: [0], authors: ['…'] })  // newest single
+```
+
+| Method | What it does |
+| --- | --- |
+| `subscribe(filter, options?)` | live `Subscription`, mirrored into the store |
+| `notes(filter?, options?)` | sugar for `subscribe({ kinds: [1], … })` |
+| `query(filter, options?)` | collect to EOSE → `NostrEvent[]` |
+| `queryOne(filter, options?)` | newest single event, or `null` |
+
+`options` accepts `relays` (override routing) and a `signal` to cancel. With outbox
+on, reads are routed to each author's write relays automatically.
+
+## Profiles
+
+`profile(pubkey)` fetches and caches a kind-0 event; `clearProfileCache()` empties
+the cache. `close()` tears down every relay connection.
+
+## Outbox routing
+
+`storeBackedPolicy(store, relays)` builds the [`RouterPolicy`](/packages/router)
+the client uses by default — it reads NIP-65 relay lists straight out of the store.

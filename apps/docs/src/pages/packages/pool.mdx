@@ -1,0 +1,63 @@
+---
+title: '@nostragent/pool'
+---
+
+# @nostragent/pool — many relays, one API
+
+The `Pool` manages a set of [`Relay`](/packages/relay) connections, dedups events
+across them, and hands back async-iterable `Subscription`s. The high-level
+[client](/packages/client) wraps a pool with routing and a store — use the pool
+directly when you want relays without the rest.
+
+## `Pool`
+
+```ts twoslash
+import { Pool } from '@nostragent/pool'
+const relays = ['wss://relay.damus.io', 'wss://nos.lol']
+// ---cut---
+const pool = new Pool()
+
+// one-shot query to EOSE, deduped across relays
+const notes = await pool.query(relays, { kinds: [1], limit: 20 })
+
+// newest single event
+const latest = await pool.queryOne(relays, { kinds: [0], authors: ['…'] })
+```
+
+| Method | What it does |
+| --- | --- |
+| `new Pool(options?)` | construct; `options` can set a URL normalizer + relay defaults |
+| `relay(url)` | get (or open) the underlying `Relay` for a URL |
+| `get urls` | the relay URLs currently in the pool |
+| `subscribe(relays, filters, options?)` | live `Subscription` across all of `relays` |
+| `query(relays, filter, options?)` | collect to EOSE → `NostrEvent[]` |
+| `queryOne(relays, filter, options?)` | newest single event, or `null` |
+| `publish(relays, event)` | send to every relay → `PoolPublishResult[]` |
+| `close()` | close every connection |
+
+`PoolPublishResult` is `{ relay, ok, reason }` per relay — partial success is
+normal.
+
+## `Subscription`
+
+`subscribe()` returns a `Subscription` that is an `AsyncIterable<NostrEvent>` *and*
+an event emitter:
+
+```ts twoslash
+import { Pool } from '@nostragent/pool'
+const pool = new Pool()
+const relays = ['wss://relay.damus.io']
+// ---cut---
+const sub = pool.subscribe(relays, [{ kinds: [1] }])
+
+for await (const event of sub) {     // async iteration
+  console.log(event.content)
+  break
+}
+
+const off = sub.on('eose', () => {}) // 'event' | 'eose' | 'close'; returns an unsubscribe
+const all = await sub.all()          // drain to EOSE
+sub.close()
+```
+
+Pass an `AbortSignal` via the subscribe `options` to cancel from the outside.
