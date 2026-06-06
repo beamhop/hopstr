@@ -27,6 +27,8 @@ const feed = await nostr.feed({ limit: 20 })       // [{ id, author, created_at,
 const tagged = await nostr.hashtag('bitcoin')
 const myMentions = await nostr.mentions()          // notes mentioning you (your notifications)
 
+const convo = await nostr.thread(eventId)          // whole tree from any node → { root, target, events, tree }
+
 await nostr.follow(npubOrHex)
 const follows = await nostr.following()            // hex pubkeys you follow
 

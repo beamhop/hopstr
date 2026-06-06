@@ -54,12 +54,46 @@ export interface PublishOk {
   id: string
 }
 
+/** One node in a thread: an event and its (chronologically sorted) child replies. */
+export interface ThreadNode {
+  event: NostrEvent
+  children: ThreadNode[]
+}
+
+/** A reconstructed conversation, rooted at the thread root. */
+export interface Thread {
+  /** The thread root (the topmost event we could resolve). */
+  root: NostrEvent
+  /** The event the caller asked about (equals `root` for a single-node thread). */
+  target: NostrEvent
+  /** Every event in the tree, deduped — handy for resolving author names. */
+  events: NostrEvent[]
+  /** The nested tree, rooted at `root`; children are sorted oldest→newest. */
+  tree: ThreadNode
+}
+
 function toFeedNote(e: NostrEvent): FeedNote {
   return { id: e.id, author: e.pubkey, created_at: e.created_at, content: e.content, tags: e.tags }
 }
 
 function toNpubHex(idOrNpub: string): Pubkey {
   return idOrNpub.startsWith('npub1') ? nip19.decodeNpub(idOrNpub) : parsePubkey(idOrNpub)
+}
+
+// The immediate parent of an event: for a NIP-22 comment (kind 1111) it's the
+// lowercase `e` tag; for a NIP-10 note it's the `reply` marker, falling back to
+// `root` (a direct reply to the root carries only a root marker).
+function parentId(e: NostrEvent): string | undefined {
+  if (e.kind === 1111) return e.tags.find((t) => t[0] === 'e' && t[1])?.[1]
+  const refs = nip10.parseThread(e)
+  return refs.reply?.id ?? refs.root?.id
+}
+
+// The thread root an event belongs to: NIP-22 puts it in the uppercase `E` tag
+// (nip10.parseThread only reads lowercase tags), NIP-10 in the `root` marker.
+function rootId(e: NostrEvent): string | undefined {
+  if (e.kind === 1111) return e.tags.find((t) => t[0] === 'E' && t[1])?.[1]
+  return nip10.parseThread(e).root?.id
 }
 
 /**
@@ -142,6 +176,75 @@ export class NostrClient {
   async mentions(options: { limit?: number } = {}): Promise<FeedNote[]> {
     const events = await this.nostr.query({ kinds: [1], '#p': [this.pubkey], limit: options.limit ?? 20 })
     return this.#sorted(events.filter((e) => e.pubkey !== this.pubkey)).map(toFeedNote)
+  }
+
+  // ── threads ──
+
+  /**
+   * Reconstruct the whole conversation that an event belongs to, from ANY node —
+   * a root note, a mid-thread reply, or a NIP-22 comment. Accepts a raw hex id,
+   * a `note1…`, or an `nevent1…`. We find the thread root, then expand its replies
+   * breadth-first (so even replies that only tag their immediate parent are caught)
+   * and assemble a parent→children tree. Throws if the starting event isn't found.
+   */
+  async thread(eventId: string): Promise<Thread> {
+    const startId = this.#eventIdFromInput(eventId)
+    const start = await this.#fetch(startId)
+    if (!start) throw new Error(`event ${startId} not found on relays`)
+
+    // 1) climb to the root. The root marker usually points there directly; if it's
+    // missing (legacy/positional events) we walk parent links until one has none.
+    let root = start
+    const markedRoot = rootId(start)
+    if (markedRoot && markedRoot !== start.id) {
+      const fetched = await this.#fetch(markedRoot)
+      if (fetched) root = fetched
+    } else {
+      let pid = parentId(root)
+      for (let hops = 0; pid && pid !== root.id && hops < 64; hops++) {
+        const parent = await this.#fetch(pid)
+        if (!parent) break
+        root = parent
+        pid = parentId(parent)
+      }
+    }
+
+    // 2) gather every descendant of the root, breadth-first.
+    const byId = new Map<string, NostrEvent>([
+      [root.id, root],
+      [start.id, start],
+    ])
+    let frontier: string[] = [root.id]
+    for (let depth = 0; frontier.length && depth < 64; depth++) {
+      const kids = await this.nostr.query({ kinds: [1, 1111], '#e': frontier })
+      // NIP-22 comments may tag the root only via the uppercase `E` scope tag —
+      // sweep those in once, against the root.
+      const rootScoped = depth === 0 ? await this.nostr.query({ '#E': [root.id] }) : []
+      const next: string[] = []
+      for (const e of [...kids, ...rootScoped]) {
+        if (byId.has(e.id)) continue
+        byId.set(e.id, e)
+        next.push(e.id)
+      }
+      frontier = next
+    }
+
+    // 3) build the tree (children sorted oldest→newest; orphans attach to root).
+    const childrenOf = new Map<string, NostrEvent[]>()
+    for (const e of byId.values()) {
+      if (e.id === root.id) continue
+      const pid = parentId(e)
+      const parent = pid && byId.has(pid) ? pid : root.id
+      const list = childrenOf.get(parent)
+      if (list) list.push(e)
+      else childrenOf.set(parent, [e])
+    }
+    const build = (e: NostrEvent): ThreadNode => ({
+      event: e,
+      children: (childrenOf.get(e.id) ?? []).sort((a, b) => a.created_at - b.created_at).map(build),
+    })
+
+    return { root, target: byId.get(start.id) ?? start, events: [...byId.values()], tree: build(root) }
   }
 
   // ── social graph ──
@@ -399,6 +502,14 @@ export class NostrClient {
 
   async #fetch(eventId: string): Promise<NostrEvent | null> {
     return this.nostr.queryOne({ ids: [eventId] })
+  }
+
+  // Accept a raw hex id, a `note1…`, or an `nevent1…`. A malformed hex string
+  // just falls through and yields "not found" when fetched.
+  #eventIdFromInput(input: string): string {
+    if (input.startsWith('note1')) return nip19.decodeNote(input)
+    if (input.startsWith('nevent1')) return nip19.decodeNevent(input).id
+    return input
   }
 
   #sorted(events: NostrEvent[]): NostrEvent[] {

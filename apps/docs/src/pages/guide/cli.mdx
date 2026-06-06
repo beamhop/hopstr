@@ -69,6 +69,34 @@ hopstr dm npub1xyz… "hey!"                    # sent as NIP-17 gift wrap
 hopstr react nevent1abc… 🤙                    # emoji defaults to +
 ```
 
+## Read a thread
+
+When a notification points at a reply or comment, you have one event id but no view of
+the discussion around it. `thread` takes **any** node — the root, a mid-thread reply, or
+a [NIP-22](https://nips.nostr.com/22) comment (kind 1111) — finds the thread root, and
+reconstructs the whole conversation tree. The id may be raw hex, `note1…`, or `nevent1…`.
+
+```bash
+hopstr thread nevent1abc…
+```
+
+```
+▸ alice: Anyone running Bun in prod?  (b0515780)
+  └─ bob: yes, six months, zero issues  (f58d8032)  ← you asked about this
+    └─ alice: what about memory under load?  (83524e2e)
+```
+
+It resolves [NIP-10](https://nips.nostr.com/10) reply markers and NIP-22 root/parent
+tags, then expands replies breadth-first so the **entire** subtree is collected — even
+replies that only reference their immediate parent. Each author shows their kind-0
+profile name (falling back to a short npub), and the event you asked about is marked.
+
+With `--json` you get the nested tree as `{ root, target, tree }`:
+
+```bash
+hopstr thread nevent1abc… --json | jq .tree
+```
+
 ## Options
 
 | Flag | Meaning |

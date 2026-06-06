@@ -16,6 +16,7 @@ hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
 hopstr dm    <npub> <message>     [--json] [--relay wss://...]
 hopstr react <event-id> [emoji]   [--json] [--relay wss://...]
+hopstr thread <event-id>          [--json] [--relay wss://...]
 ```
 
 | Command | What it does |
@@ -25,6 +26,7 @@ hopstr react <event-id> [emoji]   [--json] [--relay wss://...]
 | `reply` | threaded reply (NIP-10) |
 | `dm` | send a NIP-17 gift-wrapped DM |
 | `react` | reaction (emoji defaults to `+`) |
+| `thread` | reconstruct the whole conversation tree from any event in it (NIP-10 + NIP-22); `--json` emits `{ root, target, tree }` |
 
 ## Identity & options
 

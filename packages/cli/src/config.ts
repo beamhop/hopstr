@@ -1,7 +1,7 @@
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-const CONFIG_PATH = join(homedir(), '.config', 'hopstr', 'config.json')
+const CONFIG_PATH: string = join(homedir(), '.config', 'hopstr', 'config.json')
 
 interface Config {
   nsec?: string

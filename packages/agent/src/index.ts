@@ -9,6 +9,8 @@ export {
   type FeedNote,
   type DM,
   type PublishOk,
+  type ThreadNode,
+  type Thread,
 } from './facade.ts'
 
 export {

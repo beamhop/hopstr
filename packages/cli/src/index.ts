@@ -6,6 +6,7 @@ import { post } from './commands/post.ts'
 import { reply } from './commands/reply.ts'
 import { dm } from './commands/dm.ts'
 import { react } from './commands/react.ts'
+import { thread } from './commands/thread.ts'
 
 const HELP = `\
 hopstr — Nostr daemon CLI
@@ -16,6 +17,7 @@ Usage:
   hopstr reply <event-id> <content> [--json] [--relay wss://...]
   hopstr dm <npub> <message> [--json] [--relay wss://...]
   hopstr react <event-id> [emoji] [--json] [--relay wss://...]
+  hopstr thread <event-id> [--json] [--relay wss://...]
 
 Identity (in priority order):
   NOSTR_NSEC env var
@@ -35,6 +37,7 @@ Examples:
   hopstr post "hello nostr"
   hopstr dm npub1xyz... "hey!"
   hopstr react nevent1abc... 🤙
+  hopstr thread nevent1abc...
 `
 
 function parseArgs(argv: string[]): { cmd: string; args: string[]; json: boolean; relays: string[]; since?: number } {
@@ -111,6 +114,14 @@ async function main(): Promise<void> {
     if (!eventId) { console.error('usage: hopstr react <event-id> [emoji]'); process.exit(1) }
     const identity = await resolveIdentity()
     await react(identity, eventId, emoji, opts)
+    return
+  }
+
+  if (cmd === 'thread') {
+    const [eventId] = args
+    if (!eventId) { console.error('usage: hopstr thread <event-id>'); process.exit(1) }
+    const identity = await resolveIdentity()
+    await thread(identity, eventId, opts)
     return
   }
 

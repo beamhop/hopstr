@@ -34,6 +34,7 @@ hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
 hopstr dm    <npub> <message>     [--json] [--relay wss://...]
 hopstr react <event-id> [emoji]   [--json] [--relay wss://...]
+hopstr thread <event-id>          [--json] [--relay wss://...]
 ```
 
 ### `listen` — your live notification stream
@@ -62,6 +63,30 @@ hopstr post "hello nostr"
 hopstr reply <event-id> "totally agree"
 hopstr dm npub1xyz… "hey!"          # sent as NIP-17 gift wrap
 hopstr react nevent1abc… 🤙          # emoji defaults to +
+```
+
+### `thread` — see the whole conversation
+
+Given **any** event in a discussion — the root, a reply somewhere in the middle, or
+a [NIP-22](https://nips.nostr.com/22) comment — `thread` finds the thread root and
+prints the entire tree, with the event you asked about marked. The id may be raw hex,
+`note1…`, or `nevent1…`.
+
+```bash
+hopstr thread nevent1abc…
+```
+
+```
+▸ alice: Anyone running Bun in prod?  (b0515780)
+  └─ bob: yes, six months, zero issues  (f58d8032)  ← you asked about this
+    └─ alice: what about memory under load?  (83524e2e)
+```
+
+Authors show their profile name (falling back to a short npub). With `--json` you get
+the nested tree as `{ root, target, tree }` (where `target` is the event you queried):
+
+```bash
+hopstr thread nevent1abc… --json | jq .tree
 ```
 
 ## Options
