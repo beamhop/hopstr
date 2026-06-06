@@ -1,17 +1,25 @@
 import { defineConfig } from 'vocs/config'
 
+// For GitHub Pages we deploy a fully-static build under the repo subpath
+// (https://beamhop.github.io/hopstr/). The CI workflow sets DOCS_BASE_PATH=/hopstr;
+// locally it's unset so `vocs dev`/`preview` keep serving from the root.
+const basePath = process.env.DOCS_BASE_PATH ?? ''
+
 export default defineConfig({
   title: 'Velvet',
   description: 'The Nostr toolkit that feels like velvet: every NIP, zero ceremony, runs anywhere TypeScript does.',
-  iconUrl: '/velvet.svg',
-  logoUrl: '/velvet.svg',
+  ...(basePath ? { basePath, renderStrategy: 'full-static' as const } : {}),
+  // iconUrl/logoUrl are emitted as literal paths, so prefix them ourselves to
+  // resolve under the subpath (basePath only rewrites Vocs-managed assets/links).
+  iconUrl: `${basePath}/velvet.svg`,
+  logoUrl: `${basePath}/velvet.svg`,
   accentColor: '#7c5cff',
   topNav: [
     { text: 'Guide', link: '/guide/getting-started', match: '/guide' },
     { text: 'NIPs', link: '/nips-coverage' },
     { text: 'Live demo', link: '/live' },
     { text: 'API', link: '/api', match: '/api' },
-    { text: 'GitHub', link: 'https://github.com/beamhop/nostr' },
+    { text: 'GitHub', link: 'https://github.com/beamhop/hopstr' },
   ],
   sidebar: [
     {
