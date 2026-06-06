@@ -26,15 +26,28 @@ export NOSTR_NSEC=nsec1...
 hopstr listen
 ```
 
+Don't have a key yet? Mint one — `id new` is the only command that doesn't need an
+existing identity:
+
+```bash
+hopstr id new --json
+# → {"nsec":"nsec1...","npub":"npub1..."}
+```
+
+The `nsec` is the whole identity (keep it secret); the `npub` is your public handle.
+
 ## Commands
 
 ```bash
+hopstr id new                     [--json]
 hopstr listen [--json] [--relay wss://...] [--since <when>]
 hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
 hopstr dm    <npub> <message>     [--json] [--relay wss://...]
 hopstr react <event-id> [emoji]   [--json] [--relay wss://...]
 hopstr thread <event-id>          [--json] [--relay wss://...]
+hopstr profile get [<pubkey-or-npub>]            [--json] [--relay wss://...]
+hopstr profile set --name "..." […] [--replace]  [--json] [--relay wss://...]
 ```
 
 ### `listen` — your live notification stream
@@ -87,6 +100,48 @@ the nested tree as `{ root, target, tree }` (where `target` is the event you que
 
 ```bash
 hopstr thread nevent1abc… --json | jq .tree
+```
+
+### `profile` — read & update your kind-0 metadata
+
+Show a profile (your own by default, or anyone's by pubkey/npub):
+
+```bash
+hopstr profile get                       # your own profile
+hopstr profile get npub1xyz…             # someone else's
+hopstr profile get npub1xyz… --json | jq .
+```
+
+```
+name          Alice
+about         building on nostr
+website       https://alice.dev
+nip05         alice@alice.dev
+```
+
+Update your own profile. Each `--<field> <value>` sets that field; **changes merge
+onto your current profile**, so setting one field never wipes the others:
+
+```bash
+hopstr profile set --name "Alice" --about "building on nostr"
+hopstr profile set --picture https://alice.dev/me.png
+hopstr profile set --bot true            # coerced to a JSON boolean
+hopstr profile set --pronouns they/them  # arbitrary fields are allowed too
+```
+
+Known fields (labelled in `get` output) span [NIP-01](https://nips.nostr.com/1) and
+[NIP-24](https://nips.nostr.com/24): `name`, `display_name`, `about`, `website`,
+`nip05`, `lud16`, `lud06`, `picture`, `banner`, `bot`. Any other field is accepted and
+stored as a string.
+
+- `--replace` overwrites the whole profile with exactly the fields you pass (everything
+  else is dropped) instead of merging.
+- An empty value (`--about ""`) **clears** that field — the key is removed entirely.
+- Structured fields like `birthday` aren't settable via flags; use `--replace` with the
+  fields you want from a script if you need them.
+
+```bash
+hopstr profile set --name "Alice" --about "starting fresh" --replace
 ```
 
 ## Options

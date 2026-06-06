@@ -11,22 +11,28 @@ walkthrough see the [CLI guide](/guide/cli) — this page is the quick reference
 ## Commands
 
 ```bash
+hopstr id new                                    [--json]
 hopstr listen [--json] [--relay wss://...] [--since <when>]
 hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
 hopstr dm    <npub> <message>     [--json] [--relay wss://...]
 hopstr react <event-id> [emoji]   [--json] [--relay wss://...]
 hopstr thread <event-id>          [--json] [--relay wss://...]
+hopstr profile get [<pubkey-or-npub>]            [--json] [--relay wss://...]
+hopstr profile set --name "..." […] [--replace]  [--json] [--relay wss://...]
 ```
 
 | Command | What it does |
 | --- | --- |
+| `id new` | mint a fresh identity (`{ nsec, npub }`) — the only command that needs no existing key |
 | `listen` | bootstrap presence, then stream notifications (one JSON object/line with `--json`) |
 | `post` | publish a kind-1 note |
 | `reply` | threaded reply (NIP-10) |
 | `dm` | send a NIP-17 gift-wrapped DM |
 | `react` | reaction (emoji defaults to `+`) |
 | `thread` | reconstruct the whole conversation tree from any event in it (NIP-10 + NIP-22); `--json` emits `{ root, target, tree }` |
+| `profile get` | read kind-0 metadata (NIP-01 + NIP-24) — your own by default, or anyone's by npub/pubkey |
+| `profile set` | update your profile; `--<field> <value>` merges (empty clears), `--replace` overwrites the whole profile |
 
 ## Identity & options
 

@@ -7,17 +7,22 @@ import { reply } from './commands/reply.ts'
 import { dm } from './commands/dm.ts'
 import { react } from './commands/react.ts'
 import { thread } from './commands/thread.ts'
+import { idNew } from './commands/id.ts'
+import { profileGet, profileSet } from './commands/profile.ts'
 
 const HELP = `\
 hopstr — Nostr daemon CLI
 
 Usage:
+  hopstr id new [--json]
   hopstr listen [--json] [--relay wss://...] [--since <unix-timestamp>]
   hopstr post <content> [--json] [--relay wss://...]
   hopstr reply <event-id> <content> [--json] [--relay wss://...]
   hopstr dm <npub> <message> [--json] [--relay wss://...]
   hopstr react <event-id> [emoji] [--json] [--relay wss://...]
   hopstr thread <event-id> [--json] [--relay wss://...]
+  hopstr profile get [<pubkey-or-npub>] [--json] [--relay wss://...]
+  hopstr profile set --name "..." [--about "..."] [--picture <url>] [--replace] [--json]
 
 Identity (in priority order):
   NOSTR_NSEC env var
@@ -32,12 +37,15 @@ Options:
   --help, -h          Show this help
 
 Examples:
+  hopstr id new --json
   hopstr listen
   hopstr listen --json | jq .
   hopstr post "hello nostr"
   hopstr dm npub1xyz... "hey!"
   hopstr react nevent1abc... 🤙
   hopstr thread nevent1abc...
+  hopstr profile get
+  hopstr profile set --name "Alice" --about "building on nostr"
 `
 
 function parseArgs(argv: string[]): { cmd: string; args: string[]; json: boolean; relays: string[]; since?: number } {
@@ -75,6 +83,32 @@ async function main(): Promise<void> {
   // explicit `undefined` isn't assignable to an optional `relays?`/`since?` field.
   const opts: { json: boolean; relays?: string[] } = { json }
   if (relays.length) opts.relays = relays
+
+  if (cmd === 'id') {
+    const sub = args[0]
+    if (sub !== 'new') { console.error('usage: hopstr id new [--json]'); process.exit(1) }
+    idNew({ json })
+    return
+  }
+
+  if (cmd === 'profile') {
+    const sub = args[0]
+    // global --json/--relay are stripped by parseArgs; for `get` the leftover
+    // positional is the target (or none → self), for `set` the rest are field flags.
+    if (sub === 'get') {
+      const identity = await resolveIdentity()
+      await profileGet(identity, args[1], opts)
+      return
+    }
+    if (sub === 'set') {
+      const identity = await resolveIdentity()
+      await profileSet(identity, args.slice(1), opts)
+      return
+    }
+    console.error('usage: hopstr profile get [<pubkey-or-npub>]')
+    console.error('       hopstr profile set --name "Alice" [--about …] [--picture …] [--replace]')
+    process.exit(1)
+  }
 
   if (cmd === 'listen') {
     const identity = await resolveIdentity()

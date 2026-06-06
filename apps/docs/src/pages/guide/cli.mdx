@@ -30,6 +30,17 @@ export NOSTR_NSEC=nsec1...
 hopstr listen
 ```
 
+Don't have a key yet? `id new` mints one — it's the only command that doesn't need
+an existing identity:
+
+```bash
+hopstr id new --json
+# → {"nsec":"nsec1...","npub":"npub1..."}
+```
+
+The `nsec` is the whole identity — keep it secret (set it as `NOSTR_NSEC` or save it
+in the config file). The `npub` is your public handle, safe to share.
+
 ## Listen — your live notification stream
 
 ```bash
@@ -67,6 +78,43 @@ hopstr post "hello nostr"
 hopstr reply <event-id> "totally agree"      # threaded (NIP-10)
 hopstr dm npub1xyz… "hey!"                    # sent as NIP-17 gift wrap
 hopstr react nevent1abc… 🤙                    # emoji defaults to +
+```
+
+## Manage your profile
+
+Your profile is a kind-0 metadata event ([NIP-01](https://nips.nostr.com/1) +
+[NIP-24](https://nips.nostr.com/24)): your name, bio, picture, and more. `profile get`
+reads one — your own by default, or anyone's by npub/pubkey — and `profile set` updates
+yours.
+
+```bash
+hopstr profile get                       # your own profile
+hopstr profile get npub1xyz…             # someone else's
+hopstr profile get --json | jq .         # → {"name":"Alice","about":"…"}  ({} if none)
+```
+
+Each `--<field> <value>` you pass on `set` is **merged onto your current profile**, so
+updating one field never wipes the others:
+
+```bash
+hopstr profile set --name "Alice" --about "building on nostr"
+hopstr profile set --picture https://alice.dev/me.png   # name & about preserved
+hopstr profile set --bot true                           # coerced to a JSON boolean
+hopstr profile set --pronouns they/them                 # arbitrary fields are allowed
+```
+
+Known fields (labelled in `get` output): `name`, `display_name`, `about`, `website`,
+`nip05`, `lud16`, `lud06`, `picture`, `banner`, `bot`. Anything else is accepted and
+stored as a string.
+
+| Flag | Effect on `profile set` |
+| --- | --- |
+| `--<field> <value>` | set/overwrite that field, merging onto the current profile |
+| `--<field> ""` | **clear** that field (the key is removed entirely) |
+| `--replace` | overwrite the whole profile with exactly the fields you pass |
+
+```bash
+hopstr profile set --name "Alice" --about "starting fresh" --replace
 ```
 
 ## Read a thread
