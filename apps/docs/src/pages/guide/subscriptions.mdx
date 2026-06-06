@@ -20,7 +20,7 @@ or listening keeps you in phase 2 until you `break`, `close()`, or abort.
 ## The whole API
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const sub = nostr.subscribe({ kinds: [1], limit: 20 })
@@ -48,7 +48,7 @@ subscription for you.
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 
 const nostr = await Nostr.create({ relays: ['wss://relay.damus.io'] })
 
@@ -69,7 +69,7 @@ newest match (or `null`):
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const profile = await nostr.queryOne({ kinds: [0], authors: [somePubkey] })
@@ -84,7 +84,7 @@ the relays, so there's no leak.
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 
 const nostr = await Nostr.create()
 const me = await nostr.pubkey()
@@ -111,8 +111,8 @@ If you want to render a backlog first and only then react to new events, listen 
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
-import type { NostrEvent } from '@nostragent/core'
+import { Nostr } from '@hopstr/client'
+import type { NostrEvent } from '@hopstr/core'
 
 const nostr = await Nostr.create()
 
@@ -141,8 +141,8 @@ subscription. This sketch shows the typical mount/unmount shape.
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
-import type { NostrEvent } from '@nostragent/core'
+import { Nostr } from '@hopstr/client'
+import type { NostrEvent } from '@hopstr/core'
 
 declare function renderNote(e: NostrEvent): void
 declare function showSpinner(on: boolean): void
@@ -175,8 +175,8 @@ elsewhere — a request, a timeout, a route change. Aborting closes it.
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
-import type { NostrEvent } from '@nostragent/core'
+import { Nostr } from '@hopstr/client'
+import type { NostrEvent } from '@hopstr/core'
 
 declare function render(e: NostrEvent): void
 const nostr = await Nostr.create()
@@ -200,7 +200,7 @@ exact set instead (handy for a search relay, a private relay, or testing).
 
 ```ts twoslash
 // @noErrors
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 
 const nostr = await Nostr.create()
 

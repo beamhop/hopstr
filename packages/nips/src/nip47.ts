@@ -6,7 +6,7 @@ import {
   nip44,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 
 export const INFO_KIND = 13194
 export const REQUEST_KIND = 23194

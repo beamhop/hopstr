@@ -1,4 +1,4 @@
-# @nostragent/core
+# @hopstr/core
 
 > Velvet's pure Nostr kernel — zero network, runs anywhere.
 
@@ -9,13 +9,13 @@ Every cryptographic path is verified against the **official test vectors** (NIP-
 ## Install
 
 ```bash
-bun add @nostragent/core
+bun add @hopstr/core
 ```
 
 ## Identities & events
 
 ```ts
-import { createIdentity, loadIdentity, buildNote, finalizeEvent, verifyEvent } from '@nostragent/core'
+import { createIdentity, loadIdentity, buildNote, finalizeEvent, verifyEvent } from '@hopstr/core'
 
 const me = createIdentity()              // { secretKey, pubkey, nsec, npub }
 const same = loadIdentity(me.nsec)       // from nsec, hex, or raw bytes
@@ -32,10 +32,10 @@ verifyEvent(event)                       // true
 
 `Pubkey`, `EventId`, and `Signature` are branded strings: a raw string can't masquerade as a validated id, and you can't publish an unsigned event — the type system stops you. Encoders accept plain strings and validate internally; decoders return branded values you can trust.
 
-## NIP-19 entities — `@nostragent/core/nip19`
+## NIP-19 entities — `@hopstr/core/nip19`
 
 ```ts
-import { encodeNpub, decode, encodeNaddr } from '@nostragent/core/nip19'
+import { encodeNpub, decode, encodeNaddr } from '@hopstr/core/nip19'
 
 encodeNpub(me.pubkey)                    // "npub1..."
 decode('npub1...')                       // { type: 'npub', data: Pubkey }
@@ -44,10 +44,10 @@ encodeNaddr({ identifier: 'my-post', pubkey: me.pubkey, kind: 30023 })  // "nadd
 
 All seven entities round-trip: `npub`, `nsec`, `note`, `nprofile`, `nevent`, `naddr` (with TLV: relays, author, big-endian kind), respecting the 5000-char limit.
 
-## NIP-44 v2 encryption — `@nostragent/core/nip44`
+## NIP-44 v2 encryption — `@hopstr/core/nip44`
 
 ```ts
-import { encryptTo, decryptFrom, getConversationKey } from '@nostragent/core/nip44'
+import { encryptTo, decryptFrom, getConversationKey } from '@hopstr/core/nip44'
 
 const ciphertext = encryptTo('secret', me.secretKey, peerPubkey)
 const plaintext = decryptFrom(ciphertext, me.secretKey, peerPubkey)

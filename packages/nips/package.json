@@ -1,5 +1,5 @@
 {
-  "name": "@nostragent/nips",
+  "name": "@hopstr/nips",
   "version": "0.0.0",
   "description": "Velvet NIPs — every NIP as a tree-shakeable subpath: typed event factories, parsers, and actions.",
   "type": "module",
@@ -97,7 +97,7 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@nostragent/core": "workspace:*",
-    "@nostragent/signers": "workspace:*"
+    "@hopstr/core": "workspace:*",
+    "@hopstr/signers": "workspace:*"
   }
 }

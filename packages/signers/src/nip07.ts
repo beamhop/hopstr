@@ -1,6 +1,6 @@
 // NIP-07: wrap a browser extension's `window.nostr`. The provider is injectable
 // so it's testable and SSR-safe; in a browser, omit it and we read window.nostr.
-import { brandEventFields, parsePubkey, type EventTemplate, type NostrEvent, type Pubkey } from '@nostragent/core'
+import { brandEventFields, parsePubkey, type EventTemplate, type NostrEvent, type Pubkey } from '@hopstr/core'
 import type { Signer } from './signer.ts'
 
 /** The shape a NIP-07 extension exposes on `window.nostr`. */

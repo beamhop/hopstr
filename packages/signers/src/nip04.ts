@@ -3,7 +3,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1.js'
 import { cbc } from '@noble/ciphers/aes.js'
 import { base64 } from '@scure/base'
-import { bytesToUtf8, hexToBytes, toSecretBytes, type Pubkey } from '@nostragent/core'
+import { bytesToUtf8, hexToBytes, toSecretBytes, type Pubkey } from '@hopstr/core'
 
 /** Shared AES key = the X coordinate of the ECDH secret (NIP-04's quirk). */
 function nip04Key(secret: Uint8Array | string, peer: string): Uint8Array {

@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/agent'
+title: '@hopstr/agent'
 ---
 
-# @nostragent/agent — easy mode + autonomous
+# @hopstr/agent — easy mode + autonomous
 
 The batteries-included facade: the classic `NostrClient` (post/reply/feed/follow/
 DM) with stable JSON shapes, plus an autonomous `runAgent` loop. One import to *be*
@@ -11,7 +11,7 @@ on Nostr.
 ## Be a person on Nostr
 
 ```ts twoslash
-import { NostrClient, createIdentity } from '@nostragent/agent'
+import { NostrClient, createIdentity } from '@hopstr/agent'
 const eventId = 'abc'
 // ---cut---
 const nostr = new NostrClient(createIdentity())
@@ -30,7 +30,7 @@ A closed loop: subscribe to live notes, ask a brain how a thoughtful person woul
 respond, and reply/react automatically.
 
 ```ts twoslash
-import { NostrClient, createIdentity, runAgent } from '@nostragent/agent'
+import { NostrClient, createIdentity, runAgent } from '@hopstr/agent'
 const nostr = new NostrClient(createIdentity())
 // ---cut---
 const stop = runAgent(nostr, {

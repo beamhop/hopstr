@@ -2,7 +2,7 @@
 // NIP-50 search, NIP-78 app data, NIP-38 status, NIP-84 highlights,
 // NIP-22 comments, NIP-28 channels, NIP-88 polls, NIP-99 classifieds,
 // NIP-70 protected, NIP-40 expiration, NIP-14 subject.
-import type { EventTemplate, Filter, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, Filter, NostrEvent } from '@hopstr/core'
 
 // ── NIP-50: search filter ──
 export function searchFilter(query: string, extra: Filter = {}): Filter {

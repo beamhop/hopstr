@@ -3,7 +3,7 @@ import type { Signer } from './signer.ts'
 import { LocalSigner } from './local.ts'
 import { Nip07Signer, type Nip07Provider } from './nip07.ts'
 import { BunkerSigner, type BunkerOptions } from './nip46.ts'
-import type { Pubkey } from '@nostragent/core'
+import type { Pubkey } from '@hopstr/core'
 
 export interface FromPayloadDeps {
   /** Provider for a restored NIP-07 signer (browser supplies window.nostr). */

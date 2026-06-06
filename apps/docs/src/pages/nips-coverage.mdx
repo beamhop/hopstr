@@ -7,7 +7,7 @@ title: NIP coverage
 Velvet aims to give **every NIP a home** — a dedicated factory/parser, a feature in
 the kernel stack, a generically-handled kind in the registry, or an explicit
 parse-only round-trip. This isn't a marketing claim: a
-[coverage meta-test](https://github.com/nostragent/velvet/blob/main/packages/nips/tests/coverage.test.ts)
+[coverage meta-test](https://github.com/beamhop/nostr/blob/main/packages/nips/tests/coverage.test.ts)
 enumerates the entire canonical [`nostr-protocol/nips`](https://github.com/nostr-protocol/nips)
 index and asserts each one resolves to a real home. This page is that table, rendered.
 
@@ -15,7 +15,7 @@ index and asserts each one resolves to a real home. This page is that table, ren
 
 | Mark | Meaning |
 | --- | --- |
-| 🟢 **Module** | A dedicated typed factory + parser in [`@nostragent/nips`](/packages/nips) |
+| 🟢 **Module** | A dedicated typed factory + parser in [`@hopstr/nips`](/packages/nips) |
 | 🔵 **Kernel** | First-class feature in [core](/packages/core) / [signers](/packages/signers) / [relay](/packages/relay) / [pool](/packages/pool) / [router](/packages/router) / [store](/packages/store) / [client](/packages/client) |
 | ⚪ **Registry** | The kind is in the [kind registry](/packages/nips#the-kind-registry) — classifiable & renderable generically |
 | ◽ **Parse-only** | Reserved-kind round-trip at v1 (typically a heavy external spec) |
@@ -26,46 +26,46 @@ expiry; NIP-65 has a module *and* the router.
 ## Module NIPs — dedicated builders & parsers
 
 Import the whole namespace or a single subpath: `import { article } from
-'@nostragent/nips/nip23'`.
+'@hopstr/nips/nip23'`.
 
 | NIP | Title | Import | Key exports |
 | --- | --- | --- | --- |
-| 🟢 02 | Follow List | `@nostragent/nips/nip02` | `followList`, `parseFollowList`, `followedPubkeys` |
-| 🟢 05 | DNS identifiers | `@nostragent/nips/discovery` | `resolveNip05`, `verifyNip05` |
-| 🟢 08 | Mentions (legacy) | `@nostragent/nips/nip27` | parsed → re-emitted as NIP-27 |
-| 🟢 09 | Event Deletion | `@nostragent/nips/nip09` | `deleteEvents`, `deleteAddresses`, `parseDeletion` |
-| 🟢 10 | Text Notes & Threads | `@nostragent/nips/nip10` | `parseThread`, `replyTags` |
-| 🟢 14 | Subject tag | `@nostragent/nips/extra` | `withSubject` |
-| 🟢 17 | Private DMs | `@nostragent/nips/nip17` | `sealDirectMessage`, `openDirectMessage`, `dmRelayList` |
-| 🟢 18 | Reposts | `@nostragent/nips/nip18` | `repost`, `quote`, `genericRepost`, `parseRepost` |
-| 🟢 22 | Comment | `@nostragent/nips/extra` | `comment` |
-| 🟢 23 | Long-form | `@nostragent/nips/nip23` | `article`, `draft`, `parseArticle` |
-| 🟢 25 | Reactions | `@nostragent/nips/nip25` | `react`, `customReact`, `parseReaction` |
-| 🟢 27 | Text Note References | `@nostragent/nips/nip27` | `referenceTags`, `findReferences` |
-| 🟢 28 | Public Chat | `@nostragent/nips/extra` | `createChannel`, `channelMessage` |
-| 🟢 30 | Custom Emoji | `@nostragent/nips/nip25` | `customReact` (emoji tags) |
-| 🟢 32 | Labeling | `@nostragent/nips/moderation` | `label`, `parseLabels` |
-| 🟢 36 | Sensitive Content | `@nostragent/nips/moderation` | `withContentWarning`, `contentWarning` |
-| 🟢 38 | User Statuses | `@nostragent/nips/extra` | `status` |
-| 🟢 40 | Expiration | `@nostragent/nips/extra` | `withExpiration` |
-| 🟢 47 | Wallet Connect | `@nostragent/nips/nip47` | `buildRequest`, `parseResponse`, `payInvoice` |
-| 🟢 50 | Search | `@nostragent/nips/extra` | `searchFilter` |
-| 🟢 51 | Lists | `@nostragent/nips/nip51` | `buildList`, `parseList`, `addBookmark`, `addMute` |
-| 🟢 56 | Reporting | `@nostragent/nips/moderation` | `report`, `parseReport` |
-| 🟢 57 | Zaps | `@nostragent/nips/nip57` | `zapRequest`, `zapCallbackUrl`, `parseZapReceipt` |
-| 🟢 59 | Gift Wrap | `@nostragent/nips/nip59` | `createRumor`, `wrap`, `unwrap` |
-| 🟢 65 | Relay List | `@nostragent/nips/discovery` | `relayListMetadata` (+ [router](/packages/router)) |
-| 🟢 68 | Picture feeds | `@nostragent/nips/media` | `picturePost` |
-| 🟢 70 | Protected Events | `@nostragent/nips/extra` | `asProtected`, `isProtected` |
-| 🟢 71 | Video | `@nostragent/nips/media` | `videoEvent` |
-| 🟢 78 | App data | `@nostragent/nips/extra` | `appData`, `parseAppData` |
-| 🟢 84 | Highlights | `@nostragent/nips/extra` | `highlight` |
-| 🟢 88 | Polls | `@nostragent/nips/extra` | `poll`, `pollResponse` |
-| 🟢 89 | App Handlers | `@nostragent/nips/discovery` | `handlerRecommendation`, `parseHandlerInfo` |
-| 🟢 92 | imeta | `@nostragent/nips/media` | `imetaTag`, `parseImeta` |
-| 🟢 94 | File Metadata | `@nostragent/nips/media` | `fileMetadata`, `parseFileMetadata` |
-| 🟢 98 | HTTP Auth | `@nostragent/nips/nip98` | `httpAuthTemplate`, `authHeader`, `validateHttpAuth` |
-| 🟢 99 | Classifieds | `@nostragent/nips/extra` | `classifiedListing` |
+| 🟢 02 | Follow List | `@hopstr/nips/nip02` | `followList`, `parseFollowList`, `followedPubkeys` |
+| 🟢 05 | DNS identifiers | `@hopstr/nips/discovery` | `resolveNip05`, `verifyNip05` |
+| 🟢 08 | Mentions (legacy) | `@hopstr/nips/nip27` | parsed → re-emitted as NIP-27 |
+| 🟢 09 | Event Deletion | `@hopstr/nips/nip09` | `deleteEvents`, `deleteAddresses`, `parseDeletion` |
+| 🟢 10 | Text Notes & Threads | `@hopstr/nips/nip10` | `parseThread`, `replyTags` |
+| 🟢 14 | Subject tag | `@hopstr/nips/extra` | `withSubject` |
+| 🟢 17 | Private DMs | `@hopstr/nips/nip17` | `sealDirectMessage`, `openDirectMessage`, `dmRelayList` |
+| 🟢 18 | Reposts | `@hopstr/nips/nip18` | `repost`, `quote`, `genericRepost`, `parseRepost` |
+| 🟢 22 | Comment | `@hopstr/nips/extra` | `comment` |
+| 🟢 23 | Long-form | `@hopstr/nips/nip23` | `article`, `draft`, `parseArticle` |
+| 🟢 25 | Reactions | `@hopstr/nips/nip25` | `react`, `customReact`, `parseReaction` |
+| 🟢 27 | Text Note References | `@hopstr/nips/nip27` | `referenceTags`, `findReferences` |
+| 🟢 28 | Public Chat | `@hopstr/nips/extra` | `createChannel`, `channelMessage` |
+| 🟢 30 | Custom Emoji | `@hopstr/nips/nip25` | `customReact` (emoji tags) |
+| 🟢 32 | Labeling | `@hopstr/nips/moderation` | `label`, `parseLabels` |
+| 🟢 36 | Sensitive Content | `@hopstr/nips/moderation` | `withContentWarning`, `contentWarning` |
+| 🟢 38 | User Statuses | `@hopstr/nips/extra` | `status` |
+| 🟢 40 | Expiration | `@hopstr/nips/extra` | `withExpiration` |
+| 🟢 47 | Wallet Connect | `@hopstr/nips/nip47` | `buildRequest`, `parseResponse`, `payInvoice` |
+| 🟢 50 | Search | `@hopstr/nips/extra` | `searchFilter` |
+| 🟢 51 | Lists | `@hopstr/nips/nip51` | `buildList`, `parseList`, `addBookmark`, `addMute` |
+| 🟢 56 | Reporting | `@hopstr/nips/moderation` | `report`, `parseReport` |
+| 🟢 57 | Zaps | `@hopstr/nips/nip57` | `zapRequest`, `zapCallbackUrl`, `parseZapReceipt` |
+| 🟢 59 | Gift Wrap | `@hopstr/nips/nip59` | `createRumor`, `wrap`, `unwrap` |
+| 🟢 65 | Relay List | `@hopstr/nips/discovery` | `relayListMetadata` (+ [router](/packages/router)) |
+| 🟢 68 | Picture feeds | `@hopstr/nips/media` | `picturePost` |
+| 🟢 70 | Protected Events | `@hopstr/nips/extra` | `asProtected`, `isProtected` |
+| 🟢 71 | Video | `@hopstr/nips/media` | `videoEvent` |
+| 🟢 78 | App data | `@hopstr/nips/extra` | `appData`, `parseAppData` |
+| 🟢 84 | Highlights | `@hopstr/nips/extra` | `highlight` |
+| 🟢 88 | Polls | `@hopstr/nips/extra` | `poll`, `pollResponse` |
+| 🟢 89 | App Handlers | `@hopstr/nips/discovery` | `handlerRecommendation`, `parseHandlerInfo` |
+| 🟢 92 | imeta | `@hopstr/nips/media` | `imetaTag`, `parseImeta` |
+| 🟢 94 | File Metadata | `@hopstr/nips/media` | `fileMetadata`, `parseFileMetadata` |
+| 🟢 98 | HTTP Auth | `@hopstr/nips/nip98` | `httpAuthTemplate`, `authHeader`, `validateHttpAuth` |
+| 🟢 99 | Classifieds | `@hopstr/nips/extra` | `classifiedListing` |
 
 ## Kernel NIPs — built into the stack
 

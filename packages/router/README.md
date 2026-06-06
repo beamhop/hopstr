@@ -1,4 +1,4 @@
-# @nostragent/router
+# @hopstr/router
 
 > The outbox/gossip model (NIP-65): pick which relays to read from and write to.
 
@@ -9,13 +9,13 @@ Policy (where relay lists come from, defaults, quality, caps) is injected, so th
 ## Install
 
 ```bash
-bun add @nostragent/router
+bun add @hopstr/router
 ```
 
 ## Use
 
 ```ts
-import { Router } from '@nostragent/router'
+import { Router } from '@hopstr/router'
 
 const router = new Router({
   getPubkeyRelays: (pubkey, use) => relayListFor(pubkey, use),  // 'read' | 'write'
@@ -39,12 +39,12 @@ router.publishEvent(authorPubkey, mentionedPubkeys)   // → ['wss://...', ...]
 ## NIP-65 + relay hints
 
 ```ts
-import { parseRelayList, readRelays, writeRelays } from '@nostragent/router'
+import { parseRelayList, readRelays, writeRelays } from '@hopstr/router'
 const entries = parseRelayList(kind10002Event)
 writeRelays(entries)   // outbox
 readRelays(entries)    // inbox
 
-import { hintsFromTags, hintsFromPointer } from '@nostragent/router'
+import { hintsFromTags, hintsFromPointer } from '@hopstr/router'
 hintsFromTags(event)              // relay hints in e/a/p tags
 hintsFromPointer('nevent1...')    // relays embedded in a NIP-19 pointer
 ```

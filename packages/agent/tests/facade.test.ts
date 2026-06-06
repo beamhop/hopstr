@@ -1,6 +1,6 @@
 // Facade regression suite: the NostrClient surface the CLI depends on.
 import { afterEach, describe, expect, test } from 'bun:test'
-import { createIdentity, loadIdentity, verifyEvent, type NostrEvent } from '@nostragent/core'
+import { createIdentity, loadIdentity, verifyEvent, type NostrEvent } from '@hopstr/core'
 import { NostrClient, DEFAULT_RELAYS } from '../src/facade.ts'
 import { startRelay, type MockRelay } from './relay-harness.ts'
 

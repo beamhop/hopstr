@@ -50,8 +50,8 @@ jobs:
       - name: Build packages (docs import their dist)
         run: bun run build
       - name: Typecheck docs components + examples
-        run: bun run --filter='@nostragent/docs' check-examples
+        run: bun run --filter='@hopstr/docs' check-examples
       - name: Generate API reference
-        run: bun run --filter='@nostragent/docs' api
+        run: bun run --filter='@hopstr/docs' api
       - name: Build docs (compiles every Twoslash example)
-        run: bun run --filter='@nostragent/docs' build
+        run: bun run --filter='@hopstr/docs' build

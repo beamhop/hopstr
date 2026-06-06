@@ -1,13 +1,13 @@
-# @nostragent/nips
+# @hopstr/nips
 
 > Every NIP as a tree-shakeable subpath: a typed factory, a parser, and (where it applies) an action.
 
-Import only the NIPs you use — `@nostragent/nips/nip23` pulls in just long-form articles. Each module turns the spec into plain, typed functions that build event templates (pass them to a [signer](../signers) or the [client](../client)) and parse events back into structured data.
+Import only the NIPs you use — `@hopstr/nips/nip23` pulls in just long-form articles. Each module turns the spec into plain, typed functions that build event templates (pass them to a [signer](../signers) or the [client](../client)) and parse events back into structured data.
 
 ## Install
 
 ```bash
-bun add @nostragent/nips
+bun add @hopstr/nips
 ```
 
 ## Highlights
@@ -15,7 +15,7 @@ bun add @nostragent/nips
 ### Private DMs — NIP-17 + NIP-59 gift wrap
 
 ```ts
-import { sealDirectMessage, openDirectMessage } from '@nostragent/nips/nip17'
+import { sealDirectMessage, openDirectMessage } from '@hopstr/nips/nip17'
 
 // one gift wrap per recipient PLUS one to yourself — metadata-private
 const wraps = sealDirectMessage({ text: 'hey', to: [bobPubkey] }, mySecret)
@@ -29,7 +29,7 @@ Gift wrap uses a fresh ephemeral key per wrap, back-dates timestamps (≤2 days,
 ### Zaps — NIP-57
 
 ```ts
-import { zapRequest, fetchZapInvoice, parseZapReceipt } from '@nostragent/nips/nip57'
+import { zapRequest, fetchZapInvoice, parseZapReceipt } from '@hopstr/nips/nip57'
 
 const req = zapRequest({ recipient, amountMsat: 21_000, relays, lnurl, comment: 'great post' })
 const signed = await signer.signEvent(req)
@@ -40,7 +40,7 @@ const { invoice } = await fetchZapInvoice('alice@wallet.com', signed, 21_000, ln
 ### Lists — NIP-51
 
 ```ts
-import { buildList, parseList, addBookmark, BOOKMARKS } from '@nostragent/nips/nip51'
+import { buildList, parseList, addBookmark, BOOKMARKS } from '@hopstr/nips/nip51'
 
 let list = addBookmark({ public: [], private: [] }, eventId)         // public bookmark
 list = addBookmark(list, secretId, true)                            // private (self-encrypted)
@@ -53,7 +53,7 @@ Private items are NIP-44 self-encrypted into `content`; pass your key to `parseL
 ### Wallet Connect — NIP-47
 
 ```ts
-import { parseConnectionUri, payInvoice, parseResponse } from '@nostragent/nips/nip47'
+import { parseConnectionUri, payInvoice, parseResponse } from '@hopstr/nips/nip47'
 const conn = parseConnectionUri('nostr+walletconnect://...')
 const request = payInvoice(conn, bolt11)            // encrypted kind-23194 to the wallet
 ```

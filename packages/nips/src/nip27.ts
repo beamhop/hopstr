@@ -1,5 +1,5 @@
 // NIP-27: inline `nostr:` mentions inside content, with matching tags.
-import { nip19, nip21 } from '@nostragent/core'
+import { nip19, nip21 } from '@hopstr/core'
 
 const NOSTR_URI = /nostr:(npub1|nprofile1|note1|nevent1|naddr1)[0-9a-z]+/g
 

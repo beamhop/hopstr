@@ -1,19 +1,19 @@
-# @nostragent/client
+# @hopstr/client
 
 > The high-level reactive Nostr client. Two lines to hello-world; the deep foundation is right there when you need it.
 
-`@nostragent/client` wires the whole Velvet stack — [core](../core), [signers](../signers), [pool](../pool), [router](../router), [store](../store) — into one configured-once object. Outbox/NIP-65 routing is on by default; every call can override it.
+`@hopstr/client` wires the whole Velvet stack — [core](../core), [signers](../signers), [pool](../pool), [router](../router), [store](../store) — into one configured-once object. Outbox/NIP-65 routing is on by default; every call can override it.
 
 ## Install
 
 ```bash
-bun add @nostragent/client
+bun add @hopstr/client
 ```
 
 ## Hello, Nostr
 
 ```ts
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 
 const nostr = await Nostr.create()        // random key, sane relays, outbox on
 await nostr.note('hello nostr')           // signs + routes to your write relays

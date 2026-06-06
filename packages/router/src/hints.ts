@@ -1,5 +1,5 @@
 // Relay-hint extraction: where an event/tag suggests its referenced data lives.
-import { nip19, type NostrEvent } from '@nostragent/core'
+import { nip19, type NostrEvent } from '@hopstr/core'
 import { normalizeRelayUrl } from './nip65.ts'
 
 const isRelayUrl = (s: string | undefined): s is string => !!s && /^wss?:\/\//i.test(s)

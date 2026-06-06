@@ -1,5 +1,5 @@
 // A minimal in-process Nostr relay for client integration tests.
-import { matchFilters, type Filter, type NostrEvent } from '@nostragent/core'
+import { matchFilters, type Filter, type NostrEvent } from '@hopstr/core'
 
 export interface MockRelay {
   url: string

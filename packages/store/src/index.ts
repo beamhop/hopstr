@@ -1,4 +1,4 @@
-// @nostragent/store — reactive in-memory Nostr event store.
+// @hopstr/store — reactive in-memory Nostr event store.
 export {
   EventStore,
   type AddResult,

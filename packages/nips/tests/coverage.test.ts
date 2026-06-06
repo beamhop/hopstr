@@ -29,7 +29,7 @@ const ALL_NIPS: Record<string, string> = {
 }
 
 // Where each NIP is handled. Every NIP MUST appear here with a non-empty home.
-// 'module' = a dedicated factory/parser in @nostragent/nips
+// 'module' = a dedicated factory/parser in @hopstr/nips
 // 'kernel'/'signers'/'relay'/'pool'/'router'/'store'/'client' = handled in that package
 // 'registry' = the kind is in the KIND_REGISTRY (renderable/classifiable generically)
 // 'parse-only' = reserved-kind round-trip only at v1 (heavy external spec)

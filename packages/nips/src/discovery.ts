@@ -1,6 +1,6 @@
 // Discovery NIPs: NIP-05 DNS identity verification, NIP-65 relay-list builder,
 // NIP-89 app handler recommendations.
-import type { EventTemplate, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, NostrEvent } from '@hopstr/core'
 
 // ── NIP-05: name@domain → pubkey ──
 

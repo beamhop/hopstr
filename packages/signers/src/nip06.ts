@@ -2,7 +2,7 @@
 import { HDKey } from '@scure/bip32'
 import { generateMnemonic, mnemonicToSeedSync, validateMnemonic } from '@scure/bip39'
 import { wordlist } from '@scure/bip39/wordlists/english.js'
-import { bytesToHex } from '@nostragent/core'
+import { bytesToHex } from '@hopstr/core'
 
 /** Coin type 1237 is Nostr's registered SLIP-44 value. */
 const path = (account: number): string => `m/44'/1237'/${account}'/0/0`

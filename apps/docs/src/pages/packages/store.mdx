@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/store'
+title: '@hopstr/store'
 ---
 
-# @nostragent/store — reactive event store
+# @hopstr/store — reactive event store
 
 An in-memory store that dedups by id, honors replaceable/addressable kinds, applies
 NIP-09 deletions and NIP-40 expiration, and streams matching events as they arrive.
@@ -11,8 +11,8 @@ The [client](/packages/client) keeps one warm behind every subscription.
 ## `EventStore`
 
 ```ts twoslash
-import { EventStore } from '@nostragent/store'
-import { createIdentity, finalizeEvent, build } from '@nostragent/core'
+import { EventStore } from '@hopstr/store'
+import { createIdentity, finalizeEvent, build } from '@hopstr/core'
 const event = finalizeEvent(build(1, 'gm'), createIdentity().secretKey)
 // ---cut---
 const store = new EventStore()
@@ -40,7 +40,7 @@ store.size                             // count
 matches as they're added — pass an `AbortSignal` to stop:
 
 ```ts twoslash
-import { EventStore } from '@nostragent/store'
+import { EventStore } from '@hopstr/store'
 const store = new EventStore()
 const ac = new AbortController()
 // ---cut---

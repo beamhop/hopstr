@@ -5,7 +5,7 @@
 Velvet is a world-class, fully NIP-complete, maximally ergonomic [Nostr](https://nostr.com) client library for TypeScript. It runs unchanged in the browser, Bun, Node, Deno, and workers.
 
 ```ts
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 
 const nostr = await Nostr.create()        // random key, sane relays, outbox routing on
 await nostr.note('hello nostr')           // signs + routes to your write relays
@@ -19,14 +19,14 @@ for await (const note of nostr.notes({ kinds: [1], limit: 20 })) {
 
 | Package | What it owns |
 | --- | --- |
-| [`@nostragent/core`](packages/core) | Pure event model, NIP-01 id/serialization, schnorr, NIP-19/21/44, **+ the drop-in facade** |
-| [`@nostragent/signers`](packages/signers) | One async `Signer` interface — local key, NIP-07, NIP-46 bunker, NIP-49, NIP-06 |
-| [`@nostragent/relay`](packages/relay) | Single-socket FSM, reconnection, NIP-11/42, typed wire messages |
-| [`@nostragent/pool`](packages/pool) | Multi-relay pool: filter splitting, dedup, per-relay EOSE, NIP-77 sync |
-| [`@nostragent/router`](packages/router) | Outbox/gossip routing (NIP-65) as a weighted scenario model |
-| [`@nostragent/store`](packages/store) | Reactive in-memory event store: dedupe, replaceable, NIP-09/40 |
-| [`@nostragent/nips`](packages/nips) | Every NIP as a tree-shakeable subpath: typed factory + parser + action |
-| [`@nostragent/client`](packages/client) | The high-level reactive client wiring everything together |
+| [`@hopstr/core`](packages/core) | Pure event model, NIP-01 id/serialization, schnorr, NIP-19/21/44, **+ the drop-in facade** |
+| [`@hopstr/signers`](packages/signers) | One async `Signer` interface — local key, NIP-07, NIP-46 bunker, NIP-49, NIP-06 |
+| [`@hopstr/relay`](packages/relay) | Single-socket FSM, reconnection, NIP-11/42, typed wire messages |
+| [`@hopstr/pool`](packages/pool) | Multi-relay pool: filter splitting, dedup, per-relay EOSE, NIP-77 sync |
+| [`@hopstr/router`](packages/router) | Outbox/gossip routing (NIP-65) as a weighted scenario model |
+| [`@hopstr/store`](packages/store) | Reactive in-memory event store: dedupe, replaceable, NIP-09/40 |
+| [`@hopstr/nips`](packages/nips) | Every NIP as a tree-shakeable subpath: typed factory + parser + action |
+| [`@hopstr/client`](packages/client) | The high-level reactive client wiring everything together |
 
 ## Design
 

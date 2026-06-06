@@ -11,7 +11,7 @@ import {
   type EventTemplate,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 
 const SEAL_KIND = 13
 const WRAP_KIND = 1059

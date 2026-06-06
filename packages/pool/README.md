@@ -1,4 +1,4 @@
-# @nostragent/pool
+# @hopstr/pool
 
 > Query and subscribe across many relays — with dedup, per-relay EOSE, and async-iterable subscriptions.
 
@@ -7,13 +7,13 @@ The pool lazily opens one connection per relay URL, fans a filter out to all of 
 ## Install
 
 ```bash
-bun add @nostragent/pool
+bun add @hopstr/pool
 ```
 
 ## Use
 
 ```ts
-import { Pool } from '@nostragent/pool'
+import { Pool } from '@hopstr/pool'
 
 const pool = new Pool()
 const relays = ['wss://relay.damus.io', 'wss://nos.lol']

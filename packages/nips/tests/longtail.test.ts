@@ -1,6 +1,6 @@
 // Long-tail modules: media, moderation, discovery, extra, kinds registry.
 import { describe, expect, test } from 'bun:test'
-import { finalizeEvent, getPublicKey, type NostrEvent } from '@nostragent/core'
+import { finalizeEvent, getPublicKey, type NostrEvent } from '@hopstr/core'
 import * as media from '../src/media.ts'
 import * as moderation from '../src/moderation.ts'
 import * as discovery from '../src/discovery.ts'

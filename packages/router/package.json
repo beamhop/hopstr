@@ -1,5 +1,5 @@
 {
-  "name": "@nostragent/router",
+  "name": "@hopstr/router",
   "version": "0.0.0",
   "description": "Velvet router — the outbox/gossip model (NIP-65): pick which relays to read from and write to, by weighted relay selection with policy injection.",
   "type": "module",
@@ -25,6 +25,6 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@nostragent/core": "workspace:*"
+    "@hopstr/core": "workspace:*"
   }
 }

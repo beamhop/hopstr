@@ -1,7 +1,7 @@
 // Integration: a real in-process relay over Bun.serve, driving the Relay with
 // the actual global WebSocket (no FakeSocket). Exercises the live socket path.
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { finalizeEvent, getPublicKey, matchFilters, type Filter, type NostrEvent } from '@nostragent/core'
+import { finalizeEvent, getPublicKey, matchFilters, type Filter, type NostrEvent } from '@hopstr/core'
 import { Relay } from '../src/relay.ts'
 
 const SK = '0a'.repeat(32)

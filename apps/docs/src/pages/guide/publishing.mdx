@@ -11,7 +11,7 @@ added to your local store immediately, but the network I/O is deferred until you
 ## A note
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const results = await nostr.note('gm')
@@ -22,7 +22,7 @@ Each entry is `{ relay, ok, reason }`. **Partial success is normal** — Velvet 
 throws just because one relay rejected you.
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const results = await nostr.note('gm')
@@ -32,7 +32,7 @@ if (results.some((r) => r.ok)) console.log('it is on Nostr')
 ## Chained options & escape hatches
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 await nostr.note('to a specific relay').to(['wss://my.relay']).timeout(8_000)
@@ -42,7 +42,7 @@ await nostr.note('must land somewhere').orThrow()      // throws only if EVERY r
 ## Optimistic undo
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const pub = nostr.note('oops, wrong window')
@@ -58,13 +58,13 @@ event itself. That's all you need to publish a kind Velvet has never heard of.
 
 ### With the fluent builder
 
-`build(kind, content?)` from `@nostragent/core` is the ergonomic way. Every method
+`build(kind, content?)` from `@hopstr/core` is the ergonomic way. Every method
 chains, and the builder is itself a valid template, so you can hand it straight to
 `publish()`.
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
-import { build } from '@nostragent/core'
+import { Nostr } from '@hopstr/client'
+import { build } from '@hopstr/core'
 const nostr = await Nostr.create()
 // ---cut---
 await nostr.publish(
@@ -83,7 +83,7 @@ timestamp (otherwise the signer stamps "now").
 If you'd rather not import anything, pass the template literally:
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 await nostr.publish({
@@ -105,7 +105,7 @@ A custom kind is queried like any other event — by `kinds`, and for addressabl
 events by the `d` tag via `#d`:
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 const me = await nostr.pubkey()
 // ---cut---
@@ -118,12 +118,12 @@ const settings = await nostr.queryOne({
 
 ## NIP helpers
 
-For well-known kinds, `@nostragent/nips` ships typed builders so you don't hand-roll
+For well-known kinds, `@hopstr/nips` ships typed builders so you don't hand-roll
 the tags:
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
-import { article } from '@nostragent/nips/nip23'
+import { Nostr } from '@hopstr/client'
+import { article } from '@hopstr/nips/nip23'
 const nostr = await Nostr.create()
 // ---cut---
 await nostr.publish(article({ slug: 'hello', title: 'Hello', markdown: '# hi' }))  // kind 30023

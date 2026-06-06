@@ -1,4 +1,4 @@
-# @nostragent/docs
+# @hopstr/docs
 
 The Velvet documentation site — built with [Vocs](https://vocs.dev) (React + Vite),
 with **live React islands that run the real library against real Nostr relays in the
@@ -19,7 +19,7 @@ bun run docs:api        # regenerate the API reference from package TSDoc
 - `src/pages/*.mdx` — the guide + landing pages (Vocs file-based routing)
 - `src/pages/api/generated/` — TypeDoc output (gitignored; run `bun run api`)
 - `src/components/*.tsx` — the live islands (`HelloNostr`, `LiveFeed`) that import the
-  published `@nostragent` packages and connect to public relays
+  published `@hopstr` packages and connect to public relays
 - `vocs.config.ts` — site config; `typedoc.json` — API generation
 
 ## Why the examples can't lie

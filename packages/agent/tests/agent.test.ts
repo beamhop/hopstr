@@ -1,6 +1,6 @@
 // The autonomous loop, driven by a fake brain (no real copilot binary).
 import { afterEach, describe, expect, test } from 'bun:test'
-import { createIdentity, type NostrEvent } from '@nostragent/core'
+import { createIdentity, type NostrEvent } from '@hopstr/core'
 import { NostrClient } from '../src/facade.ts'
 import { decide, extractContent, parseDecision, runAgent, type CopilotRunner, type FeedNote } from '../src/index.ts'
 import { startRelay, type MockRelay } from './relay-harness.ts'

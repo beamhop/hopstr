@@ -1,5 +1,5 @@
 {
-  "name": "@nostragent/pool",
+  "name": "@hopstr/pool",
   "version": "0.0.0",
   "description": "Velvet pool — query and subscribe across many relays with dedup, per-relay EOSE, and async-iterable subscriptions.",
   "type": "module",
@@ -25,7 +25,7 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@nostragent/core": "workspace:*",
-    "@nostragent/relay": "workspace:*"
+    "@hopstr/core": "workspace:*",
+    "@hopstr/relay": "workspace:*"
   }
 }

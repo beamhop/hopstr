@@ -1,7 +1,7 @@
 // A Subscription is BOTH an AsyncIterable<NostrEvent> (for-await, break = close)
 // AND a thenable-ish object with .all()/.first()/.take()/.on(). One type, no
 // sub-id bookkeeping, no callback sprawl.
-import type { NostrEvent } from '@nostragent/core'
+import type { NostrEvent } from '@hopstr/core'
 
 export type SubscriptionEvent = 'event' | 'eose' | 'close'
 

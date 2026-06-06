@@ -1,7 +1,7 @@
 // Pool: fan-out across relays, dedup by id, EOSE aggregation, publish results,
 // verify rejection, normalization. Driven by real in-process relays.
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { finalizeEvent, getPublicKey, matchFilters, type Filter, type NostrEvent } from '@nostragent/core'
+import { finalizeEvent, getPublicKey, matchFilters, type Filter, type NostrEvent } from '@hopstr/core'
 import { Pool } from '../src/pool.ts'
 
 const SK = '0b'.repeat(32)

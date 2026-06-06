@@ -1,5 +1,5 @@
-// @nostragent/nips — every NIP as a namespace (also available as subpath imports,
-// e.g. `@nostragent/nips/nip23`, for tree-shaking).
+// @hopstr/nips — every NIP as a namespace (also available as subpath imports,
+// e.g. `@hopstr/nips/nip23`, for tree-shaking).
 export * as nip02 from './nip02.ts'
 export * as nip09 from './nip09.ts'
 export * as nip10 from './nip10.ts'

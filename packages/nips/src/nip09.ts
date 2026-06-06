@@ -1,5 +1,5 @@
 // NIP-09: event deletion request (kind 5) — references events/addresses to delete.
-import { addressOf, type EventTemplate, type NostrEvent } from '@nostragent/core'
+import { addressOf, type EventTemplate, type NostrEvent } from '@hopstr/core'
 
 /** Build a kind-5 deletion for one or more event ids (with an optional reason). */
 export function deleteEvents(ids: string[], reason = ''): EventTemplate {

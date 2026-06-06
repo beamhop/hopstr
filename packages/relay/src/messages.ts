@@ -1,5 +1,5 @@
 // Nostr relay wire protocol (NIP-01 + NIP-42 + NIP-45) message types and parsing.
-import type { Filter, NostrEvent } from '@nostragent/core'
+import type { Filter, NostrEvent } from '@hopstr/core'
 
 // Client → relay
 export type ClientMessage =

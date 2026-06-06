@@ -1,6 +1,6 @@
 // The AsyncIterable Subscription: for-await, all/first/take, on(), abort, break.
 import { describe, expect, test } from 'bun:test'
-import { finalizeEvent, type NostrEvent } from '@nostragent/core'
+import { finalizeEvent, type NostrEvent } from '@hopstr/core'
 import { Subscription } from '../src/subscription.ts'
 
 const SK = '01'.repeat(32)

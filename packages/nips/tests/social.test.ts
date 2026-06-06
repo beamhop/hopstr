@@ -1,7 +1,7 @@
 // Social NIPs: 02 follows, 09 deletion, 10 threads, 18 reposts, 23 long-form,
 // 25 reactions, 27 mentions.
 import { describe, expect, test } from 'bun:test'
-import { finalizeEvent, getPublicKey, nip19, type NostrEvent } from '@nostragent/core'
+import { finalizeEvent, getPublicKey, nip19, type NostrEvent } from '@hopstr/core'
 import * as nip02 from '../src/nip02.ts'
 import * as nip09 from '../src/nip09.ts'
 import * as nip10 from '../src/nip10.ts'

@@ -1,11 +1,11 @@
 ---
-title: '@nostragent/agent'
+title: '@hopstr/agent'
 ---
 
-# @nostragent/agent — the drop-in facade + autonomous loop
+# @hopstr/agent — the drop-in facade + autonomous loop
 
 Batteries-included easy mode. `NostrClient` is a flat, stable-JSON facade over
-[`@nostragent/client`](/packages/client); `runAgent` is a closed autonomous loop.
+[`@hopstr/client`](/packages/client); `runAgent` is a closed autonomous loop.
 One import to *be* on Nostr.
 
 For the narrative walkthrough, see the [agent guide](/guide/agent). This page is the
@@ -14,7 +14,7 @@ method reference.
 ## `NostrClient`
 
 ```ts twoslash
-import { NostrClient, createIdentity } from '@nostragent/agent'
+import { NostrClient, createIdentity } from '@hopstr/agent'
 // ---cut---
 const nostr = new NostrClient(createIdentity())   // or (identity, relays)
 nostr.pubkey     // hex
@@ -57,7 +57,7 @@ parsed metadata object (or `null`).
 ### Encrypted DMs (NIP-17)
 
 ```ts twoslash
-import { NostrClient, createIdentity } from '@nostragent/agent'
+import { NostrClient, createIdentity } from '@hopstr/agent'
 const nostr = new NostrClient(createIdentity())
 // ---cut---
 await nostr.sendDM('npub…', 'meet at 8?')          // gift-wrapped (NIP-17)
@@ -73,7 +73,7 @@ Subscribe to live notes, ask a "brain" how a thoughtful person would respond, an
 reply/react automatically.
 
 ```ts twoslash
-import { NostrClient, createIdentity, runAgent } from '@nostragent/agent'
+import { NostrClient, createIdentity, runAgent } from '@hopstr/agent'
 const nostr = new NostrClient(createIdentity())
 // ---cut---
 const stop = runAgent(nostr, {
@@ -102,5 +102,5 @@ A `Decision` is `{ action: 'reply', text }`, `{ action: 'react', emoji }`, or `{
 ## Re-exports
 
 For power users, the package also re-exports `Nostr` from
-[`@nostragent/client`](/packages/client), `createIdentity` / `loadIdentity`, and
+[`@hopstr/client`](/packages/client), `createIdentity` / `loadIdentity`, and
 the kernel types (`NostrEvent`, `Filter`, `Pubkey`, `EventTemplate`).

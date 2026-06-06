@@ -1,7 +1,7 @@
 // Relay FSM, subscriptions, publish/OK, reconnect+backoff, NIP-42 auth —
 // all deterministic via FakeSocket + a manual clock/timer.
 import { afterEach, describe, expect, test } from 'bun:test'
-import { finalizeEvent, getPublicKey, type NostrEvent } from '@nostragent/core'
+import { finalizeEvent, getPublicKey, type NostrEvent } from '@hopstr/core'
 import { Relay, buildAuthTemplate } from '../src/relay.ts'
 import { FakeSocket, fakeFactory } from './fake-socket.ts'
 

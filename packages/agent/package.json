@@ -1,7 +1,7 @@
 {
-  "name": "@nostragent/agent",
+  "name": "@hopstr/agent",
   "version": "0.0.0",
-  "description": "Velvet's easy-mode facade — the drop-in NostrClient (post/reply/feed/DMs) and the autonomous runAgent loop, over the full @nostragent stack.",
+  "description": "Velvet's easy-mode facade — the drop-in NostrClient (post/reply/feed/DMs) and the autonomous runAgent loop, over the full @hopstr stack.",
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
@@ -18,9 +18,9 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@nostragent/core": "workspace:*",
-    "@nostragent/client": "workspace:*",
-    "@nostragent/nips": "workspace:*",
-    "@nostragent/signers": "workspace:*"
+    "@hopstr/core": "workspace:*",
+    "@hopstr/client": "workspace:*",
+    "@hopstr/nips": "workspace:*",
+    "@hopstr/signers": "workspace:*"
   }
 }

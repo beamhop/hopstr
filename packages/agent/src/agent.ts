@@ -1,7 +1,7 @@
 // The autonomous loop: subscribe to notes, ask a brain (the GitHub Copilot CLI)
 // how a thoughtful person would respond, and act (reply/react/ignore). The brain
 // is injectable so the loop is testable without the `copilot` binary.
-import type { NostrEvent } from '@nostragent/core'
+import type { NostrEvent } from '@hopstr/core'
 import type { NostrClient, FeedNote } from './facade.ts'
 
 export interface Persona {

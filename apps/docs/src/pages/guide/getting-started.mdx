@@ -7,19 +7,19 @@ title: Getting Started
 ## Install
 
 ```bash
-bun add @nostragent/client
+bun add @hopstr/client
 ```
 
-For the batteries-included "just be on Nostr" experience, use `@nostragent/agent`:
+For the batteries-included "just be on Nostr" experience, use `@hopstr/agent`:
 
 ```bash
-bun add @nostragent/agent
+bun add @hopstr/agent
 ```
 
 ## Two lines to hello-world
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 // ---cut---
 const nostr = await Nostr.create()        // random key, sane relays, outbox on
 await nostr.note('hello nostr')
@@ -30,7 +30,7 @@ await nostr.note('hello nostr')
 ## Bring your own key
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 // ---cut---
 const nostr = await Nostr.create({
   secretKey: 'nsec1…',                    // or hex, or a Uint8Array

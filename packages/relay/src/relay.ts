@@ -3,7 +3,7 @@
 //
 // WebSocket and the clock are injectable so reconnection/backoff/timeout logic
 // is fully testable with fake timers and an in-process mock socket.
-import type { Filter, NostrEvent } from '@nostragent/core'
+import type { Filter, NostrEvent } from '@hopstr/core'
 import {
   parseRelayMessage,
   reasonPrefix,

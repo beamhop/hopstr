@@ -1,5 +1,5 @@
 {
-  "name": "@nostragent/client",
+  "name": "@hopstr/client",
   "version": "0.0.0",
   "description": "Velvet client — the high-level reactive Nostr client: Nostr.create(), optimistic publish, async-iterable subscriptions, profile cache, outbox routing on by default.",
   "type": "module",
@@ -25,11 +25,11 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@nostragent/core": "workspace:*",
-    "@nostragent/signers": "workspace:*",
-    "@nostragent/relay": "workspace:*",
-    "@nostragent/pool": "workspace:*",
-    "@nostragent/router": "workspace:*",
-    "@nostragent/store": "workspace:*"
+    "@hopstr/core": "workspace:*",
+    "@hopstr/signers": "workspace:*",
+    "@hopstr/relay": "workspace:*",
+    "@hopstr/pool": "workspace:*",
+    "@hopstr/router": "workspace:*",
+    "@hopstr/store": "workspace:*"
   }
 }

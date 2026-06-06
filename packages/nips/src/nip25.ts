@@ -1,5 +1,5 @@
 // NIP-25: reactions (kind 7). content "+" (like), "-" (dislike), or an emoji.
-import { addressOf, type EventTemplate, type NostrEvent } from '@nostragent/core'
+import { addressOf, type EventTemplate, type NostrEvent } from '@hopstr/core'
 
 /** React to an event. content defaults to "+" (a like). */
 export function react(event: NostrEvent, content = '+', relay = ''): EventTemplate {

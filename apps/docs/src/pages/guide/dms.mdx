@@ -9,10 +9,10 @@ with your key, then wrapped again with a *fresh ephemeral key per recipient*, wi
 back-dated timestamps. That hides not just the content but the metadata — who is
 talking to whom, and when.
 
-## The easy way (`@nostragent/agent`)
+## The easy way (`@hopstr/agent`)
 
 ```ts twoslash
-import { NostrClient, createIdentity } from '@nostragent/agent'
+import { NostrClient, createIdentity } from '@hopstr/agent'
 const nostr = new NostrClient(createIdentity())
 const bob = createIdentity().npub
 // ---cut---
@@ -23,11 +23,11 @@ const convo = await nostr.readDMs(bob)      // [{ from, text, at }] — NIP-17 +
 The facade sends NIP-17 and also *reads* old kind-4 conversations, so nothing
 disappears in the upgrade.
 
-## The explicit way (`@nostragent/nips/nip17`)
+## The explicit way (`@hopstr/nips/nip17`)
 
 ```ts twoslash
-import { sealDirectMessage, openDirectMessage } from '@nostragent/nips/nip17'
-import { createIdentity } from '@nostragent/core'
+import { sealDirectMessage, openDirectMessage } from '@hopstr/nips/nip17'
+import { createIdentity } from '@hopstr/core'
 const me = createIdentity()
 const bobPubkey = createIdentity().pubkey
 const giftWrap = sealDirectMessage({ text: 'hi', to: [bobPubkey] }, me.secretKey)[0]!.wrap

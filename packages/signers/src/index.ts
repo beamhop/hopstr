@@ -1,4 +1,4 @@
-// @nostragent/signers — one async Signer interface, every backend.
+// @hopstr/signers — one async Signer interface, every backend.
 export type { Signer, SignerBackend, SignerPayload } from './signer.ts'
 
 export { LocalSigner, privateKeySigner } from './local.ts'

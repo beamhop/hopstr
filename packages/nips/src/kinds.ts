@@ -2,7 +2,7 @@
 // and defining NIP. Sourced from the canonical nostr-protocol/nips index. This is
 // the backbone that lets the library handle (render/classify) any event generically
 // and lets the coverage meta-test prove every NIP has a home.
-import { classifyKind, type KindClass } from '@nostragent/core'
+import { classifyKind, type KindClass } from '@hopstr/core'
 
 export interface KindInfo {
   kind: number

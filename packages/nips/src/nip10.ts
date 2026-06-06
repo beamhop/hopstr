@@ -1,5 +1,5 @@
 // NIP-10: threaded replies — e/p tags with root/reply/mention markers.
-import type { NostrEvent, Tag } from '@nostragent/core'
+import type { NostrEvent, Tag } from '@hopstr/core'
 
 export interface ThreadRefs {
   root?: { id: string; relay?: string }

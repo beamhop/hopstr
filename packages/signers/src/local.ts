@@ -11,7 +11,7 @@ import {
   type EventTemplate,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 import type { Signer } from './signer.ts'
 import { nip04Decrypt } from './nip04.ts'
 

@@ -1,6 +1,6 @@
 // Local signer, NIP-06 derivation, NIP-49 ncryptsec (official vector), NIP-04 decrypt.
 import { describe, expect, test } from 'bun:test'
-import { finalizeEvent, getPublicKey, nip44, verifyEvent } from '@nostragent/core'
+import { finalizeEvent, getPublicKey, nip44, verifyEvent } from '@hopstr/core'
 import { secp256k1 } from '@noble/curves/secp256k1.js'
 import { cbc } from '@noble/ciphers/aes.js'
 import { base64 } from '@scure/base'

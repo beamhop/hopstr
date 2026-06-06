@@ -1,6 +1,6 @@
-// @nostragent/core — Velvet's pure Nostr kernel.
+// @hopstr/core — Velvet's pure Nostr kernel.
 // The drop-in facade (NostrClient, DEFAULT_RELAYS, runAgent) is grafted on in
-// Phase 7 once @nostragent/client exists.
+// Phase 7 once @hopstr/client exists.
 
 export type {
   Tag,
@@ -58,7 +58,7 @@ export type { Identity } from './identity.ts'
 export { createIdentity, loadIdentity, npubOf, secretHex } from './identity.ts'
 
 // NIP-19 / NIP-21 / NIP-44 are also available as focused subpath imports
-// (@nostragent/core/nip19 etc.) for tree-shaking; re-exported here for convenience.
+// (@hopstr/core/nip19 etc.) for tree-shaking; re-exported here for convenience.
 export * as nip19 from './nip19.ts'
 export * as nip21 from './nip21.ts'
 export * as nip44 from './nip44.ts'

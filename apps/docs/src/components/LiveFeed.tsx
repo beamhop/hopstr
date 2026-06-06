@@ -1,9 +1,9 @@
 'use client'
 // A live island: streams real kind-1 notes from public relays, in the browser,
-// using the actual published @nostragent/pool. Defensive by design — multi-relay,
+// using the actual published @hopstr/pool. Defensive by design — multi-relay,
 // a timeout, connection-state UI — so it never blocks render or hangs the page.
 import { useEffect, useState } from 'react'
-import { Pool } from '@nostragent/pool'
+import { Pool } from '@hopstr/pool'
 
 const DEFAULT_RELAYS = ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.primal.net']
 

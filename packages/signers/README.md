@@ -1,4 +1,4 @@
-# @nostragent/signers
+# @hopstr/signers
 
 > One async `Signer` interface. Local key, browser extension, or remote bunker — the same `publish()` code works with all three.
 
@@ -19,7 +19,7 @@ interface Signer {
 ## Install
 
 ```bash
-bun add @nostragent/signers
+bun add @hopstr/signers
 ```
 
 ## Backends
@@ -27,7 +27,7 @@ bun add @nostragent/signers
 ### Local key
 
 ```ts
-import { privateKeySigner } from '@nostragent/signers'
+import { privateKeySigner } from '@hopstr/signers'
 
 const signer = privateKeySigner(nsecOrHexOrBytes)
 const event = await signer.signEvent({ kind: 1, tags: [], content: 'gm' })
@@ -36,7 +36,7 @@ const event = await signer.signEvent({ kind: 1, tags: [], content: 'gm' })
 ### NIP-07 browser extension
 
 ```ts
-import { nip07Signer } from '@nostragent/signers'
+import { nip07Signer } from '@hopstr/signers'
 
 const signer = nip07Signer()        // wraps window.nostr (pass a provider in tests)
 ```
@@ -46,11 +46,11 @@ Encryption calls are serialized into a queue (extensions misbehave under concurr
 ### NIP-46 remote bunker
 
 ```ts
-import { bunkerSigner } from '@nostragent/signers'
+import { bunkerSigner } from '@hopstr/signers'
 
 const signer = await bunkerSigner('bunker://<pubkey>?relay=wss://relay&secret=...', {
   clientSecret,            // a disposable local key
-  transport,               // publish + subscribe over relays (wired by @nostragent/client)
+  transport,               // publish + subscribe over relays (wired by @hopstr/client)
   onAuthUrl: (url) => open(url),   // surfaced when the signer needs user approval
 })
 const pubkey = await signer.getPublicKey()
@@ -65,7 +65,7 @@ import {
   generateSeedWords, privateKeyHexFromSeedWords,   // NIP-06 (m/44'/1237'/account'/0/0)
   encryptKey, decryptKey,                           // NIP-49 ncryptsec (scrypt + XChaCha20-Poly1305)
   fromPayload,                                       // rebuild any signer from toPayload()
-} from '@nostragent/signers'
+} from '@hopstr/signers'
 
 const ncryptsec = encryptKey(secret, password)       // "ncryptsec1..."
 const secret = decryptKey(ncryptsec, password)

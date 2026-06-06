@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/core'
+title: '@hopstr/core'
 ---
 
-# @nostragent/core — the pure Nostr kernel
+# @hopstr/core — the pure Nostr kernel
 
 Zero dependencies on the rest of Velvet. Owns the event model, NIP-01 ids and
 schnorr signing, the primitive codecs, and NIP-19/21/44. Everything else is built
@@ -13,7 +13,7 @@ on top of this.
 import {
   createIdentity, finalizeEvent, verifyEvent, build, buildNote,
   parsePubkey, classifyKind, nip19,
-} from '@nostragent/core'
+} from '@hopstr/core'
 ```
 
 ## Identities
@@ -26,7 +26,7 @@ import {
 | `secretHex(identity)` | the hex secret key |
 
 ```ts twoslash
-import { createIdentity } from '@nostragent/core'
+import { createIdentity } from '@hopstr/core'
 // ---cut---
 const me = createIdentity()
 me.npub  // npub1…
@@ -41,7 +41,7 @@ me.npub  // npub1…
 directly.
 
 ```ts twoslash
-import { build, finalizeEvent, verifyEvent, createIdentity } from '@nostragent/core'
+import { build, finalizeEvent, verifyEvent, createIdentity } from '@hopstr/core'
 const sk = createIdentity().secretKey
 // ---cut---
 const template = build(1, 'gm').tag('t', 'coffee')
@@ -71,10 +71,10 @@ Byte/hex/base64 codecs (`bytesToHex`, `hexToBytes`, `utf8ToBytes`, `base64`,
 ## NIP-19 / 21 / 44
 
 Re-exported as namespaces, also available as tree-shakeable subpaths
-(`@nostragent/core/nip19`, etc.):
+(`@hopstr/core/nip19`, etc.):
 
 ```ts twoslash
-import { nip19, createIdentity } from '@nostragent/core'
+import { nip19, createIdentity } from '@hopstr/core'
 const pubkey = createIdentity().pubkey
 // ---cut---
 const npub = nip19.encodeNpub(pubkey)

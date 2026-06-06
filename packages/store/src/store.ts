@@ -7,7 +7,7 @@ import {
   matchFilters,
   type Filter,
   type NostrEvent,
-} from '@nostragent/core'
+} from '@hopstr/core'
 
 export type AddResult = 'added' | 'duplicate' | 'replaced' | 'outdated' | 'deleted' | 'expired'
 

@@ -2,7 +2,7 @@
 // local key and talks JSON-RPC (kind 24133, NIP-44 encrypted) to a remote signer.
 //
 // Transport is injected (publish + subscribe over relays) so this is testable
-// without a live relay; @nostragent/client wires in the real pool in Phase 5.
+// without a live relay; @hopstr/client wires in the real pool in Phase 5.
 import {
   finalizeEvent,
   getPublicKey,
@@ -11,7 +11,7 @@ import {
   type EventTemplate,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 import type { Signer } from './signer.ts'
 
 const KIND = 24133

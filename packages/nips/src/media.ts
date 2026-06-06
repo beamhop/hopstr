@@ -1,6 +1,6 @@
 // Media NIPs: NIP-92 imeta attachments, NIP-94 file metadata (kind 1063),
 // NIP-68 picture posts (kind 20), NIP-71 video events (kind 21/22).
-import type { EventTemplate, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, NostrEvent } from '@hopstr/core'
 
 // ── NIP-92: imeta tags ──
 

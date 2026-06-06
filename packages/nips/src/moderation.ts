@@ -1,6 +1,6 @@
 // Moderation NIPs: NIP-56 reporting (kind 1984), NIP-32 labels (kind 1985),
 // NIP-36 sensitive content (content-warning tag).
-import type { EventTemplate, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, NostrEvent } from '@hopstr/core'
 
 // ── NIP-56: reporting ──
 

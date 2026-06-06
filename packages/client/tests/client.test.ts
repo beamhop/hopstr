@@ -7,9 +7,9 @@ import {
   getPublicKey,
   loadIdentity,
   type NostrEvent,
-} from '@nostragent/core'
-import { privateKeySigner } from '@nostragent/signers'
-import { Pool } from '@nostragent/pool'
+} from '@hopstr/core'
+import { privateKeySigner } from '@hopstr/signers'
+import { Pool } from '@hopstr/pool'
 import { Nostr, DEFAULT_RELAYS } from '../src/client.ts'
 import { startRelay, type MockRelay } from './relay-harness.ts'
 

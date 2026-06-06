@@ -11,7 +11,7 @@ export default defineConfig({
     { text: 'NIPs', link: '/nips-coverage' },
     { text: 'Live demo', link: '/live' },
     { text: 'API', link: '/api', match: '/api' },
-    { text: 'GitHub', link: 'https://github.com/nostragent/velvet' },
+    { text: 'GitHub', link: 'https://github.com/beamhop/nostr' },
   ],
   sidebar: [
     {
@@ -38,15 +38,15 @@ export default defineConfig({
       text: 'Packages',
       collapsed: true,
       items: [
-        { text: '@nostragent/core', link: '/packages/core' },
-        { text: '@nostragent/signers', link: '/packages/signers' },
-        { text: '@nostragent/relay', link: '/packages/relay' },
-        { text: '@nostragent/pool', link: '/packages/pool' },
-        { text: '@nostragent/router', link: '/packages/router' },
-        { text: '@nostragent/store', link: '/packages/store' },
-        { text: '@nostragent/nips', link: '/packages/nips' },
-        { text: '@nostragent/client', link: '/packages/client' },
-        { text: '@nostragent/agent', link: '/packages/agent' },
+        { text: '@hopstr/core', link: '/packages/core' },
+        { text: '@hopstr/signers', link: '/packages/signers' },
+        { text: '@hopstr/relay', link: '/packages/relay' },
+        { text: '@hopstr/pool', link: '/packages/pool' },
+        { text: '@hopstr/router', link: '/packages/router' },
+        { text: '@hopstr/store', link: '/packages/store' },
+        { text: '@hopstr/nips', link: '/packages/nips' },
+        { text: '@hopstr/client', link: '/packages/client' },
+        { text: '@hopstr/agent', link: '/packages/agent' },
       ],
     },
     {

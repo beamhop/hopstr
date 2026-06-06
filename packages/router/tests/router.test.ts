@@ -7,7 +7,7 @@ import {
   parsePubkey,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 import { Router, type RouterPolicy } from '../src/router.ts'
 import { normalizeRelayUrl, parseRelayList, readRelays, writeRelays } from '../src/nip65.ts'
 import { hintsFromPointer, hintsFromTags } from '../src/hints.ts'

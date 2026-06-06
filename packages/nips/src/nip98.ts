@@ -1,6 +1,6 @@
 // NIP-98 HTTP Auth: a kind-27235 event proving control of a key, sent as an
 // `Authorization: Nostr <base64-event>` header on an HTTP request.
-import { base64, bytesToHex, sha256, utf8ToBytes, type EventTemplate, type NostrEvent } from '@nostragent/core'
+import { base64, bytesToHex, sha256, utf8ToBytes, type EventTemplate, type NostrEvent } from '@hopstr/core'
 
 export const KIND = 27235
 

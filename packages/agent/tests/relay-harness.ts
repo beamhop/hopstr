@@ -1,5 +1,5 @@
 // In-process Nostr relay for facade regression tests.
-import { matchFilters, type Filter, type NostrEvent } from '@nostragent/core'
+import { matchFilters, type Filter, type NostrEvent } from '@hopstr/core'
 
 export interface MockRelay {
   url: string

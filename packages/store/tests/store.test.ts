@@ -1,6 +1,6 @@
 // EventStore: dedup, replaceable/addressable newest-wins, NIP-09, NIP-40, streams.
 import { describe, expect, test } from 'bun:test'
-import { addressOf, finalizeEvent, getPublicKey, type NostrEvent } from '@nostragent/core'
+import { addressOf, finalizeEvent, getPublicKey, type NostrEvent } from '@hopstr/core'
 import { EventStore } from '../src/store.ts'
 
 const SK = '01'.repeat(32)

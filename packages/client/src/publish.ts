@@ -2,8 +2,8 @@
 // the network until awaited. It's a PromiseLike (so `await` runs the publish)
 // with chained .to()/.timeout() options, .undo() (soft-undo before send), and
 // .orThrow() (throw if no relay accepts).
-import type { NostrEvent } from '@nostragent/core'
-import type { PoolPublishResult } from '@nostragent/pool'
+import type { NostrEvent } from '@hopstr/core'
+import type { PoolPublishResult } from '@hopstr/pool'
 
 export interface PublishDriver {
   /** Resolve target relays (router decides unless overridden). */

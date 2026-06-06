@@ -1,5 +1,5 @@
 // NIP-23: long-form content (kind 30023, addressable markdown articles).
-import type { EventTemplate, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, NostrEvent } from '@hopstr/core'
 
 export interface Article {
   /** the `d` identifier (slug) — stable across edits */

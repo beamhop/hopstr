@@ -1,5 +1,5 @@
 {
-  "name": "@nostragent/signers",
+  "name": "@hopstr/signers",
   "version": "0.0.0",
   "description": "Velvet signers — one async Signer interface over local keys, NIP-07 extensions, NIP-46 bunkers, NIP-49 encrypted keys, and NIP-06 derivation.",
   "type": "module",
@@ -25,7 +25,7 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@nostragent/core": "workspace:*",
+    "@hopstr/core": "workspace:*",
     "@noble/ciphers": "2.2.0",
     "@noble/curves": "2.2.0",
     "@noble/hashes": "2.2.0",

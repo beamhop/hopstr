@@ -1,7 +1,7 @@
 // Wire-message parsing + reason-prefix extraction, including all reject paths.
 import { describe, expect, test } from 'bun:test'
 import { parseRelayMessage, reasonPrefix, serializeClientMessage } from '../src/messages.ts'
-import type { NostrEvent } from '@nostragent/core'
+import type { NostrEvent } from '@hopstr/core'
 
 const ev = { id: 'a', kind: 1 } as unknown as NostrEvent
 

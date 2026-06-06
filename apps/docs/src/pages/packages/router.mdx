@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/router'
+title: '@hopstr/router'
 ---
 
-# @nostragent/router — NIP-65 outbox routing
+# @hopstr/router — NIP-65 outbox routing
 
 The gossip/outbox model: read each author from *their* write relays, publish so
 each recipient sees it on *their* read relays. The [client](/packages/client) wires
@@ -26,7 +26,7 @@ interface RouterPolicy {
 
 ```ts twoslash
 // @noErrors
-import { Router } from '@nostragent/router'
+import { Router } from '@hopstr/router'
 const policy = {} as any
 // ---cut---
 const router = new Router(policy)

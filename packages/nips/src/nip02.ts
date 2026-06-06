@@ -1,5 +1,5 @@
 // NIP-02: follow list (kind 3) — `p` tags of followed pubkeys, replaceable.
-import type { EventTemplate, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, NostrEvent } from '@hopstr/core'
 
 export interface Follow {
   pubkey: string

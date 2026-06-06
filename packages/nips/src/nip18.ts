@@ -1,5 +1,5 @@
 // NIP-18: reposts (kind 6 for kind-1 notes, kind 16 for generic) and quote reposts.
-import { type EventTemplate, type NostrEvent } from '@nostragent/core'
+import { type EventTemplate, type NostrEvent } from '@hopstr/core'
 
 /** Repost a kind-1 note (kind 6). content carries the stringified original (optional). */
 export function repost(event: NostrEvent, relay = ''): EventTemplate {

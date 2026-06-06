@@ -1,4 +1,4 @@
-// @nostragent/router — the NIP-65 outbox/gossip model.
+// @hopstr/router — the NIP-65 outbox/gossip model.
 export { Router, type RouterPolicy, type Selection } from './router.ts'
 export {
   parseRelayList,

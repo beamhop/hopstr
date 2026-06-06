@@ -12,7 +12,7 @@ import { HelloNostr } from '../components/HelloNostr'
 **The Nostr toolkit that feels like velvet** — every NIP, zero ceremony, runs anywhere TypeScript does.
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 // ---cut---
 const nostr = await Nostr.create()        // random key, sane relays, outbox on
 await nostr.note('hello nostr')           // signs + routes to your write relays
@@ -34,7 +34,7 @@ await nostr.note('hello nostr')           // signs + routes to your write relays
 ## Read a live feed, reactively
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 // ---cut---
 const nostr = await Nostr.create()
 for await (const note of nostr.notes({ kinds: [1], limit: 20 })) {

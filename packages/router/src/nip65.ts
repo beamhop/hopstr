@@ -1,5 +1,5 @@
 // NIP-65 relay lists (kind 10002): an author's advertised read/write relays.
-import type { NostrEvent } from '@nostragent/core'
+import type { NostrEvent } from '@hopstr/core'
 
 export interface RelayListEntry {
   url: string

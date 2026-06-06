@@ -1,5 +1,5 @@
 {
-  "name": "@nostragent/docs",
+  "name": "@hopstr/docs",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,15 +11,15 @@
     "check-examples": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@nostragent/agent": "workspace:*",
-    "@nostragent/client": "workspace:*",
-    "@nostragent/core": "workspace:*",
-    "@nostragent/nips": "workspace:*",
-    "@nostragent/pool": "workspace:*",
-    "@nostragent/relay": "workspace:*",
-    "@nostragent/router": "workspace:*",
-    "@nostragent/signers": "workspace:*",
-    "@nostragent/store": "workspace:*",
+    "@hopstr/agent": "workspace:*",
+    "@hopstr/client": "workspace:*",
+    "@hopstr/core": "workspace:*",
+    "@hopstr/nips": "workspace:*",
+    "@hopstr/pool": "workspace:*",
+    "@hopstr/relay": "workspace:*",
+    "@hopstr/router": "workspace:*",
+    "@hopstr/signers": "workspace:*",
+    "@hopstr/store": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

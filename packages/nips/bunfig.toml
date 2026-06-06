@@ -1,4 +1,4 @@
-# This package (like @nostragent/client) triggers Bun 1.3.10's coverage-finalizer
+# This package (like @hopstr/client) triggers Bun 1.3.10's coverage-finalizer
 # bug: collecting coverage exits non-zero even with 39/39 tests passing, because
 # of its cross-package dist dependency graph (core + signers dists). So coverage
 # is OFF by default here — `bun test` is a clean, strict pass/fail gate — and the

@@ -1,8 +1,8 @@
 // A pool of relay connections. Lazily opens one Relay per URL, fans a filter to
 // many relays, dedups events by id across relays, and aggregates EOSE.
-import type { Filter, NostrEvent } from '@nostragent/core'
-import { verifyEvent } from '@nostragent/core'
-import { Relay, type PublishResult, type RelayOptions } from '@nostragent/relay'
+import type { Filter, NostrEvent } from '@hopstr/core'
+import { verifyEvent } from '@hopstr/core'
+import { Relay, type PublishResult, type RelayOptions } from '@hopstr/relay'
 import { Subscription } from './subscription.ts'
 
 export interface PoolPublishResult extends PublishResult {

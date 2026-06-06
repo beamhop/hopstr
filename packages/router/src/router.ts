@@ -2,7 +2,7 @@
 // it picks a small set of relays that covers them well, using each author's
 // advertised relay list. Policy (where to find relay lists, defaults, quality,
 // caps) is injected, so the router stays pure and testable.
-import type { Pubkey } from '@nostragent/core'
+import type { Pubkey } from '@hopstr/core'
 
 export interface RouterPolicy {
   /** This author's relays for the given use ('read' = their inbox, 'write' = outbox). */

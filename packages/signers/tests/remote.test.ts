@@ -8,7 +8,7 @@ import {
   type EventTemplate,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 import { Nip07Signer, nip07Signer, type Nip07Provider } from '../src/nip07.ts'
 import {
   BunkerSigner,

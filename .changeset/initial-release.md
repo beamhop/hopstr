@@ -1,13 +1,13 @@
 ---
-"@nostragent/core": minor
-"@nostragent/signers": minor
-"@nostragent/relay": minor
-"@nostragent/pool": minor
-"@nostragent/router": minor
-"@nostragent/store": minor
-"@nostragent/nips": minor
-"@nostragent/client": minor
-"@nostragent/agent": minor
+"@hopstr/core": minor
+"@hopstr/signers": minor
+"@hopstr/relay": minor
+"@hopstr/pool": minor
+"@hopstr/router": minor
+"@hopstr/store": minor
+"@hopstr/nips": minor
+"@hopstr/client": minor
+"@hopstr/agent": minor
 ---
 
 Initial public release of Velvet — a world-class, NIP-complete, maximally ergonomic Nostr client library.

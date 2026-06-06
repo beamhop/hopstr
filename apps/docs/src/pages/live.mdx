@@ -8,7 +8,7 @@ import { HelloNostr } from '../components/HelloNostr'
 # Live in the browser
 
 Nostr is pure client-side — websockets plus WebCrypto, no server. So these demos
-aren't sandboxes or recordings: they import the **real published `@nostragent`
+aren't sandboxes or recordings: they import the **real published `@hopstr`
 packages** and talk to **real public relays**, right here on this page.
 
 ## A live feed
@@ -21,7 +21,7 @@ actual library — streaming real notes as they arrive:
 </div>
 
 ```tsx
-import { Pool } from '@nostragent/pool'
+import { Pool } from '@hopstr/pool'
 
 const pool = new Pool()
 for await (const note of pool.subscribe(['wss://relay.damus.io'], [{ kinds: [1], limit: 8 }])) {
@@ -32,7 +32,7 @@ for await (const note of pool.subscribe(['wss://relay.damus.io'], [{ kinds: [1],
 ## Publish a note
 
 This generates a fresh throwaway key in your browser, signs with the real
-`@nostragent/client`, and publishes to a test relay:
+`@hopstr/client`, and publishes to a test relay:
 
 <div style={{ margin: '1.5rem 0' }}>
   <HelloNostr />

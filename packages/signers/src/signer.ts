@@ -1,7 +1,7 @@
 // The one async Signer interface. Everything that can sign — a local key, a
 // browser extension (NIP-07), a remote bunker (NIP-46) — implements this, so
 // publish/encrypt code is identical regardless of where the secret lives.
-import type { EventTemplate, NostrEvent, Pubkey } from '@nostragent/core'
+import type { EventTemplate, NostrEvent, Pubkey } from '@hopstr/core'
 
 export type SignerBackend = 'local' | 'nip07' | 'nip46'
 

@@ -9,7 +9,7 @@ A Nostr identity is just a keypair. Velvet has **one async `Signer` interface** 
 ## Create or load an identity
 
 ```ts twoslash
-import { createIdentity, loadIdentity } from '@nostragent/core'
+import { createIdentity, loadIdentity } from '@hopstr/core'
 // ---cut---
 const me = createIdentity()               // { secretKey, pubkey, nsec, npub }
 const same = loadIdentity(me.nsec)         // from nsec, hex, or raw bytes
@@ -18,7 +18,7 @@ const same = loadIdentity(me.nsec)         // from nsec, hex, or raw bytes
 ## The Signer interface
 
 ```ts twoslash
-import type { Signer } from '@nostragent/signers'
+import type { Signer } from '@hopstr/signers'
 //            ^?
 ```
 
@@ -26,7 +26,7 @@ Three backends, one interface:
 
 ```ts twoslash
 // @noErrors
-import { privateKeySigner, nip07Signer, bunkerSigner } from '@nostragent/signers'
+import { privateKeySigner, nip07Signer, bunkerSigner } from '@hopstr/signers'
 // ---cut---
 const local = privateKeySigner('nsec1…')                 // a local key
 const ext = nip07Signer()                                 // a browser extension (window.nostr)
@@ -36,7 +36,7 @@ const bunker = await bunkerSigner('bunker://…', { clientSecret, transport })  
 ## Keys at rest & derivation
 
 ```ts twoslash
-import { encryptKey, decryptKey, privateKeyHexFromSeedWords } from '@nostragent/signers'
+import { encryptKey, decryptKey, privateKeyHexFromSeedWords } from '@hopstr/signers'
 // ---cut---
 const ncryptsec = encryptKey('nsec1…', 'my password')     // NIP-49, scrypt + XChaCha20-Poly1305
 const back = decryptKey(ncryptsec, 'my password')

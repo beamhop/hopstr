@@ -8,7 +8,7 @@ import {
   verifyEvent,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 import * as nip59 from '../src/nip59.ts'
 import * as nip17 from '../src/nip17.ts'
 import * as nip51 from '../src/nip51.ts'

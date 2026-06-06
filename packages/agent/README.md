@@ -1,19 +1,19 @@
-# @nostragent/agent
+# @hopstr/agent
 
 > Velvet's easy mode: the drop-in `NostrClient` and the autonomous `runAgent` loop, over the full stack.
 
-If you just want to *be on Nostr* — post, reply, follow, DM, run a bot — this is the one package to import. It's a thin, batteries-included facade over [`@nostragent/client`](../client) + [`@nostragent/nips`](../nips), with the exact method names and JSON shapes the `nostr-agent` CLI uses.
+If you just want to *be on Nostr* — post, reply, follow, DM, run a bot — this is the one package to import. It's a thin, batteries-included facade over [`@hopstr/client`](../client) + [`@hopstr/nips`](../nips), with the exact method names and JSON shapes the `nostr-agent` CLI uses.
 
 ## Install
 
 ```bash
-bun add @nostragent/agent
+bun add @hopstr/agent
 ```
 
 ## Be a person on Nostr
 
 ```ts
-import { NostrClient, createIdentity } from '@nostragent/agent'
+import { NostrClient, createIdentity } from '@hopstr/agent'
 
 const me = createIdentity()                       // or loadIdentity(nsec)
 const nostr = new NostrClient(me)                 // default relays, ready to go
@@ -48,7 +48,7 @@ DMs use **NIP-17 gift wrap** (metadata-private) and also *read* old kind-4 conve
 A closed loop: subscribe to live notes, ask a brain how a thoughtful person would respond, and reply/react automatically.
 
 ```ts
-import { runAgent } from '@nostragent/agent'
+import { runAgent } from '@hopstr/agent'
 
 const stop = runAgent(nostr, {
   watch: 'mentions',                                // or 'feed'

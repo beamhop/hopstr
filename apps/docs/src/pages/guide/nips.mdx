@@ -1,28 +1,28 @@
 ---
-title: '@nostragent/nips'
+title: '@hopstr/nips'
 ---
 
-# @nostragent/nips — every NIP, tree-shakeable
+# @hopstr/nips — every NIP, tree-shakeable
 
 Each NIP is a focused subpath import — a typed factory + parser (+ an action where
 it applies). Pull in only what you use.
 
 ```ts twoslash
 // @noErrors
-import { article } from '@nostragent/nips/nip23'        // long-form
-import { react } from '@nostragent/nips/nip25'          // reactions
-import { zapRequest } from '@nostragent/nips/nip57'      // zaps
-import { fileMetadata } from '@nostragent/nips/media'    // NIP-94
-import { report, label } from '@nostragent/nips/moderation'
-import { resolveNip05 } from '@nostragent/nips/discovery'
-import { kindInfo } from '@nostragent/nips/kinds'        // the kind registry
+import { article } from '@hopstr/nips/nip23'        // long-form
+import { react } from '@hopstr/nips/nip25'          // reactions
+import { zapRequest } from '@hopstr/nips/nip57'      // zaps
+import { fileMetadata } from '@hopstr/nips/media'    // NIP-94
+import { report, label } from '@hopstr/nips/moderation'
+import { resolveNip05 } from '@hopstr/nips/discovery'
+import { kindInfo } from '@hopstr/nips/kinds'        // the kind registry
 ```
 
 ## Zaps (NIP-57)
 
 ```ts twoslash
-import { zapRequest, fetchZapInvoice } from '@nostragent/nips/nip57'
-import { createIdentity, finalizeEvent } from '@nostragent/core'
+import { zapRequest, fetchZapInvoice } from '@hopstr/nips/nip57'
+import { createIdentity, finalizeEvent } from '@hopstr/core'
 const recipient = createIdentity().pubkey
 const relays = ['wss://relay.damus.io']
 const lnurl = 'lnurl1…'
@@ -35,7 +35,7 @@ const { invoice } = await fetchZapInvoice('alice@wallet.com', signed, 21_000, ln
 ## Describe any kind
 
 ```ts twoslash
-import { kindInfo } from '@nostragent/nips/kinds'
+import { kindInfo } from '@hopstr/nips/kinds'
 // ---cut---
 kindInfo(30023)
 // ^?
@@ -48,4 +48,4 @@ index and asserts each one resolves to a real module, a kernel-stack feature, th
 kind registry, or an explicit parse-only note. "Supports all NIPs" is mechanically
 verified, not aspirational.
 
-See the full table in the [package README](https://github.com/nostragent/velvet/tree/main/packages/nips).
+See the full table in the [package README](https://github.com/beamhop/nostr/tree/main/packages/nips).

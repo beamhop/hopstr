@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/signers'
+title: '@hopstr/signers'
 ---
 
-# @nostragent/signers — one interface, every backend
+# @hopstr/signers — one interface, every backend
 
 A signer is *the only thing that touches a secret*. Local key, browser extension,
 or remote bunker — they all implement the same async `Signer`, so your
@@ -35,8 +35,8 @@ reassemble it.
 | `bunkerSigner(uri, deps)` / `new BunkerSigner(...)` | NIP-46 | a remote signer / bunker |
 
 ```ts twoslash
-import { LocalSigner } from '@nostragent/signers'
-import { createIdentity } from '@nostragent/core'
+import { LocalSigner } from '@hopstr/signers'
+import { createIdentity } from '@hopstr/core'
 // ---cut---
 const signer = new LocalSigner(createIdentity().secretKey)
 const pubkey = await signer.getPublicKey()
@@ -53,7 +53,7 @@ deps)` rebuilds it. Remote signers never serialize a bare secret.
 ## Mnemonics (NIP-06)
 
 ```ts twoslash
-import { generateSeedWords, privateKeyFromSeedWords, validateWords } from '@nostragent/signers'
+import { generateSeedWords, privateKeyFromSeedWords, validateWords } from '@hopstr/signers'
 // ---cut---
 const words = generateSeedWords()
 validateWords(words)                                  // true

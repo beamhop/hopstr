@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/relay'
+title: '@hopstr/relay'
 ---
 
-# @nostragent/relay — one resilient connection
+# @hopstr/relay — one resilient connection
 
 A single, self-healing connection to a single relay: auto-reconnect with backoff,
 NIP-11 capability discovery, and NIP-42 AUTH. The [pool](/packages/pool) layers
@@ -11,8 +11,8 @@ many of these together — reach for `Relay` directly only when you want raw con
 ## `Relay`
 
 ```ts twoslash
-import { Relay } from '@nostragent/relay'
-import { build, finalizeEvent, createIdentity } from '@nostragent/core'
+import { Relay } from '@hopstr/relay'
+import { build, finalizeEvent, createIdentity } from '@hopstr/core'
 const signedEvent = finalizeEvent(build(1, 'gm'), createIdentity().secretKey)
 // ---cut---
 const relay = new Relay('wss://relay.damus.io')
@@ -45,7 +45,7 @@ Low-level NIP-01 wire helpers, if you're building your own transport:
 ## NIP-11 relay info
 
 ```ts twoslash
-import { fetchRelayInformation, supportsNip } from '@nostragent/relay'
+import { fetchRelayInformation, supportsNip } from '@hopstr/relay'
 // ---cut---
 const info = await fetchRelayInformation('wss://relay.damus.io')
 supportsNip(info, 50)          // does it support NIP-50 search?

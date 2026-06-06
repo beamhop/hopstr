@@ -8,11 +8,11 @@ import {
   type Filter,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
-import { type Signer, LocalSigner } from '@nostragent/signers'
-import { Pool, type PoolPublishResult, type Subscription } from '@nostragent/pool'
-import { Router } from '@nostragent/router'
-import { EventStore } from '@nostragent/store'
+} from '@hopstr/core'
+import { type Signer, LocalSigner } from '@hopstr/signers'
+import { Pool, type PoolPublishResult, type Subscription } from '@hopstr/pool'
+import { Router } from '@hopstr/router'
+import { EventStore } from '@hopstr/store'
 import { storeBackedPolicy } from './policy.ts'
 import { PublishThunk } from './publish.ts'
 

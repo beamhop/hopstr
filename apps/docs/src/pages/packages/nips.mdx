@@ -1,16 +1,16 @@
 ---
-title: '@nostragent/nips'
+title: '@hopstr/nips'
 ---
 
-# @nostragent/nips — every NIP, tree-shakeable
+# @hopstr/nips — every NIP, tree-shakeable
 
 One focused module per NIP: a typed factory + parser (+ an action where it
 applies). Import the whole namespace or a single subpath — bundlers drop the rest.
 
 ```ts twoslash
 // @noErrors
-import * as nips from '@nostragent/nips'          // everything, namespaced
-import { article } from '@nostragent/nips/nip23'   // just one NIP, tree-shaken
+import * as nips from '@hopstr/nips'          // everything, namespaced
+import { article } from '@hopstr/nips/nip23'   // just one NIP, tree-shaken
 ```
 
 For the narrative intro (zaps end-to-end, the kind registry, the coverage test),
@@ -40,15 +40,15 @@ A few related NIPs are grouped so you import a theme, not a number:
 
 | Import | Covers | Key exports |
 | --- | --- | --- |
-| `@nostragent/nips/media` | NIP-94/92/68/71 | `fileMetadata`, `imetaTag`, `picturePost`, `videoEvent` |
-| `@nostragent/nips/moderation` | NIP-56/32/36 | `report`, `label`, `withContentWarning` |
-| `@nostragent/nips/discovery` | NIP-65/89 | `relayListMetadata`, `handlerRecommendation` |
-| `@nostragent/nips/extra` | the long tail | `searchFilter`, `appData`, `highlight`, `poll`, `comment`, `status`, `createChannel`, `classifiedListing`, `withExpiration`, `asProtected` |
+| `@hopstr/nips/media` | NIP-94/92/68/71 | `fileMetadata`, `imetaTag`, `picturePost`, `videoEvent` |
+| `@hopstr/nips/moderation` | NIP-56/32/36 | `report`, `label`, `withContentWarning` |
+| `@hopstr/nips/discovery` | NIP-65/89 | `relayListMetadata`, `handlerRecommendation` |
+| `@hopstr/nips/extra` | the long tail | `searchFilter`, `appData`, `highlight`, `poll`, `comment`, `status`, `createChannel`, `classifiedListing`, `withExpiration`, `asProtected` |
 
 ## The kind registry
 
 ```ts twoslash
-import { kindInfo, nipsWithKinds } from '@nostragent/nips/kinds'
+import { kindInfo, nipsWithKinds } from '@hopstr/nips/kinds'
 // ---cut---
 kindInfo(30023)        // { kind, nip, name, class, … }
 //  ^?

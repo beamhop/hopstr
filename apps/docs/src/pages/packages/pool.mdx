@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/pool'
+title: '@hopstr/pool'
 ---
 
-# @nostragent/pool — many relays, one API
+# @hopstr/pool — many relays, one API
 
 The `Pool` manages a set of [`Relay`](/packages/relay) connections, dedups events
 across them, and hands back async-iterable `Subscription`s. The high-level
@@ -12,7 +12,7 @@ directly when you want relays without the rest.
 ## `Pool`
 
 ```ts twoslash
-import { Pool } from '@nostragent/pool'
+import { Pool } from '@hopstr/pool'
 const relays = ['wss://relay.damus.io', 'wss://nos.lol']
 // ---cut---
 const pool = new Pool()
@@ -44,7 +44,7 @@ normal.
 an event emitter:
 
 ```ts twoslash
-import { Pool } from '@nostragent/pool'
+import { Pool } from '@hopstr/pool'
 const pool = new Pool()
 const relays = ['wss://relay.damus.io']
 // ---cut---

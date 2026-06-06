@@ -1,6 +1,6 @@
 // NIP-57 zaps: build a kind-9734 zap request, resolve an LNURL-pay endpoint,
 // fetch the invoice, and parse a kind-9735 zap receipt.
-import type { EventTemplate, NostrEvent } from '@nostragent/core'
+import type { EventTemplate, NostrEvent } from '@hopstr/core'
 
 export interface ZapRequestInput {
   /** recipient pubkey */

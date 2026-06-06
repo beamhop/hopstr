@@ -3,7 +3,7 @@
 import { scrypt } from '@noble/hashes/scrypt.js'
 import { xchacha20poly1305 } from '@noble/ciphers/chacha.js'
 import { bech32 } from '@scure/base'
-import { bytesToHex, concatBytes, hexToBytes, randomBytes, toSecretBytes, utf8ToBytes } from '@nostragent/core'
+import { bytesToHex, concatBytes, hexToBytes, randomBytes, toSecretBytes, utf8ToBytes } from '@hopstr/core'
 
 const VERSION = 0x02
 const LIMIT = 5000

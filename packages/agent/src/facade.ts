@@ -1,6 +1,6 @@
 // The drop-in NostrClient facade — the "easy mode" surface the nostr-agent CLI
 // uses, with the exact method names and JSON return shapes of the original,
-// implemented over the full @nostragent stack. DMs use NIP-17 (read legacy too).
+// implemented over the full @hopstr stack. DMs use NIP-17 (read legacy too).
 import {
   createIdentity,
   loadIdentity,
@@ -10,10 +10,10 @@ import {
   type Identity,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
-import { Nostr } from '@nostragent/client'
-import { privateKeySigner, nip04Decrypt } from '@nostragent/signers'
-import { nip02, nip10, nip17, nip18, nip25 } from '@nostragent/nips'
+} from '@hopstr/core'
+import { Nostr } from '@hopstr/client'
+import { privateKeySigner, nip04Decrypt } from '@hopstr/signers'
+import { nip02, nip10, nip17, nip18, nip25 } from '@hopstr/nips'
 
 export { createIdentity, loadIdentity, type Identity }
 

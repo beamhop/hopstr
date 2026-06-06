@@ -1,4 +1,4 @@
-// @nostragent/relay — one resilient connection to one relay.
+// @hopstr/relay — one resilient connection to one relay.
 export {
   Relay,
   buildAuthTemplate,

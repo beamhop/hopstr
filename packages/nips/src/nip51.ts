@@ -1,6 +1,6 @@
 // NIP-51 lists & sets. Public items live in tags; private items are a NIP-44
 // self-encrypted JSON array of tags in `content`. One generic engine, keyed by kind.
-import { nip44, type EventTemplate, type NostrEvent } from '@nostragent/core'
+import { nip44, type EventTemplate, type NostrEvent } from '@hopstr/core'
 
 // Standard replaceable lists
 export const MUTE = 10000

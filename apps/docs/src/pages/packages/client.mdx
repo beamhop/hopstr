@@ -1,8 +1,8 @@
 ---
-title: '@nostragent/client'
+title: '@hopstr/client'
 ---
 
-# @nostragent/client — the high-level `Nostr` client
+# @hopstr/client — the high-level `Nostr` client
 
 Configure once, then read and write. `Nostr` wires a [pool](/packages/pool),
 [router](/packages/router), [store](/packages/store), and
@@ -12,7 +12,7 @@ This is the package most apps import.
 ## Creating a client
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 // ---cut---
 const nostr = await Nostr.create()                 // fresh random key
 const withKey = await Nostr.create({ secretKey: 'nsec1…' })
@@ -30,7 +30,7 @@ direct access; `await nostr.pubkey()` returns your public key.
 ## Writing
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 await nostr.note('gm')                              // kind-1 text note
@@ -51,7 +51,7 @@ ergonomics below.
 defers the network send until you `await` it — so the chained options run first:
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const pub = nostr.note('hello')
@@ -67,7 +67,7 @@ relay.
 ## Reading
 
 ```ts twoslash
-import { Nostr } from '@nostragent/client'
+import { Nostr } from '@hopstr/client'
 const nostr = await Nostr.create()
 // ---cut---
 const feed = nostr.notes({ limit: 20 })            // live kind-1 subscription

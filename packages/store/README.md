@@ -1,4 +1,4 @@
-# @nostragent/store
+# @hopstr/store
 
 > A reactive in-memory event store that does the bookkeeping every Nostr client needs.
 
@@ -7,13 +7,13 @@
 ## Install
 
 ```bash
-bun add @nostragent/store
+bun add @hopstr/store
 ```
 
 ## Use
 
 ```ts
-import { EventStore } from '@nostragent/store'
+import { EventStore } from '@hopstr/store'
 
 const store = new EventStore()
 

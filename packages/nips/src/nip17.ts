@@ -5,7 +5,7 @@ import {
   type EventTemplate,
   type NostrEvent,
   type Pubkey,
-} from '@nostragent/core'
+} from '@hopstr/core'
 import { unwrap, wrapTemplate, type Rumor, type WrapClock } from './nip59.ts'
 
 export const CHAT_KIND = 14
