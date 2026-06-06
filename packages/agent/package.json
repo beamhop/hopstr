@@ -22,5 +22,10 @@
     "@hopstr/client": "workspace:*",
     "@hopstr/nips": "workspace:*",
     "@hopstr/signers": "workspace:*"
+  },
+  "devDependencies": {
+    "@noble/ciphers": "2.2.0",
+    "@noble/curves": "2.2.0",
+    "@scure/base": "2.2.0"
   }
 }

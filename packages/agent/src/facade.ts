@@ -13,7 +13,7 @@ import {
 } from '@hopstr/core'
 import { Nostr } from '@hopstr/client'
 import { privateKeySigner, nip04Decrypt } from '@hopstr/signers'
-import { nip02, nip10, nip17, nip18, nip25 } from '@hopstr/nips'
+import { nip02, nip10, nip17, nip18, nip25, discovery } from '@hopstr/nips'
 
 export { createIdentity, loadIdentity, type Identity }
 
@@ -21,6 +21,15 @@ export const DEFAULT_RELAYS: string[] = [
   'wss://relay.damus.io',
   'wss://nos.lol',
   'wss://relay.primal.net',
+  'wss://relay.nostr.band',
+]
+
+// Well-known indexer/metadata relays that clients (iris, Damus, etc.) query to
+// discover a user's relay lists (kind-10002/10050) and profile. We broadcast our
+// kind-10050 here so senders can actually find it. https://nips.nostr.com/65
+export const DM_INDEXER_RELAYS: string[] = [
+  'wss://purplepag.es',
+  'wss://user.kindpag.es',
   'wss://relay.nostr.band',
 ]
 
@@ -62,9 +71,15 @@ export class NostrClient {
   readonly nostr: Nostr
   #relays: string[]
 
+  // When the caller didn't pick relays, we add the well-known indexer relays to
+  // discovery broadcasts (kind-0/3/10002/10050). With explicit relays we respect
+  // them exactly — no surprise outbound connections (also keeps tests hermetic).
+  readonly #usingDefaultRelays: boolean
+
   constructor(identity: Identity, relays: string[] = DEFAULT_RELAYS) {
     this.identity = identity
     this.#relays = relays
+    this.#usingDefaultRelays = relays === DEFAULT_RELAYS
     this.nostr = Nostr.fromOptions({ signer: privateKeySigner(identity.secretKey), relays, outbox: false })
   }
 
@@ -197,6 +212,103 @@ export class NostrClient {
 
   // ── encrypted DMs (NIP-17, with legacy kind-4 read) ──
 
+  // Make ourselves DM-able. Other clients (iris.to, Damus, etc.) follow a two-step
+  // discovery dance before they'll let someone DM you — and BOTH events must exist,
+  // or they show "This user has not enabled encrypted messaging yet":
+  //   1. kind-10002 (NIP-65): "here are the relays where you'll find my events."
+  //      https://nips.nostr.com/65
+  //   2. kind-10050 (NIP-17): "here's where to deliver my gift-wrapped DMs."
+  //      https://nips.nostr.com/17
+  // A sender reads (1) to learn your relays, then looks there for (2). Publishing
+  // only (2) isn't enough — without (1) the sender never knows to look on your
+  // relays in the first place. We publish both, broadcasting widely (our relays
+  // plus well-known indexer relays) so the events are discoverable. Both kinds are
+  // replaceable, so re-publishing on every startup is safe.
+  async enableDirectMessages(relays: string[] = this.#relays): Promise<{ relayList: PublishOk; dmRelays: PublishOk }> {
+    const relayList = await this.#broadcast(discovery.relayListMetadata(relays.map((url) => ({ url }))))
+    const dmRelays = await this.#broadcast(nip17.dmRelayList(relays))
+    return { relayList, dmRelays }
+  }
+
+  // Publish a replaceable list event to our relays + indexer relays so senders can
+  // discover it no matter which relay set they query. A per-publish timeout is
+  // essential: pool.publish awaits EVERY relay, and some indexer relays (e.g.
+  // purplepag.es) accept connections but never answer — without the cap this would
+  // hang forever. Relays that don't answer in time are simply reported failed.
+  async #broadcast(template: { kind: number; content: string; tags: string[][] }): Promise<PublishOk> {
+    const targets = this.#usingDefaultRelays ? [...new Set([...this.#relays, ...DM_INDEXER_RELAYS])] : this.#relays
+    const thunk = this.nostr.publish(template).to(targets).timeout(8000)
+    const event = await thunk.event()
+    await thunk
+    return { ok: true, id: event.id }
+  }
+
+  // ── one-time network presence bootstrap ──
+
+  /**
+   * Establish full network presence — the four things a fresh identity needs so
+   * other clients can find, read, and message it. Safe to run on every startup:
+   * kind-0/kind-3 are only created when MISSING (so we never clobber a profile or
+   * follow list you set elsewhere); kind-10002/kind-10050 are pure routing metadata
+   * and are always refreshed.
+   *   1. kind-0  profile metadata (NIP-01) — placeholder name if you have none yet
+   *   2. kind-10002 relay list (NIP-65)    — where your events live (gossip model)
+   *   3. kind-10050 DM relay list (NIP-17) — where to deliver private messages
+   *   4. kind-3  contact list (NIP-02)     — initial empty list to seed your graph
+   */
+  async bootstrap(relays: string[] = this.#relays): Promise<{
+    profile: PublishOk | 'exists'
+    relayList: PublishOk
+    dmRelays: PublishOk
+    contacts: PublishOk | 'exists'
+  }> {
+    // Run all four publishes concurrently — each waits on slow/flaky relays up to
+    // its own timeout, so serializing them would stack those waits (~30s+). In
+    // parallel the whole bootstrap finishes in roughly one timeout window.
+    const [profile, relayList, dmRelays, contacts] = await Promise.all([
+      this.#ensureProfile(),
+      this.#broadcast(discovery.relayListMetadata(relays.map((url) => ({ url })))),
+      this.#broadcast(nip17.dmRelayList(relays)),
+      this.#ensureContacts(),
+    ])
+    return { profile, relayList, dmRelays, contacts }
+  }
+
+  // Publish a minimal kind-0 ONLY if none exists — a placeholder is better than an
+  // unreadable hex pubkey, but we must never overwrite a real profile set elsewhere.
+  // Routed through #broadcast so it's both widely discoverable and timeout-bounded.
+  async #ensureProfile(): Promise<PublishOk | 'exists'> {
+    if (await this.#exists(0)) return 'exists'
+    return this.#broadcast({ kind: 0, content: JSON.stringify({ name: this.npub.slice(0, 12) }), tags: [] })
+  }
+
+  // Publish an empty kind-3 ONLY if none exists — seeds the social graph without
+  // ever wiping a follow list you've built in another client.
+  async #ensureContacts(): Promise<PublishOk | 'exists'> {
+    if (await this.#exists(3)) return 'exists'
+    return this.#broadcast(nip02.followList([]))
+  }
+
+  // Does a replaceable event of `kind` already exist for us? This guards the
+  // kind-0/kind-3 publishes so we never overwrite a profile/contact list set
+  // elsewhere. The subtlety: a pooled query resolves "not found" only once EVERY
+  // relay sends EOSE, so one stalled relay (purplepag.es, relay.nostr.band, …)
+  // would make it hang. We ask each relay separately (each capped to ~6s); if any
+  // healthy relay has the event we report "exists", otherwise once they've all
+  // settled we report "not found". A relay that times out counts as "not found"
+  // for itself — but if it actually held the only copy we'd rather skip than
+  // overwrite, so #ensure* publishes are themselves idempotent/replaceable-safe.
+  async #exists(kind: number): Promise<boolean> {
+    const filter: Filter = { kinds: [kind], authors: [this.pubkey] }
+    const cap = <T>(p: Promise<T>, fallback: T): Promise<T> =>
+      Promise.race([p, new Promise<T>((r) => setTimeout(() => r(fallback), 6000))])
+    const perRelay = this.#relays.map((relay) =>
+      cap(this.nostr.queryOne(filter, { relays: [relay] }).then(Boolean).catch(() => false), false),
+    )
+    const hits = await Promise.all(perRelay)
+    return hits.some(Boolean)
+  }
+
   async sendDM(pubkeyOrNpub: string, text: string): Promise<PublishOk> {
     const recipient = toNpubHex(pubkeyOrNpub)
     const wraps = nip17.sealDirectMessage({ text, to: [recipient] }, this.identity.secretKey)
@@ -246,6 +358,23 @@ export class NostrClient {
     }
 
     return messages.sort((a, b) => a.at - b.at)
+  }
+
+  /**
+   * Decrypt a single legacy kind-4 DM event (NIP-04). The counterparty (whose key
+   * we derive the shared secret with) is the sender for an incoming message, or the
+   * `p`-tagged recipient for one we sent. Returns the plaintext, or null if it isn't
+   * for us / can't be decrypted. https://nips.nostr.com/4
+   */
+  decryptLegacyDM(event: NostrEvent): string | null {
+    const recipient = event.tags.find((t) => t[0] === 'p')?.[1]
+    const counterparty = event.pubkey === this.pubkey ? recipient : event.pubkey
+    if (!counterparty) return null
+    try {
+      return nip04Decrypt(this.identity.secretKey, counterparty, event.content)
+    } catch {
+      return null
+    }
   }
 
   // ── low-level passthrough ──

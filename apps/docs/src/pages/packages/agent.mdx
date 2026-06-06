@@ -67,6 +67,20 @@ const thread = await nostr.readDMs('npub…', { limit: 50 })  // DM[] oldest→n
 Sending is modern NIP-17 gift wrap; reading also decrypts legacy kind-4 so old
 conversations stay visible.
 
+### Discovery & presence
+
+For others to DM you, your relay list (kind-10002) and DM relay list (kind-10050)
+must be published — otherwise clients show *"this user has not enabled encrypted
+messaging yet"*. These methods establish that presence; all are idempotent.
+
+| Method | What it does |
+| --- | --- |
+| `bootstrap()` | publish profile (0), relay list (10002), DM relays (10050) & contacts (3) — kind-0/3 only if missing |
+| `enableDirectMessages()` | publish just the kind-10002 + kind-10050 routing pair |
+| `decryptLegacyDM(event)` | decrypt one incoming kind-4 (NIP-04) event → plaintext, or `null` |
+
+The `hopstr listen` daemon calls `bootstrap()` automatically on connect.
+
 ## Autonomous mode — `runAgent`
 
 Subscribe to live notes, ask a "brain" how a thoughtful person would respond, and

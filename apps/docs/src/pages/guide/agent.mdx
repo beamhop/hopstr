@@ -24,6 +24,22 @@ await nostr.follow('npub…')
 await nostr.setProfile({ name: 'alice' })
 ```
 
+## Be discoverable & DM-able
+
+```ts twoslash
+import { NostrClient, createIdentity } from '@hopstr/agent'
+const nostr = new NostrClient(createIdentity())
+// ---cut---
+await nostr.bootstrap()   // publishes profile + relay list + DM relays + contacts
+```
+
+`bootstrap()` establishes the network presence other clients need to find and
+message you — profile (kind-0), relay list (kind-10002), DM relay list (kind-10050),
+and contacts (kind-3). It's idempotent (kind-0/3 only created when missing), and the
+`hopstr listen` daemon runs it on connect. Without the kind-10050, apps refuse to DM
+you (*"this user has not enabled encrypted messaging yet"*). See the
+[DM guide](/guide/dms) for details.
+
 ## Autonomous mode
 
 A closed loop: subscribe to live notes, ask a brain how a thoughtful person would

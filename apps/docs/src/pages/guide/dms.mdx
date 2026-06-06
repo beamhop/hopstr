@@ -23,6 +23,35 @@ const convo = await nostr.readDMs(bob)      // [{ from, text, at }] — NIP-17 +
 The facade sends NIP-17 and also *reads* old kind-4 conversations, so nothing
 disappears in the upgrade.
 
+## Being discoverable — `bootstrap()`
+
+A subtlety of NIP-17: before anyone can DM *you*, their client must discover where
+to deliver the gift wrap. It reads your relay list (kind-10002), then looks there
+for your **DM relay list** (kind-10050). If that kind-10050 is missing, clients like
+iris show *"this user has not enabled encrypted messaging yet"* and refuse to send.
+
+`bootstrap()` publishes everything a fresh identity needs to be found and messaged:
+
+```ts twoslash
+import { NostrClient, createIdentity } from '@hopstr/agent'
+const nostr = new NostrClient(createIdentity())
+// ---cut---
+await nostr.bootstrap()
+// kind-0     profile metadata        (placeholder name if you have none)
+// kind-10002 relay list (NIP-65)     where your events live
+// kind-10050 DM relay list (NIP-17)  where to deliver private messages
+// kind-3     contact list (NIP-02)   seeds your social graph
+```
+
+It's idempotent: kind-0/kind-3 are only created when missing (never clobbering an
+existing profile or follow list), and the routing lists are refreshed. The
+`hopstr listen` daemon calls it automatically on connect, so a running daemon stays
+DM-able. To publish just the kind-10002 + kind-10050 pair, use
+`enableDirectMessages()`.
+
+> Legacy kind-4 DMs are decrypted and printed inline by the daemon (via
+> `decryptLegacyDM`); replies always go out as modern NIP-17.
+
 ## The explicit way (`@hopstr/nips/nip17`)
 
 ```ts twoslash

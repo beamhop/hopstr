@@ -1,0 +1,19 @@
+{
+  "name": "@hopstr/cli",
+  "version": "0.0.0",
+  "description": "hopstr — a daemon CLI for Nostr: listen for mentions, replies, DMs, and reactions; post, reply, DM, and react from the terminal.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "hopstr": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hopstr/agent": "workspace:*",
+    "@hopstr/core": "workspace:*",
+    "@hopstr/nips": "workspace:*"
+  }
+}

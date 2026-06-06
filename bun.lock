@@ -49,6 +49,23 @@
         "@hopstr/nips": "workspace:*",
         "@hopstr/signers": "workspace:*",
       },
+      "devDependencies": {
+        "@noble/ciphers": "2.2.0",
+        "@noble/curves": "2.2.0",
+        "@scure/base": "2.2.0",
+      },
+    },
+    "packages/cli": {
+      "name": "@hopstr/cli",
+      "version": "0.0.0",
+      "bin": {
+        "hopstr": "./src/index.ts",
+      },
+      "dependencies": {
+        "@hopstr/agent": "workspace:*",
+        "@hopstr/core": "workspace:*",
+        "@hopstr/nips": "workspace:*",
+      },
     },
     "packages/client": {
       "name": "@hopstr/client",
@@ -304,6 +321,8 @@
     "@hono/node-server": ["@hono/node-server@2.0.4", "", { "peerDependencies": { "hono": "^4" } }, "sha512-Ut3y0dMMPWy6bZ2kVfx25EOVbZlm15dhF4mOsezMlhpNHy+4MkU1qN9Y6lnruYi4wPmFzimGX2X7LF/FwHli4A=="],
 
     "@hopstr/agent": ["@hopstr/agent@workspace:packages/agent"],
+
+    "@hopstr/cli": ["@hopstr/cli@workspace:packages/cli"],
 
     "@hopstr/client": ["@hopstr/client@workspace:packages/client"],
 

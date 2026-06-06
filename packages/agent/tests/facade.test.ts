@@ -1,8 +1,21 @@
 // Facade regression suite: the NostrClient surface the CLI depends on.
 import { afterEach, describe, expect, test } from 'bun:test'
-import { createIdentity, loadIdentity, verifyEvent, type NostrEvent } from '@hopstr/core'
+import { createIdentity, finalizeEvent, hexToBytes, loadIdentity, utf8ToBytes, verifyEvent, type Identity, type NostrEvent } from '@hopstr/core'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
+import { cbc } from '@noble/ciphers/aes.js'
+import { base64 } from '@scure/base'
 import { NostrClient, DEFAULT_RELAYS } from '../src/facade.ts'
 import { startRelay, type MockRelay } from './relay-harness.ts'
+
+// Build a signed legacy kind-4 DM from `sender` to `recipientPk`, the way old
+// NIP-04 clients did (AES-256-CBC; shared key = X coord of the ECDH secret).
+function legacyDM(sender: Identity, recipientPk: string, text: string): NostrEvent {
+  const shared = secp256k1.getSharedSecret(sender.secretKey, hexToBytes('02' + recipientPk)).subarray(1, 33)
+  const iv = new Uint8Array(16).fill(7)
+  const ct = cbc(shared, iv).encrypt(utf8ToBytes(text))
+  const content = `${base64.encode(ct)}?iv=${base64.encode(iv)}`
+  return finalizeEvent({ kind: 4, content, tags: [['p', recipientPk]] }, sender.secretKey)
+}
 
 const relays: MockRelay[] = []
 function relay(seed: NostrEvent[] = []): MockRelay {
@@ -160,6 +173,49 @@ describe('profile', () => {
   })
 })
 
+describe('bootstrap (network presence)', () => {
+  test('publishes all four presence events on a fresh identity', async () => {
+    const { alice, r } = client()
+    const res = await alice.bootstrap()
+
+    // every step succeeded with a published event (nothing pre-existed)
+    expect(res.relayList.ok).toBe(true)
+    expect(res.dmRelays.ok).toBe(true)
+    expect(res.profile).not.toBe('exists')
+    expect(res.contacts).not.toBe('exists')
+
+    // the relay now holds kind 0, 3, 10002, 10050 for alice
+    const kinds = new Set(r.stored.filter((e) => e.pubkey === alice.pubkey).map((e) => e.kind))
+    expect(kinds.has(0)).toBe(true)
+    expect(kinds.has(3)).toBe(true)
+    expect(kinds.has(10002)).toBe(true)
+    expect(kinds.has(10050)).toBe(true)
+
+    // kind-10050 lists our relay so senders know where to deliver DMs
+    const dmList = r.stored.find((e) => e.kind === 10050 && e.pubkey === alice.pubkey)!
+    expect(dmList.tags).toContainEqual(['relay', r.url])
+    alice.close()
+  })
+
+  test('does not overwrite an existing profile or contact list', async () => {
+    const { alice, r } = client()
+    // alice already has a real profile and a non-empty follow list
+    await alice.setProfile({ name: 'real-name', about: 'do not clobber' })
+    const friend = createIdentity().pubkey
+    await alice.follow(friend)
+
+    const res = await alice.bootstrap()
+    expect(res.profile).toBe('exists')
+    expect(res.contacts).toBe('exists')
+
+    // the real profile + follow survived
+    expect((await alice.getProfile(alice.pubkey))?.name).toBe('real-name')
+    expect(await alice.following()).toContain(friend)
+    void r
+    alice.close()
+  })
+})
+
 describe('NIP-17 DMs', () => {
   test('sendDM → readDMs round-trips between two clients', async () => {
     const r = relay()
@@ -190,6 +246,25 @@ describe('NIP-17 DMs', () => {
   test('readDMs ignores unreadable wraps and returns empty for no convo', async () => {
     const { alice } = client()
     expect(await alice.readDMs(createIdentity().pubkey)).toEqual([])
+    alice.close()
+  })
+
+  test('decryptLegacyDM recovers plaintext from an incoming kind-4', () => {
+    const me = createIdentity()
+    const sender = createIdentity()
+    const alice = new NostrClient(me, ['ws://unused'])
+    const event = legacyDM(sender, me.pubkey, 'hey, this is a legacy DM')
+    expect(alice.decryptLegacyDM(event)).toBe('hey, this is a legacy DM')
+    alice.close()
+  })
+
+  test('decryptLegacyDM returns null for a DM not addressed to us', () => {
+    const me = createIdentity()
+    const sender = createIdentity()
+    const someoneElse = createIdentity()
+    const alice = new NostrClient(me, ['ws://unused'])
+    const event = legacyDM(sender, someoneElse.pubkey, 'not for you')
+    expect(alice.decryptLegacyDM(event)).toBeNull()
     alice.close()
   })
 })

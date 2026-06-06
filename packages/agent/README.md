@@ -43,6 +43,29 @@ const convo = await nostr.readDMs(bobNpub)          // [{ from, text, at }] — 
 
 DMs use **NIP-17 gift wrap** (metadata-private) and also *read* old kind-4 conversations, so nothing disappears in the upgrade.
 
+### Be discoverable & DM-able — `bootstrap()`
+
+Before anyone can DM you, their client has to *find* you: it reads your relay list
+(kind-10002), then looks there for your DM relay list (kind-10050). Without those,
+apps like iris show *"this user has not enabled encrypted messaging yet"* and refuse
+to send. `bootstrap()` publishes everything a fresh identity needs, in one call:
+
+```ts
+await nostr.bootstrap()
+// 1. kind-0     profile metadata (placeholder name if you have none yet)
+// 2. kind-10002 relay list (NIP-65) — where your events live
+// 3. kind-10050 DM relay list (NIP-17) — where to deliver private messages
+// 4. kind-3     contact list (NIP-02) — seeds your social graph
+```
+
+It's **idempotent and safe to call on every startup**: kind-0 and kind-3 are only
+created when missing (an existing profile or follow list is never overwritten), and
+the routing lists are simply refreshed. The `hopstr listen` daemon calls it for you
+on connect. Need just the DM-routing pair? Use `enableDirectMessages()`.
+
+`decryptLegacyDM(event)` decrypts a single incoming kind-4 (NIP-04) event to
+plaintext (or `null` if it isn't for you) — what the daemon uses to print legacy DMs.
+
 ## Autonomous mode — `runAgent`
 
 A closed loop: subscribe to live notes, ask a brain how a thoughtful person would respond, and reply/react automatically.
