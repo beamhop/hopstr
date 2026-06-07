@@ -17,7 +17,7 @@ hopstr — Nostr daemon CLI
 Usage:
   hopstr id new [--save] [--json]
   hopstr listen [--json] [--relay wss://...] [--since <when>]
-                [--agent <name> | --exec '<cmd>'] [--max-concurrency <n>]
+                [--agent <name> | --exec '<cmd>'] [--reply] [--max-concurrency <n>]
   hopstr post <content> [--json] [--relay wss://...]
   hopstr reply <event-id> <content> [--json] [--relay wss://...]
   hopstr dm <npub> <message> [--json] [--relay wss://...]
@@ -41,6 +41,8 @@ Options:
                       Presets: claude, codex, gemini, copilot, aider, cursor, amp, opencode
   --exec '<cmd>'      For listen: forward to any command. Put {} where the prompt goes;
                       omit {} to pipe the prompt to stdin. Mutually exclusive with --agent.
+  --reply             For listen: tell the agent to reply on Nostr itself (it runs
+                      'hopstr dm/reply' with our identity). Needs --agent or --exec.
   --max-concurrency <n>  For listen: max parallel agent processes (default 4); excess queues
   --help, -h          Show this help
 
@@ -49,6 +51,7 @@ Examples:
   hopstr listen
   hopstr listen --json | jq .
   hopstr listen --agent claude
+  hopstr listen --agent claude --reply
   hopstr listen --exec 'mytool run {}' --max-concurrency 2
   hopstr post "hello nostr"
   hopstr dm npub1xyz... "hey!"
@@ -161,11 +164,15 @@ async function main(): Promise<void> {
       maxConcurrency = n
     }
 
-    const listenOpts: { json: boolean; relays?: string[]; since?: number; preset?: Preset; maxConcurrency?: number } = { json }
+    const reply = hasFlag(args, '--reply')
+    if (reply && !preset) { console.error('error: --reply needs --agent or --exec'); process.exit(1) }
+
+    const listenOpts: { json: boolean; relays?: string[]; since?: number; preset?: Preset; maxConcurrency?: number; reply?: boolean } = { json }
     if (relays.length) listenOpts.relays = relays
     if (since !== undefined) listenOpts.since = since
     if (preset) listenOpts.preset = preset
     if (maxConcurrency !== undefined) listenOpts.maxConcurrency = maxConcurrency
+    if (reply) listenOpts.reply = true
     await listen(identity, listenOpts)
     return
   }

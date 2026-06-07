@@ -198,6 +198,14 @@ hopstr listen --json --exec 'mytool'         # no {} → prompt piped to the com
   `amp`, `opencode` (each carries the right headless / auto-approve flags).
 - `--exec '<cmd>'` runs any command (no shell, split on whitespace). Mutually exclusive
   with `--agent`.
+- `--reply` makes it a **two-way bot**: instead of just the raw text, the agent gets the
+  sender's context and the command to answer (`hopstr dm <npub> "…"` or `hopstr reply
+  <event-id> "…"`), and runs it itself with your identity. hopstr stays fire-and-forget;
+  the *agent* posts the reply. Needs `--agent`/`--exec`.
+
+  ```bash
+  hopstr listen --json --agent claude --reply   # DM the bot, it answers back
+  ```
 - `--max-concurrency <n>` caps parallel agent processes (default 4).
 
 > ⚠️ **Security.** This runs a coding agent with auto-approve/edit permissions on text
