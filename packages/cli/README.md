@@ -97,14 +97,18 @@ hopstr listen --exec 'mytool run {}'  # or any command of your own
 
   | preset | invokes |
   | --- | --- |
-  | `claude` | `claude -p --permission-mode acceptEdits` (stdin) |
+  | `claude` | `claude -p --permission-mode acceptEdits` (prompt on stdin) |
   | `codex` | `codex exec --dangerously-bypass-approvals-and-sandbox <text>` |
-  | `gemini` | `gemini --yolo` (stdin) |
-  | `copilot` | `copilot -p --allow-all-tools --no-ask-user` (stdin) |
+  | `gemini` | `gemini --yolo -p <text>` |
+  | `copilot` | `copilot --allow-all-tools --no-ask-user -p <text>` |
   | `aider` | `aider --yes-always --message <text>` |
   | `cursor` | `cursor-agent -p <text> --force` |
-  | `amp` | `amp -x` (stdin) |
+  | `amp` | `amp -x` (prompt on stdin) |
   | `opencode` | `opencode run <text>` |
+
+  > **gemini** additionally requires a *trusted* working directory in headless mode —
+  > export `GEMINI_CLI_TRUST_WORKSPACE=true` (or add `--skip-trust` via `--exec`), or it
+  > exits without running. This is gemini's own safety gate, not a hopstr setting.
 
 - `--exec '<cmd>'` — forward to any command (mutually exclusive with `--agent`). Put
   `{}` where the prompt text goes; **omit `{}` to pipe the prompt to stdin**. The

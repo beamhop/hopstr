@@ -65,12 +65,38 @@ describe('resolvePreset', () => {
   test('preset spot-checks', () => {
     expect(resolvePreset('aider').args).toEqual(['--yes-always', '--message', '{}'])
     expect(resolvePreset('opencode').args).toEqual(['run', '{}'])
-    expect(resolvePreset('gemini').promptMode).toBe('stdin')
+    // copilot/gemini take the prompt as the value of -p, so they MUST be arg-mode
+    // with {} (a stdin preset would let -p swallow the next flag as its prompt).
+    expect(resolvePreset('copilot').args).toEqual(['--allow-all-tools', '--no-ask-user', '-p', '{}'])
+    expect(resolvePreset('gemini').args).toEqual(['--yolo', '-p', '{}'])
+    expect(resolvePreset('claude').promptMode).toBe('stdin')
     expect(resolvePreset('amp').promptMode).toBe('stdin')
     // every preset is internally consistent: arg-mode iff it carries a {}
     for (const p of Object.values(PRESETS)) {
       expect(p.args.includes('{}')).toBe(p.promptMode === 'arg')
     }
+  })
+
+  // Regression guard for the copilot/gemini bug: their `-p` TAKES the prompt as its
+  // value, so in stdin mode the bare `-p` swallowed the next flag as the prompt and the
+  // piped DM text was dropped. They must be arg-mode and the `-p` must be immediately
+  // followed by the `{}` placeholder (not by another flag).
+  test('value-taking -p presets put {} right after -p (copilot/gemini regression)', () => {
+    for (const name of ['copilot', 'gemini']) {
+      const p = resolvePreset(name)
+      expect(p.promptMode).toBe('arg')
+      const i = p.args.indexOf('-p')
+      expect(i, `${name} must pass the prompt via -p`).toBeGreaterThanOrEqual(0)
+      expect(p.args[i + 1], `${name}'s -p must be immediately followed by {}`).toBe('{}')
+    }
+  })
+
+  // claude's -p is the boolean --print flag (NOT a value-taking prompt flag): it reads
+  // the prompt from stdin, so it is correctly a stdin preset with no {}.
+  test('claude -p is boolean print mode (stdin, no placeholder)', () => {
+    const p = resolvePreset('claude')
+    expect(p.promptMode).toBe('stdin')
+    expect(p.args).not.toContain('{}')
   })
 })
 

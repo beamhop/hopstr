@@ -13,11 +13,17 @@ export interface Preset { bin: string; args: string[]; promptMode: PromptMode }
 // into automation; anyone wanting tighter control uses `--exec` with their own flags.
 // `claude` gets the milder `acceptEdits` (not `bypassPermissions`) since the text
 // comes from strangers on Nostr. stdin presets also dodge ARG_MAX on long DMs.
+// IMPORTANT: a tool whose prompt flag *takes a value* (copilot/gemini/cursor/aider `-p`/
+// `--message <text>`) must be `arg` mode with `{}` — NOT `stdin`. In stdin mode the bare
+// flag swallows the next arg as its prompt (e.g. `copilot -p --allow-all-tools` runs the
+// literal "--allow-all-tools" as the prompt) and the piped text is ignored. Only tools
+// that genuinely read the prompt from stdin (claude -p, codex exec, amp -x) use `stdin`.
+// Verified against the installed claude/codex/gemini/copilot/opencode CLIs.
 export const PRESETS: Record<string, Preset> = {
   claude:   { bin: 'claude',       args: ['-p', '--permission-mode', 'acceptEdits'],                   promptMode: 'stdin' },
   codex:    { bin: 'codex',        args: ['exec', '--dangerously-bypass-approvals-and-sandbox', '{}'], promptMode: 'arg' },
-  gemini:   { bin: 'gemini',       args: ['--yolo'],                                                   promptMode: 'stdin' },
-  copilot:  { bin: 'copilot',      args: ['-p', '--allow-all-tools', '--no-ask-user'],                 promptMode: 'stdin' },
+  gemini:   { bin: 'gemini',       args: ['--yolo', '-p', '{}'],                                       promptMode: 'arg' },
+  copilot:  { bin: 'copilot',      args: ['--allow-all-tools', '--no-ask-user', '-p', '{}'],           promptMode: 'arg' },
   aider:    { bin: 'aider',        args: ['--yes-always', '--message', '{}'],                          promptMode: 'arg' },
   cursor:   { bin: 'cursor-agent', args: ['-p', '{}', '--force'],                                      promptMode: 'arg' },
   amp:      { bin: 'amp',          args: ['-x'],                                                       promptMode: 'stdin' },
