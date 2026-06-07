@@ -1,6 +1,7 @@
 // Forward incoming events to a coding-agent CLI. `hopstr listen --agent claude`
 // (or any of the presets below) spawns the agent with the event's text and walks
-// away — fire-and-forget. We never read the agent's output; our job ends at spawn.
+// away — fire-and-forget. We never ACT on the agent's output (no auto-reply), but we
+// do stream it to our stderr so you can watch the agent work in the daemon.
 export type PromptMode = 'stdin' | 'arg'
 export interface Preset { bin: string; args: string[]; promptMode: PromptMode }
 
@@ -46,12 +47,15 @@ export function resolvePreset(agent?: string, exec?: string): Preset {
 }
 
 // The minimal Bun.spawn surface we depend on, so tests inject a fake (no real
-// processes). stderr is 'inherit' (not 'pipe'): a piped stderr is only drained on
-// non-zero exit, so a chatty agent that exits 0 would fill the pipe buffer, block,
-// and permanently wedge a slot. Inheriting lets agent stderr flow to ours instead.
+// processes). stdout is 'pipe' so we can stream the agent's answer to OUR stderr
+// (the human channel — keeping the --json stdout event stream clean). stderr is
+// 'inherit' so the agent's own diagnostics flow straight through. We DRAIN stdout
+// concurrently while the process runs; reading it only after exit could fill the
+// pipe buffer, block the child, and wedge a concurrency slot.
 export interface SpawnLike {
-  (cmd: string[], opts: { stdin: 'pipe' | 'ignore'; stdout: 'ignore'; stderr: 'inherit' }): {
+  (cmd: string[], opts: { stdin: 'pipe' | 'ignore'; stdout: 'pipe'; stderr: 'inherit' }): {
     stdin: { write(s: string): void; end(): void } | null
+    stdout: ReadableStream<Uint8Array> | null
     exited: Promise<number>
   }
 }
@@ -59,6 +63,31 @@ export interface SpawnLike {
 export interface Forwarder {
   forward(text: string): void   // fire-and-forget; never throws
   drain(): Promise<void>        // await all in-flight (SIGINT / tests)
+}
+
+// Stream a child's stdout to our stderr, one `[bin] line` at a time, so concurrent
+// agents stay distinguishable and the agent's answer is visible in the daemon. Reads
+// incrementally (never buffers the whole output), and never throws.
+export async function showOutput(stream: ReadableStream<Uint8Array>, bin: string): Promise<void> {
+  const reader = stream.getReader()
+  const decoder = new TextDecoder()
+  let buf = ''
+  const flush = (line: string): void => { if (line) console.error(`[${bin}] ${line}`) }
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      let nl: number
+      while ((nl = buf.indexOf('\n')) !== -1) {
+        flush(buf.slice(0, nl))
+        buf = buf.slice(nl + 1)
+      }
+    }
+    flush(buf + decoder.decode())   // trailing line without a newline
+  } catch {
+    // a torn stream shouldn't sink the run
+  }
 }
 
 export function makeForwarder(
@@ -87,14 +116,17 @@ export function makeForwarder(
     try {
       const proc = spawn(argv, {
         stdin: preset.promptMode === 'stdin' ? 'pipe' : 'ignore',
-        stdout: 'ignore',
+        stdout: 'pipe',
         stderr: 'inherit',
       })
       if (preset.promptMode === 'stdin' && proc.stdin) {
         proc.stdin.write(text)
         proc.stdin.end()
       }
-      const code = await proc.exited
+      // Stream the agent's stdout to OUR stderr (prefixed), draining concurrently so
+      // the pipe never fills. Goes to stderr, not stdout, to keep --json output clean.
+      const drained = proc.stdout ? showOutput(proc.stdout, preset.bin) : Promise.resolve()
+      const [code] = await Promise.all([proc.exited, drained])
       if (code !== 0) console.error(`[forward] ${preset.bin} exited ${code}`)
     } catch (e) {
       console.error(`[forward] failed to spawn ${preset.bin}: ${e instanceof Error ? e.message : String(e)}`)

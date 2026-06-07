@@ -185,8 +185,9 @@ Every event has `from` (an **npub**) and `at` (unix seconds).
 
 Instead of parsing events yourself, `listen` can hand each incoming **dm / mention /
 reply** straight to a coding-agent CLI. This is **fire-and-forget**: hopstr spawns the
-agent with the message text and does nothing with the result (no auto-reply). Events
-are still printed to stdout as usual.
+agent with the message text and never acts on the result (no auto-reply). The agent's
+output is streamed to the daemon's **stderr**, prefixed `[<agent>]`, so the JSON event
+stream on stdout stays clean and parseable. Events are still printed to stdout as usual.
 
 ```bash
 hopstr listen --json --agent claude          # pipe each message to a `claude` run

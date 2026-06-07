@@ -1,12 +1,22 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
-import { resolvePreset, makeForwarder, PRESETS, type SpawnLike } from '../src/forward.ts'
+import { resolvePreset, makeForwarder, showOutput, PRESETS, type SpawnLike } from '../src/forward.ts'
 
 // A fake SpawnLike that records every call's argv + stdin writes, and hands back a
 // manually-resolvable `exited` so we can observe concurrency overlap. No real processes.
-type SpawnOpts = { stdin: 'pipe' | 'ignore'; stdout: 'ignore'; stderr: 'inherit' }
-interface Call { argv: string[]; opts: SpawnOpts; writes: string[]; ended: boolean; resolve: (code: number) => void }
+type SpawnOpts = { stdin: 'pipe' | 'ignore'; stdout: 'pipe'; stderr: 'inherit' }
+interface Call { argv: string[]; opts: SpawnOpts; writes: string[]; ended: boolean; done: boolean; resolve: (code: number) => void }
 
-function fakeSpawn(): { spawn: SpawnLike; calls: Call[]; throwOnce: () => void } {
+// A ReadableStream emitting the given text as one chunk then closing (the agent's stdout).
+function streamOf(text: string): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(c) {
+      if (text) c.enqueue(new TextEncoder().encode(text))
+      c.close()
+    },
+  })
+}
+
+function fakeSpawn(stdoutText = ''): { spawn: SpawnLike; calls: Call[]; throwOnce: () => void } {
   const calls: Call[] = []
   let throwNext = false
   const spawn: SpawnLike = (argv, opts) => {
@@ -14,10 +24,12 @@ function fakeSpawn(): { spawn: SpawnLike; calls: Call[]; throwOnce: () => void }
     const writes: string[] = []
     let resolve!: (code: number) => void
     const exited = new Promise<number>((r) => { resolve = r })
-    const call: Call = { argv, opts, writes, ended: false, resolve }
+    const call: Call = { argv, opts, writes, ended: false, done: false, resolve: (c) => resolve(c) }
+    void exited.then(() => { call.done = true })
     calls.push(call)
     return {
       stdin: { write: (s) => { writes.push(s) }, end: () => { call.ended = true } },
+      stdout: streamOf(stdoutText),
       exited,
     }
   }
@@ -131,11 +143,11 @@ describe('makeForwarder — spawn shape', () => {
     await f.drain()
   })
 
-  test('stderr is inherited (the deadlock fix)', () => {
+  test('stderr inherited, stdout piped (drained to our stderr, not discarded)', () => {
     const { spawn, calls } = fakeSpawn()
     makeForwarder(resolvePreset('amp'), 4, spawn).forward('hi')
     expect(calls[0]!.opts.stderr).toBe('inherit')
-    expect(calls[0]!.opts.stdout).toBe('ignore')
+    expect(calls[0]!.opts.stdout).toBe('pipe')
   })
 
   test('--exec mid-arg + multiple {} all substituted', async () => {
@@ -153,22 +165,23 @@ describe('makeForwarder — concurrency cap', () => {
     const { spawn, calls } = fakeSpawn()
     const f = makeForwarder(resolvePreset('codex'), 2, spawn)
     for (const t of ['a', 'b', 'c', 'd', 'e']) f.forward(t)
+    const text = (c: Call) => c.argv[c.argv.length - 1]
 
     // only 2 in flight while none have exited
     expect(calls).toHaveLength(2)
-    const text = (c: Call) => c.argv[c.argv.length - 1]
     expect(calls.map(text)).toEqual(['a', 'b'])
 
-    calls[0]!.resolve(0)       // free one slot
-    await Promise.resolve()    // let .finally → pump() run
-    await Promise.resolve()
-    expect(calls).toHaveLength(3)
+    // freeing one slot pumps exactly the next queued item (c). A run frees its slot
+    // only after BOTH exit and stdout-drain settle, so poll rather than count ticks.
+    calls[0]!.resolve(0)
+    await waitFor(() => calls.length === 3)
     expect(text(calls[2]!)).toBe('c')
 
-    for (const c of calls) c.resolve(0)
-    // resolve the rest as they spawn, then drain
-    await tick()
-    for (const c of calls) c.resolve(0)
+    // resolve everything that has spawned, repeatedly, until all 5 have run.
+    while (calls.length < 5 || calls.some((c) => !c.done)) {
+      for (const c of calls) c.resolve(0)
+      await tick()
+    }
     await f.drain()
     expect(calls).toHaveLength(5)
     expect(calls.map(text)).toEqual(['a', 'b', 'c', 'd', 'e'])
@@ -206,6 +219,50 @@ describe('makeForwarder — failures', () => {
   })
 })
 
+describe('agent output → stderr', () => {
+  let errs: string[]
+  const origErr = console.error
+  beforeEach(() => { errs = []; console.error = (...a: unknown[]) => errs.push(a.join(' ')) })
+  afterEach(() => { console.error = origErr })
+
+  function streamOf(text: string): ReadableStream<Uint8Array> {
+    return new ReadableStream({ start(c) { if (text) c.enqueue(new TextEncoder().encode(text)); c.close() } })
+  }
+
+  test('showOutput prints each line prefixed with [bin]', async () => {
+    await showOutput(streamOf('line one\nline two\n'), 'claude')
+    expect(errs).toEqual(['[claude] line one', '[claude] line two'])
+  })
+
+  test('showOutput emits a trailing line that has no newline', async () => {
+    await showOutput(streamOf('no trailing newline'), 'codex')
+    expect(errs).toEqual(['[codex] no trailing newline'])
+  })
+
+  test('showOutput skips blank lines and empty output', async () => {
+    await showOutput(streamOf('\n\nhi\n\n'), 'amp')
+    expect(errs).toEqual(['[amp] hi'])
+    errs.length = 0
+    await showOutput(streamOf(''), 'amp')
+    expect(errs).toEqual([])
+  })
+
+  test('showOutput swallows a torn stream', async () => {
+    const torn = new ReadableStream<Uint8Array>({ start(c) { c.error(new Error('boom')) } })
+    await showOutput(torn, 'gemini') // must not reject
+    expect(errs).toEqual([])
+  })
+
+  test('makeForwarder streams the agent reply to stderr', async () => {
+    const { spawn, calls } = fakeSpawn('Hi there!\n')
+    const f = makeForwarder(resolvePreset('claude'), 4, spawn)
+    f.forward('hello')
+    calls[0]!.resolve(0)
+    await f.drain()
+    expect(errs).toContain('[claude] Hi there!')
+  })
+})
+
 // Mirrors the listen.ts emit wrapper so we can assert the dm/mention/reply filter
 // without a live relay. Keep this in lockstep with listen.ts.
 describe('listen forward filter', () => {
@@ -233,4 +290,9 @@ describe('listen forward filter', () => {
 // Yield enough microtask turns for pump()/finally chains to settle.
 async function tick(): Promise<void> {
   for (let i = 0; i < 5; i++) await Promise.resolve()
+}
+
+// Poll a predicate across microtask turns until true (or give up after a bound).
+async function waitFor(cond: () => boolean): Promise<void> {
+  for (let i = 0; i < 1000 && !cond(); i++) await Promise.resolve()
 }

@@ -84,8 +84,11 @@ human-readable, labelled feed instead.
 
 `listen` can hand each incoming **dm / mention / reply** to a coding-agent CLI as it
 arrives. It's **fire-and-forget**: hopstr spawns the agent with the message text on
-stdin (or as an argument) and does nothing with the result — no auto-reply, no output
-parsing. Events are still printed to stdout, so you see everything that's dispatched.
+stdin (or as an argument) and never acts on the result — no auto-reply, no parsing.
+The agent's output *is* surfaced, though: each line is streamed to the daemon's
+**stderr**, prefixed with `[<agent>]`, so you can watch it work. (It goes to stderr,
+not stdout, so the `--json` event stream on stdout stays clean.) Events are still
+printed too, so you see everything that's dispatched.
 
 ```bash
 hopstr listen --agent claude          # pipe each message to `claude -p`
@@ -124,15 +127,15 @@ hopstr listen --exec 'mytool run {}'  # or any command of your own
   raw text, hopstr wraps it with the sender's context and the exact command to respond:
   `hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a mention/reply. The
   spawned agent inherits your `NOSTR_NSEC`, so its `hopstr` posts as you. hopstr itself
-  stays fire-and-forget — it never reads the agent's output; the *agent* sends the reply.
-  Requires `--agent` or `--exec`.
+  stays fire-and-forget — it never acts on the agent's output; the *agent* sends the
+  reply (you still see the agent's output on stderr). Requires `--agent` or `--exec`.
 
   ```bash
   hopstr listen --agent claude --reply   # a real two-way bot: DM it, it answers
   ```
 
-  Without `--reply`, the agent just gets the raw message and its output is discarded
-  (use this when piping to a non-agent tool that wouldn't understand the instruction).
+  Without `--reply`, the agent just gets the raw message (and its output is shown on
+  stderr but not acted on) — use this when piping to a non-agent tool.
 
 - `--max-concurrency <n>` — cap parallel agent processes (default **4**). Excess events
   queue and run as slots free.
