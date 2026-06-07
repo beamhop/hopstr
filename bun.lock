@@ -73,7 +73,6 @@
       "dependencies": {
         "@hopstr/core": "workspace:*",
         "@hopstr/pool": "workspace:*",
-        "@hopstr/relay": "workspace:*",
         "@hopstr/router": "workspace:*",
         "@hopstr/signers": "workspace:*",
         "@hopstr/store": "workspace:*",
@@ -87,7 +86,6 @@
         "@noble/curves": "2.2.0",
         "@noble/hashes": "2.2.0",
         "@scure/base": "2.2.0",
-        "valibot": "1.4.1",
       },
     },
     "packages/nips": {
@@ -95,7 +93,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@hopstr/core": "workspace:*",
-        "@hopstr/signers": "workspace:*",
       },
     },
     "packages/pool": {
@@ -1673,8 +1670,6 @@
     "urlpattern-polyfill": ["urlpattern-polyfill@10.1.0", "", {}, "sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw=="],
 
     "use-sync-external-store": ["use-sync-external-store@1.6.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w=="],
-
-    "valibot": ["valibot@1.4.1", "", { "peerDependencies": { "typescript": ">=5" }, "optionalPeers": ["typescript"] }, "sha512-klCmFTz2jeDluy9RwX+F884TCiogtdBJ/YaxSx1EOBYXa3NXNWj8kR1jjN8rzluwojJVWWaHJ4r1U5LfICnM3g=="],
 
     "validate-npm-package-name": ["validate-npm-package-name@5.0.1", "", {}, "sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ=="],
 

@@ -97,7 +97,6 @@
     "lint:publish": "publint && attw --pack . --profile esm-only"
   },
   "dependencies": {
-    "@hopstr/core": "workspace:*",
-    "@hopstr/signers": "workspace:*"
+    "@hopstr/core": "workspace:*"
   }
 }

@@ -3,7 +3,7 @@
 import { scrypt } from '@noble/hashes/scrypt.js'
 import { xchacha20poly1305 } from '@noble/ciphers/chacha.js'
 import { bech32 } from '@scure/base'
-import { bytesToHex, concatBytes, hexToBytes, randomBytes, toSecretBytes, utf8ToBytes } from '@hopstr/core'
+import { bytesToHex, concatBytes, randomBytes, toSecretBytes, utf8ToBytes } from '@hopstr/core'
 
 const VERSION = 0x02
 const LIMIT = 5000
@@ -58,5 +58,3 @@ export function decryptKey(ncryptsec: string, password: string): Uint8Array {
 export function decryptKeyHex(ncryptsec: string, password: string): string {
   return bytesToHex(decryptKey(ncryptsec, password))
 }
-
-export { hexToBytes }

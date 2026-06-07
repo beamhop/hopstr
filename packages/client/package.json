@@ -27,7 +27,6 @@
   "dependencies": {
     "@hopstr/core": "workspace:*",
     "@hopstr/signers": "workspace:*",
-    "@hopstr/relay": "workspace:*",
     "@hopstr/pool": "workspace:*",
     "@hopstr/router": "workspace:*",
     "@hopstr/store": "workspace:*"
