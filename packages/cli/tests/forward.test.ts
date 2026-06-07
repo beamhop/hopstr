@@ -1,5 +1,10 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
 import { resolvePreset, makeForwarder, showOutput, PRESETS, type SpawnLike } from '../src/forward.ts'
+import { buildPrompt } from '../src/prompt.ts'
+import type { FormattedEvent } from '../src/format.ts'
+
+const NPUB = 'npub1mn02zpkexampleexampleexampleexampleexampleexampleexampleex'
+const ID = 'a'.repeat(64)
 
 // A fake SpawnLike that records every call's argv + stdin writes, and hands back a
 // manually-resolvable `exited` so we can observe concurrency overlap. No real processes.
@@ -267,23 +272,22 @@ describe('agent output → stderr', () => {
 // without a live relay. Keep this in lockstep with listen.ts.
 describe('listen forward filter', () => {
   function wrapper(forward: (t: string) => void) {
-    return (ev: { type: string; content?: string; text?: string }) => {
-      if (ev.type !== 'reaction') {
-        const text = ev.content ?? ev.text
-        if (text) forward(text)
-      }
+    return (ev: FormattedEvent) => {
+      if (ev.type !== 'reaction') forward(buildPrompt(ev))
     }
   }
 
-  test('mention/reply use content, dm uses text, reaction skipped, empty skipped', () => {
+  test('dm/mention/reply forward (with the message embedded); reaction does not', () => {
     const sent: string[] = []
     const emit = wrapper((t) => sent.push(t))
-    emit({ type: 'mention', content: 'm' })
-    emit({ type: 'reply', content: 'r' })
-    emit({ type: 'dm', text: 'd' })
-    emit({ type: 'reaction', emoji: '🔥' } as { type: string })
-    emit({ type: 'mention', content: '' })
-    expect(sent).toEqual(['m', 'r', 'd'])
+    emit({ type: 'mention', from: NPUB, id: ID, content: 'm', at: 1 })
+    emit({ type: 'reply', from: NPUB, id: ID, content: 'r', at: 1 })
+    emit({ type: 'dm', from: NPUB, text: 'd', at: 1, dmKind: 'nip17' })
+    emit({ type: 'reaction', from: NPUB, emoji: '🔥', at: 1 })
+    expect(sent).toHaveLength(3)
+    expect(sent[0]).toContain('m')
+    expect(sent[1]).toContain('r')
+    expect(sent[2]).toContain('d')
   })
 })
 

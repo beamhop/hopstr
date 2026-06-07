@@ -183,14 +183,17 @@ Every event has `from` (an **npub**) and `at` (unix seconds).
 
 ### Forwarding to a coding-agent CLI — `--agent` / `--exec`
 
-Instead of parsing events yourself, `listen` can hand each incoming **dm / mention /
-reply** straight to a coding-agent CLI. This is **fire-and-forget**: hopstr spawns the
-agent with the message text and never acts on the result (no auto-reply). The agent's
-output is streamed to the daemon's **stderr**, prefixed `[<agent>]`, so the JSON event
-stream on stdout stays clean and parseable. Events are still printed to stdout as usual.
+Instead of parsing events yourself, `listen --agent` turns the daemon into a **two-way
+bot**: each incoming **dm / mention / reply** is handed to a coding-agent CLI that
+**answers on Nostr itself**. hopstr gives the agent the sender's message plus the exact
+command to reply (`hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a
+mention/reply); the agent inherits your `NOSTR_NSEC` and runs it, posting as you. hopstr
+never parses or acts on the agent's output — the *agent* sends the reply. The agent's
+output is streamed to the daemon's **stderr** (prefixed `[<agent>]`), so the JSON event
+stream on stdout stays clean. Events are still printed to stdout as usual.
 
 ```bash
-hopstr listen --json --agent claude          # pipe each message to a `claude` run
+hopstr listen --json --agent claude          # DM the bot, claude answers back
 hopstr listen --json --exec 'mytool run {}'  # or any command; {} = prompt as arg
 hopstr listen --json --exec 'mytool'         # no {} → prompt piped to the command's stdin
 ```
@@ -199,14 +202,6 @@ hopstr listen --json --exec 'mytool'         # no {} → prompt piped to the com
   `amp`, `opencode` (each carries the right headless / auto-approve flags).
 - `--exec '<cmd>'` runs any command (no shell, split on whitespace). Mutually exclusive
   with `--agent`.
-- `--reply` makes it a **two-way bot**: instead of just the raw text, the agent gets the
-  sender's context and the command to answer (`hopstr dm <npub> "…"` or `hopstr reply
-  <event-id> "…"`), and runs it itself with your identity. hopstr stays fire-and-forget;
-  the *agent* posts the reply. Needs `--agent`/`--exec`.
-
-  ```bash
-  hopstr listen --json --agent claude --reply   # DM the bot, it answers back
-  ```
 - `--max-concurrency <n>` caps parallel agent processes (default 4).
 
 > ⚠️ **Security.** This runs a coding agent with auto-approve/edit permissions on text

@@ -1,12 +1,10 @@
 import type { FormattedEvent } from './format.ts'
 
-// Build the prompt handed to the agent. Without --reply it's just the raw message
-// text (fire-and-forget, agent's output is discarded). With --reply we wrap the text
-// with the sender's context and the exact `hopstr` command the agent should run to
-// answer — the agent inherits the same NOSTR_NSEC, so its `hopstr` posts as us.
-export function buildPrompt(ev: FormattedEvent, reply: boolean): string {
+// Build the prompt handed to the agent: the sender's message plus the exact `hopstr`
+// command to answer with. The agent inherits our NOSTR_NSEC, so its `hopstr` posts as
+// us — that's how activating an agent makes it react on Nostr by default.
+export function buildPrompt(ev: FormattedEvent): string {
   const text = ev.content ?? ev.text ?? ''
-  if (!reply) return text
 
   // dm → answer with a DM to the sender; mention/reply → threaded reply to the note.
   const answer =

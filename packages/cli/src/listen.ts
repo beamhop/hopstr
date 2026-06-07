@@ -9,27 +9,23 @@ import { buildPrompt } from './prompt.ts'
 
 export async function listen(
   identity: Identity,
-  opts: { json: boolean; relays?: string[]; since?: number; preset?: Preset; maxConcurrency?: number; reply?: boolean },
+  opts: { json: boolean; relays?: string[]; since?: number; preset?: Preset; maxConcurrency?: number },
 ): Promise<void> {
   const client = new NostrClient(identity, opts.relays)
   const emitOut = opts.json ? jsonLine : prettyPrint
 
-  // When --agent/--exec is set, forward dm/mention/reply to a coding-agent CLI
-  // (fire-and-forget) in addition to printing. Reactions have no text, so they're
-  // never forwarded. With --reply the prompt tells the agent how to answer via the
-  // `hopstr` CLI (it inherits our NOSTR_NSEC); otherwise it's just the raw text.
-  // SIGINT lets in-flight agents finish instead of being orphaned.
+  // When --agent/--exec is set, forward each dm/mention/reply to a coding-agent CLI
+  // (in addition to printing). The prompt tells the agent to answer on Nostr itself
+  // via the `hopstr` CLI — it inherits our NOSTR_NSEC, so it posts as us. Reactions
+  // have no text, so they're never forwarded. SIGINT lets in-flight agents finish.
   const forwarder = opts.preset ? makeForwarder(opts.preset, opts.maxConcurrency ?? 4) : undefined
   if (forwarder) {
-    console.error(`forwarding dm/mention/reply → ${opts.preset!.bin}${opts.reply ? ' (self-reply)' : ''}`)
+    console.error(`forwarding dm/mention/reply → ${opts.preset!.bin}`)
     process.once('SIGINT', () => void forwarder.drain().finally(() => process.exit(0)))
   }
   function emit(ev: FormattedEvent): void {
     emitOut(ev)                                   // still print so the user sees activity
-    if (forwarder && ev.type !== 'reaction') {
-      const prompt = buildPrompt(ev, opts.reply ?? false)
-      if (prompt) forwarder.forward(prompt)
-    }
+    if (forwarder && ev.type !== 'reaction') forwarder.forward(buildPrompt(ev))
   }
 
   const myPubkey = identity.pubkey

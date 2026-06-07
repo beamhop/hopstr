@@ -83,17 +83,20 @@ human-readable, labelled feed instead.
 #### Forward to a coding agent — `--agent` / `--exec`
 
 `listen` can hand each incoming **dm / mention / reply** to a coding-agent CLI as it
-arrives. It's **fire-and-forget**: hopstr spawns the agent with the message text on
-stdin (or as an argument) and never acts on the result — no auto-reply, no parsing.
-The agent's output *is* surfaced, though: each line is streamed to the daemon's
-**stderr**, prefixed with `[<agent>]`, so you can watch it work. (It goes to stderr,
-not stdout, so the `--json` event stream on stdout stays clean.) Events are still
-printed too, so you see everything that's dispatched.
+arrives, turning your identity into a two-way bot: **the agent answers on Nostr
+itself.** hopstr hands the agent the sender's message plus the exact command to reply
+(`hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a mention/reply);
+the spawned agent inherits your `NOSTR_NSEC`, so its `hopstr` posts as you. hopstr
+never parses or acts on the agent's output — the *agent* sends the reply.
 
 ```bash
-hopstr listen --agent claude          # pipe each message to `claude -p`
+hopstr listen --agent claude          # DM the bot, claude answers back
 hopstr listen --exec 'mytool run {}'  # or any command of your own
 ```
+
+You still see what's happening: incoming events print as usual, and the agent's own
+output is streamed to the daemon's **stderr**, prefixed with `[<agent>]`. (It goes to
+stderr, not stdout, so the `--json` event stream on stdout stays clean and parseable.)
 
 - `--agent <name>` — a built-in preset. Each knows the right headless flags and
   whether its tool wants the prompt on **stdin** or as an **argument**:
@@ -123,27 +126,13 @@ hopstr listen --exec 'mytool run {}'  # or any command of your own
   hopstr listen --exec 'mytool --headless'    # text piped to stdin
   ```
 
-- `--reply` — let the agent **answer on Nostr itself**. Instead of forwarding only the
-  raw text, hopstr wraps it with the sender's context and the exact command to respond:
-  `hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a mention/reply. The
-  spawned agent inherits your `NOSTR_NSEC`, so its `hopstr` posts as you. hopstr itself
-  stays fire-and-forget — it never acts on the agent's output; the *agent* sends the
-  reply (you still see the agent's output on stderr). Requires `--agent` or `--exec`.
-
-  ```bash
-  hopstr listen --agent claude --reply   # a real two-way bot: DM it, it answers
-  ```
-
-  Without `--reply`, the agent just gets the raw message (and its output is shown on
-  stderr but not acted on) — use this when piping to a non-agent tool.
-
 - `--max-concurrency <n>` — cap parallel agent processes (default **4**). Excess events
   queue and run as slots free.
 
 If the agent binary is missing or exits non-zero, hopstr logs it to stderr and keeps
 listening — one bad run never stops the daemon. On `Ctrl-C`, in-flight agents are given
 a chance to finish before exit. The listener never re-forwards your own posts/replies,
-so `--reply` can't loop on itself.
+so the bot can't loop on its own answers.
 
 > ⚠️ **Security.** Forwarding runs a coding agent with **auto-approve / edit
 > permissions** on text written by **strangers on Nostr** — a direct remote
@@ -235,9 +224,8 @@ hopstr profile set --name "Alice" --about "starting fresh" --replace
 | `--save` | for `id new`: write the new nsec to `~/.config/hopstr/config.json` |
 | `--relay <url>` | add a relay (repeatable); **replaces** the defaults when given |
 | `--since <when>` | for `listen`: where to start. Accepts a unix timestamp, relative (`1h`, `2d ago`, `30m`), ISO date (`2025-06-01`), or natural (`yesterday`, `last week`) |
-| `--agent <name>` | for `listen`: forward dm/mention/reply text to a coding-agent CLI (preset). See [Forward to a coding agent](#forward-to-a-coding-agent--agent--exec) |
+| `--agent <name>` | for `listen`: forward each dm/mention/reply to a coding-agent CLI that replies on Nostr itself (preset). See [Forward to a coding agent](#forward-to-a-coding-agent--agent--exec) |
 | `--exec '<cmd>'` | for `listen`: forward to any command. `{}` = prompt as arg; omit `{}` to pipe to stdin. Mutually exclusive with `--agent` |
-| `--reply` | for `listen`: tell the agent to reply on Nostr itself (it runs `hopstr dm`/`reply` with your identity). Needs `--agent` or `--exec` |
 | `--max-concurrency <n>` | for `listen`: max parallel agent processes (default 4); excess events queue |
 | `--help`, `-h` | show help |
 
