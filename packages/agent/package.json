@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/agent",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet's easy-mode facade — the drop-in NostrClient (post/reply/feed/DMs) and the autonomous runAgent loop, over the full @hopstr stack.",
   "type": "module",
   "license": "MIT",

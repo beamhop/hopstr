@@ -87,8 +87,14 @@ export class Subscription implements AsyncIterable<NostrEvent> {
     }
   }
 
-  /** Collect events until EOSE (then auto-close); resolves with all of them. */
-  all(): Promise<NostrEvent[]> {
+  /**
+   * Collect events until EOSE (then auto-close); resolves with all of them.
+   * With `timeoutMs`, a relay that connects but never sends EOSE (slow / flaky /
+   * half-open socket) can't wedge the call forever — once the timeout fires we
+   * resolve with whatever arrived so far. The pool only emits EOSE after EVERY
+   * relay has EOSE'd, so without this one stalled relay hangs the whole query.
+   */
+  all(timeoutMs?: number): Promise<NostrEvent[]> {
     return new Promise((resolve) => {
       const collected: NostrEvent[] = [...this.#buffer]
       if (this.#eosed || this.#closed) {
@@ -97,7 +103,9 @@ export class Subscription implements AsyncIterable<NostrEvent> {
         return
       }
       this.on('event', (e) => collected.push(e as NostrEvent))
-      const finish = () => {
+      const timer = timeoutMs === undefined ? undefined : setTimeout(() => finish(), timeoutMs)
+      const finish = (): void => {
+        if (timer) clearTimeout(timer)
         this.close()
         resolve(collected)
       }
@@ -106,13 +114,41 @@ export class Subscription implements AsyncIterable<NostrEvent> {
     })
   }
 
-  /** The first event, or null if the stream closes/EOSEs with nothing. */
-  async first(): Promise<NostrEvent | null> {
-    for await (const e of this) {
-      this.close()
-      return e
-    }
-    return null
+  /**
+   * The first event, or null if the stream closes/EOSEs (or times out) with
+   * nothing. With `timeoutMs`, returns null if no event arrives in time — the
+   * right shape for fetching an immutable event by id, where the FIRST relay to
+   * answer is final (all relays hold the identical event), so there's no reason
+   * to wait for the slowest relay's EOSE.
+   */
+  first(timeoutMs?: number): Promise<NostrEvent | null> {
+    return new Promise((resolve) => {
+      const buffered = this.#buffer.shift()
+      if (buffered) {
+        this.close()
+        resolve(buffered)
+        return
+      }
+      if (this.#closed) {
+        resolve(null)
+        return
+      }
+      // settle() resolves before close(), because close() emits 'close'
+      // synchronously and would otherwise re-enter via the 'close' listener and
+      // resolve(null) first. `settled` guards that re-entry regardless of order.
+      let settled = false
+      const timer = timeoutMs === undefined ? undefined : setTimeout(() => settle(null), timeoutMs)
+      const settle = (e: NostrEvent | null): void => {
+        if (settled) return
+        settled = true
+        if (timer) clearTimeout(timer)
+        resolve(e)
+        this.close()
+      }
+      this.on('event', (e) => settle(e as NostrEvent))
+      this.on('eose', () => settle(null))
+      this.on('close', () => settle(null))
+    })
   }
 
   /** The first `n` events (auto-closes once it has them or the stream ends). */

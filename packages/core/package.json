@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet core — pure Nostr event model, NIP-01 ids, schnorr, NIP-19/21/44, and the drop-in client facade.",
   "type": "module",
   "license": "MIT",

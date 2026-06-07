@@ -84,10 +84,11 @@ human-readable, labelled feed instead.
 
 `listen` can hand each incoming **dm / mention / reply** to a coding-agent CLI as it
 arrives, turning your identity into a two-way bot: **the agent answers on Nostr
-itself.** hopstr hands the agent the sender's message plus the exact command to reply
-(`hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a mention/reply);
-the spawned agent inherits your `NOSTR_NSEC`, so its `hopstr` posts as you. hopstr
-never parses or acts on the agent's output — the *agent* sends the reply.
+itself.** hopstr hands the agent the sender's message, the **full raw event** (as a
+JSON block — for DMs it's the decrypted inner event, never the encrypted wrapper), plus
+the exact command to reply (`hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"`
+for a mention/reply); the spawned agent inherits your `NOSTR_NSEC`, so its `hopstr` posts
+as you. hopstr never parses or acts on the agent's output — the *agent* sends the reply.
 
 ```bash
 hopstr listen --agent claude          # DM the bot, claude answers back

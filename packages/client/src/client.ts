@@ -23,6 +23,13 @@ export const DEFAULT_RELAYS: string[] = [
   'wss://relay.nostr.band',
 ]
 
+// Backstop for one-shot reads. The pool only fires EOSE after EVERY relay has
+// EOSE'd, so one relay that connects but never sends EOSE would otherwise hang a
+// read forever (the bug that made `hopstr reply` — which fetches the parent first
+// — silently never publish). fetchOne() resolves the instant a relay answers, so
+// this only bites genuinely-missing events or a fully unresponsive relay set.
+export const DEFAULT_READ_TIMEOUT = 6000
+
 export interface NostrOptions {
   /** A signer (local, NIP-07, NIP-46). If omitted, pass `secretKey`/`nsec`. */
   signer?: Signer
@@ -149,16 +156,30 @@ export class Nostr {
     return this.subscribe({ kinds: [1], ...filter }, options)
   }
 
-  /** One-shot query to EOSE (deduped across relays). */
-  query(filter: Filter, options: { relays?: string[] } = {}): Promise<NostrEvent[]> {
-    return this.subscribe(filter, options).all()
+  /** One-shot query to EOSE (deduped across relays), bounded by a read timeout. */
+  query(filter: Filter, options: { relays?: string[]; timeout?: number } = {}): Promise<NostrEvent[]> {
+    return this.subscribe(filter, options).all(options.timeout ?? DEFAULT_READ_TIMEOUT)
   }
 
-  /** One-shot single newest event. */
-  async queryOne(filter: Filter, options: { relays?: string[] } = {}): Promise<NostrEvent | null> {
-    const events = await this.subscribe({ ...filter, limit: 1 }, options).all()
+  /**
+   * One-shot single newest event — gathers across relays (so a replaceable event
+   * resolves to its freshest copy) then picks the newest, bounded by a timeout.
+   * To fetch an immutable event by id, use fetchOne() — it returns as soon as one
+   * relay answers instead of waiting out the gather window.
+   */
+  async queryOne(filter: Filter, options: { relays?: string[]; timeout?: number } = {}): Promise<NostrEvent | null> {
+    const events = await this.subscribe({ ...filter, limit: 1 }, options).all(options.timeout ?? DEFAULT_READ_TIMEOUT)
     if (events.length === 0) return null
     return events.reduce((newest, e) => (e.created_at > newest.created_at ? e : newest))
+  }
+
+  /**
+   * Fetch one event where the FIRST relay to answer is final — i.e. an immutable
+   * event known by id. Resolves the instant any relay returns it (no waiting for
+   * the slowest relay's EOSE); returns null if nothing arrives within the timeout.
+   */
+  fetchOne(filter: Filter, options: { relays?: string[]; timeout?: number } = {}): Promise<NostrEvent | null> {
+    return this.subscribe({ ...filter, limit: 1 }, options).first(options.timeout ?? DEFAULT_READ_TIMEOUT)
   }
 
   #readRelays(filter: Filter): string[] {

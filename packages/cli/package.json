@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "hopstr — a daemon CLI for Nostr: listen for mentions, replies, DMs, and reactions; post, reply, DM, and react from the terminal.",
   "type": "module",
   "license": "MIT",

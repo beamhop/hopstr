@@ -14,6 +14,12 @@ export interface PoolSubscribeOptions {
   signal?: AbortSignal
   /** Verify each event's id+sig before delivering (default true). */
   verify?: boolean
+  /**
+   * Backstop (ms) for one-shot reads: a relay that connects but never EOSEs
+   * can't hang the call forever — resolve with whatever arrived once it fires.
+   * Applies to query()/queryOne()/fetchOne(); a live subscribe() ignores it.
+   */
+  timeout?: number
 }
 
 export interface PoolOptions {
@@ -90,16 +96,30 @@ export class Pool {
     return sub
   }
 
-  /** One-shot query: subscribe, collect to EOSE, return the deduped events. */
+  /** One-shot query: subscribe, collect to EOSE (or timeout), return the deduped events. */
   query(relays: string[], filter: Filter, options: PoolSubscribeOptions = {}): Promise<NostrEvent[]> {
-    return this.subscribe(relays, [filter], options).all()
+    return this.subscribe(relays, [filter], options).all(options.timeout)
   }
 
-  /** One-shot single-event query (newest-first if the relay honors limit). */
+  /**
+   * One-shot single-event query, newest-wins. Collects across relays so a
+   * replaceable event (profile/relay-list) resolves to the freshest copy, then
+   * picks the newest. Bounded by `options.timeout` so a stalled relay can't hang
+   * it. For an immutable event known by id, prefer fetchOne() — it's faster.
+   */
   async queryOne(relays: string[], filter: Filter, options: PoolSubscribeOptions = {}): Promise<NostrEvent | null> {
-    const events = await this.subscribe(relays, [{ ...filter, limit: 1 }], options).all()
+    const events = await this.subscribe(relays, [{ ...filter, limit: 1 }], options).all(options.timeout)
     if (events.length === 0) return null
     return events.reduce((newest, e) => (e.created_at > newest.created_at ? e : newest))
+  }
+
+  /**
+   * Fetch one immutable event by id (or any query where the first match is
+   * final): resolves the instant ANY relay returns it — no waiting for the
+   * slowest relay's EOSE. Returns null if `options.timeout` elapses with nothing.
+   */
+  fetchOne(relays: string[], filter: Filter, options: PoolSubscribeOptions = {}): Promise<NostrEvent | null> {
+    return this.subscribe(relays, [{ ...filter, limit: 1 }], options).first(options.timeout)
   }
 
   /** Publish an event to many relays; resolves per-relay results (never throws). */

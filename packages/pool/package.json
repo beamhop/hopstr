@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/pool",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet pool — query and subscribe across many relays with dedup, per-relay EOSE, and async-iterable subscriptions.",
   "type": "module",
   "license": "MIT",

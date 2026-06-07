@@ -8,11 +8,13 @@ export interface MockRelay {
   rejectAll: boolean
   /** accept the socket but never reply to EVENTs (to test publish timeout). */
   silent: boolean
+  /** answer REQ EVENTs but never send EOSE (to test the read timeout). */
+  silentReq: boolean
   stop: () => void
 }
 
 export function startRelay(seed: NostrEvent[] = []): MockRelay {
-  const state: MockRelay = { url: '', stored: [...seed], rejectAll: false, silent: false, stop: () => {} }
+  const state: MockRelay = { url: '', stored: [...seed], rejectAll: false, silent: false, silentReq: false, stop: () => {} }
   const server = Bun.serve({
     port: 0,
     fetch(req, srv) {
@@ -35,7 +37,8 @@ export function startRelay(seed: NostrEvent[] = []): MockRelay {
           const id = msg[1] as string
           const filters = msg.slice(2) as Filter[]
           for (const e of state.stored) if (matchFilters(filters, e)) ws.send(JSON.stringify(['EVENT', id, e]))
-          ws.send(JSON.stringify(['EOSE', id]))
+          if (!state.silentReq) ws.send(JSON.stringify(['EOSE', id])) // silentReq → never EOSE
+
         }
       },
     },

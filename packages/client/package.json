@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/client",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet client — the high-level reactive Nostr client: Nostr.create(), optimistic publish, async-iterable subscriptions, profile cache, outbox routing on by default.",
   "type": "module",
   "license": "MIT",

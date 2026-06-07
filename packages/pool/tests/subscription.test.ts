@@ -74,6 +74,28 @@ describe('Subscription', () => {
     expect(await p).toBeNull()
   })
 
+  // The hang fix: a relay that connects but never EOSEs must not wedge a read.
+  test('all(timeout) resolves with what arrived when EOSE never comes', async () => {
+    const sub = new Subscription(() => {})
+    const p = sub.all(20)
+    sub._push(ev('partial')) // no eose, no close — only the timeout can settle this
+    expect((await p).map((e) => e.content)).toEqual(['partial'])
+  })
+
+  // Regression: an event arriving via the listener (not pre-buffered) must win
+  // over the synchronous 'close' that close() emits — first() must not resolve null.
+  test('first(timeout) resolves on an event delivered after the call', async () => {
+    const sub = new Subscription(() => {})
+    const p = sub.first(1000)
+    sub._push(ev('late')) // arrives via the 'event' listener, then close() fires 'close'
+    expect((await p)?.content).toBe('late')
+  })
+
+  test('first(timeout) returns null when nothing arrives in time', async () => {
+    const sub = new Subscription(() => {})
+    expect(await sub.first(20)).toBeNull() // never pushed, never eosed — only timeout
+  })
+
   test('take(n) collects n then closes; take(0) is empty', async () => {
     const sub = new Subscription(() => {})
     sub._push(ev('1'))

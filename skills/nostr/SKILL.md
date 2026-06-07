@@ -185,8 +185,9 @@ Every event has `from` (an **npub**) and `at` (unix seconds).
 
 Instead of parsing events yourself, `listen --agent` turns the daemon into a **two-way
 bot**: each incoming **dm / mention / reply** is handed to a coding-agent CLI that
-**answers on Nostr itself**. hopstr gives the agent the sender's message plus the exact
-command to reply (`hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a
+**answers on Nostr itself**. hopstr gives the agent the sender's message, the **full raw
+event** (a JSON block — the decrypted inner event for DMs), plus the exact command to
+reply (`hopstr dm <npub> "…"` for a DM, `hopstr reply <event-id> "…"` for a
 mention/reply); the agent inherits your `NOSTR_NSEC` and runs it, posting as you. hopstr
 never parses or acts on the agent's output — the *agent* sends the reply. The agent's
 output is streamed to the daemon's **stderr** (prefixed `[<agent>]`), so the JSON event

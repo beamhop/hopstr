@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/signers",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet signers — one async Signer interface over local keys, NIP-07 extensions, NIP-46 bunkers, NIP-49 encrypted keys, and NIP-06 derivation.",
   "type": "module",
   "license": "MIT",

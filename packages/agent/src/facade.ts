@@ -500,8 +500,12 @@ export class NostrClient {
     this.nostr.close()
   }
 
+  // Fetch an immutable event by id. Every relay holds the identical event, so the
+  // FIRST to answer is final — fetchOne resolves immediately instead of waiting out
+  // every relay's EOSE. This is the hot path for reply/react/thread; before it had
+  // no timeout, one stalled relay hung the command forever and nothing published.
   async #fetch(eventId: string): Promise<NostrEvent | null> {
-    return this.nostr.queryOne({ ids: [eventId] })
+    return this.nostr.fetchOne({ ids: [eventId] })
   }
 
   // Accept a raw hex id, a `note1…`, or an `nevent1…`. A malformed hex string

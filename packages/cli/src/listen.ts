@@ -25,7 +25,20 @@ export async function listen(
   }
   function emit(ev: FormattedEvent): void {
     emitOut(ev)                                   // still print so the user sees activity
-    if (forwarder && ev.type !== 'reaction') forwarder.forward(buildPrompt(ev))
+    if (forwarder && ev.type !== 'reaction') {
+      // Make the background work visible: log the prompt we hand the agent and that
+      // we fired it, so the terminal shows the full lifecycle — incoming event (above,
+      // via emitOut) → prompt → fired → the agent's streamed response (the `[bin] …`
+      // lines from forward.ts). Skipped under --json to keep stdout a clean event stream.
+      const prompt = buildPrompt(ev)
+      if (!opts.json) {
+        console.error(`→ firing ${opts.preset!.bin} for ${ev.type} from ${ev.from}`)
+        console.error('  prompt:')
+        for (const line of prompt.split('\n')) console.error(`  | ${line}`)
+        console.error('  --- agent response below ---')
+      }
+      forwarder.forward(prompt)
+    }
   }
 
   const myPubkey = identity.pubkey
@@ -64,6 +77,7 @@ export async function listen(
       id: event.id,
       content: event.content,
       at: event.created_at,
+      raw: event,   // the full signed NIP-01 event
     })
   }
 
@@ -91,6 +105,7 @@ export async function listen(
         text: msg.text,
         at: msg.at,
         dmKind: 'nip17',
+        raw: msg,   // decrypted inner message (the encrypted kind-1059 wrapper is omitted)
       })
     } catch {
       // not a DM for us or unreadable
@@ -108,6 +123,7 @@ export async function listen(
       text,
       at: event.created_at,
       dmKind: 'nip04',
+      raw: { ...event, content: text },   // real kind-4 event with content DECRYPTED
     })
   })
 
@@ -120,6 +136,7 @@ export async function listen(
       from: nip19.encodeNpub(event.pubkey),
       emoji: event.content,
       at: event.created_at,
+      raw: event,   // full signed kind-7 event (reactions aren't forwarded, but kept for --json)
     }
     if (targetId) reaction.targetId = targetId
     emit(reaction)

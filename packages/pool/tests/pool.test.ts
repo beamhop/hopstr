@@ -85,6 +85,15 @@ describe('Pool', () => {
     pool.close()
   })
 
+  test('fetchOne returns the first matching event, or null on timeout', async () => {
+    const pool = new Pool()
+    const got = await pool.fetchOne([a.url], { ids: [shared.id] })
+    expect(got?.id).toBe(shared.id)
+    const none = await pool.fetchOne([a.url], { ids: ['ab'.repeat(32)] }, { timeout: 50 })
+    expect(none).toBeNull()
+    pool.close()
+  })
+
   test('publish returns per-relay results, never throws', async () => {
     const pool = new Pool()
     const ev = finalizeEvent({ kind: 1, tags: [], content: 'publish fanout', created_at: 200 }, SK)

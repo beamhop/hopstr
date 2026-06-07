@@ -10,6 +10,11 @@ export interface FormattedEvent {
   targetId?: string
   at: number
   dmKind?: 'nip17' | 'nip04'
+  // The full event handed to the agent under --agent/--exec. For notes/reactions
+  // it's the raw signed NIP-01 event; for DMs it's the DECRYPTED inner event
+  // (readable content, real sender) — the encrypted wire wrapper is never useful.
+  // Printing ignores this; only buildPrompt embeds it.
+  raw?: unknown
 }
 
 function relativeTime(at: number): string {

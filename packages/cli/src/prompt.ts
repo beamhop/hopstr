@@ -14,10 +14,20 @@ export function buildPrompt(ev: FormattedEvent): string {
 
   const kind = ev.type === 'dm' ? 'direct message' : ev.type
 
+  // The full event so the agent can inspect tags, kind, timestamps, etc. — not just
+  // the bare text. For DMs this is the decrypted inner event (the encrypted wire
+  // wrapper is omitted upstream). Pretty-printed in a fenced block so it's readable
+  // both to the agent and in the daemon's streamed output.
+  const rawBlock =
+    ev.raw === undefined
+      ? []
+      : ['', 'Full raw event:', '```json', JSON.stringify(ev.raw, null, 2), '```']
+
   return [
     `You are a Nostr bot. You just received a ${kind} from ${ev.from}:`,
     '',
     text,
+    ...rawBlock,
     '',
     `Decide how to respond, then send your reply by running this command (it posts as you):`,
     `  ${answer}`,

@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/router",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet router — the outbox/gossip model (NIP-65): pick which relays to read from and write to, by weighted relay selection with policy injection.",
   "type": "module",
   "license": "MIT",

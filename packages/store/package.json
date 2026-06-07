@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/store",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet store — a reactive in-memory Nostr event store: dedup, replaceable/addressable handling, NIP-09 deletes, NIP-40 expiry, async-iterable streams.",
   "type": "module",
   "license": "MIT",

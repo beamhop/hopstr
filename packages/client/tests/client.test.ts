@@ -170,6 +170,42 @@ describe('read', () => {
     nostr.close()
   })
 
+  // A relay that answers events but never sends EOSE must not hang a read — this
+  // is the bug that made `hopstr reply` (which fetches the parent first) silently
+  // never publish. The pool only EOSEs once EVERY relay has, so one silent relay
+  // would block forever without the read timeout.
+  test('query/queryOne resolve via timeout when a relay never EOSEs', async () => {
+    const seed = finalizeEvent({ kind: 1, tags: [], content: 'hi', created_at: 100 }, SK)
+    const r = relay([seed])
+    r.silentReq = true // delivers the EVENT, then withholds EOSE forever
+    const nostr = await client([r.url])
+    expect((await nostr.query({ authors: [PK] }, { timeout: 50 })).map((e) => e.content)).toEqual(['hi'])
+    expect((await nostr.queryOne({ authors: [PK] }, { timeout: 50 }))?.content).toBe('hi')
+    nostr.close()
+  })
+
+  // fetchOne returns the instant a relay answers — no waiting for the (here,
+  // never-arriving) EOSE. The hot path for reply/react/thread fetching by id.
+  test('fetchOne returns immediately on the first matching event (no EOSE wait)', async () => {
+    const target = finalizeEvent({ kind: 1, tags: [], content: 'parent', created_at: 100 }, SK)
+    const r = relay([target])
+    r.silentReq = true
+    const nostr = await client([r.url])
+    const t0 = performance.now()
+    const got = await nostr.fetchOne({ ids: [target.id] }, { timeout: 5000 })
+    expect(got?.content).toBe('parent')
+    expect(performance.now() - t0).toBeLessThan(1000) // resolved on the event, not the 5s timeout
+    nostr.close()
+  })
+
+  test('fetchOne returns null via timeout when the event is absent', async () => {
+    const r = relay([])
+    r.silentReq = true
+    const nostr = await client([r.url])
+    expect(await nostr.fetchOne({ ids: ['ab'.repeat(32)] }, { timeout: 50 })).toBeNull()
+    nostr.close()
+  })
+
   test('subscribe with an explicit relay override + break', async () => {
     const seed = finalizeEvent({ kind: 1, tags: [], content: 'live', created_at: 100 }, SK)
     const r = relay([seed])

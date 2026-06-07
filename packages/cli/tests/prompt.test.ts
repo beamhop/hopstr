@@ -39,4 +39,30 @@ describe('buildPrompt', () => {
     expect(p).toContain('You are a Nostr bot')
     expect(p).toContain(`hopstr reply ${ID} "<your reply>"`)
   })
+
+  test('embeds the full raw event as a pretty JSON fenced block when present', () => {
+    const raw = { id: ID, pubkey: 'p'.repeat(64), kind: 1, tags: [['p', 'q']], content: 'gm @you', created_at: 1, sig: 's'.repeat(128) }
+    const p = buildPrompt({ ...mention, raw })
+    expect(p).toContain('Full raw event:')
+    expect(p).toContain('```json')
+    // pretty-printed (2-space indent), so a nested field appears on its own line
+    expect(p).toContain(JSON.stringify(raw, null, 2))
+    expect(p).toContain('"sig": "ssss')
+    expect(p).toContain('"tags": [')
+  })
+
+  test('no raw → no JSON block, prompt still complete', () => {
+    const p = buildPrompt(mention)
+    expect(p).not.toContain('Full raw event:')
+    expect(p).not.toContain('```json')
+    expect(p).toContain(`hopstr reply ${ID} "<your reply>"`)
+  })
+
+  test('dm raw is embedded too (decrypted inner event)', () => {
+    const raw = { from: 'p'.repeat(64), to: ['q'.repeat(64)], text: 'tell me a story', at: 1 }
+    const p = buildPrompt({ ...dm, raw })
+    expect(p).toContain('Full raw event:')
+    expect(p).toContain('"text": "tell me a story"')
+    expect(p).toContain(`hopstr dm ${NPUB} "<your reply>"`)
+  })
 })

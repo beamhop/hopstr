@@ -1,6 +1,6 @@
 {
   "name": "@hopstr/relay",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Velvet relay — a single resilient WebSocket connection to a Nostr relay: reconnection, NIP-11, NIP-42 auth, typed wire messages.",
   "type": "module",
   "license": "MIT",
