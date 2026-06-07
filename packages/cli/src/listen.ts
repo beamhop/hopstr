@@ -4,10 +4,31 @@ import { NostrClient } from '@hopstr/agent'
 import type { Identity } from '@hopstr/core'
 import type { NostrEvent } from '@hopstr/core'
 import { prettyPrint, jsonLine, type FormattedEvent } from './format.ts'
+import { makeForwarder, type Preset } from './forward.ts'
 
-export async function listen(identity: Identity, opts: { json: boolean; relays?: string[]; since?: number }): Promise<void> {
+export async function listen(
+  identity: Identity,
+  opts: { json: boolean; relays?: string[]; since?: number; preset?: Preset; maxConcurrency?: number },
+): Promise<void> {
   const client = new NostrClient(identity, opts.relays)
-  const emit = opts.json ? jsonLine : prettyPrint
+  const emitOut = opts.json ? jsonLine : prettyPrint
+
+  // When --agent/--exec is set, forward dm/mention/reply text to a coding-agent CLI
+  // (fire-and-forget) in addition to printing. Reactions have no text, so they're
+  // never forwarded. SIGINT lets in-flight agents finish instead of being orphaned.
+  const forwarder = opts.preset ? makeForwarder(opts.preset, opts.maxConcurrency ?? 4) : undefined
+  if (forwarder) {
+    console.error(`forwarding dm/mention/reply → ${opts.preset!.bin}`)
+    process.once('SIGINT', () => void forwarder.drain().finally(() => process.exit(0)))
+  }
+  function emit(ev: FormattedEvent): void {
+    emitOut(ev)                                   // still print so the user sees activity
+    if (forwarder && ev.type !== 'reaction') {
+      const text = ev.content ?? ev.text          // raw text only — no headers/env
+      if (text) forwarder.forward(text)
+    }
+  }
+
   const myPubkey = identity.pubkey
   const seen = new Set<string>()
 

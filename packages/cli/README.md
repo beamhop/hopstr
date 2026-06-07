@@ -51,6 +51,7 @@ an existing identity by accident.
 ```bash
 hopstr id new            [--save]  [--json]
 hopstr listen [--json] [--relay wss://...] [--since <when>]
+              [--agent <name> | --exec '<cmd>'] [--max-concurrency <n>]
 hopstr post  <content>            [--json] [--relay wss://...]
 hopstr reply <event-id> <content> [--json] [--relay wss://...]
 hopstr dm    <npub> <message>     [--json] [--relay wss://...]
@@ -78,6 +79,56 @@ Each line is one notification:
 
 All carry `from` (npub) and `at` (unix seconds). Without `--json` you get a
 human-readable, labelled feed instead.
+
+#### Forward to a coding agent — `--agent` / `--exec`
+
+`listen` can hand each incoming **dm / mention / reply** to a coding-agent CLI as it
+arrives. It's **fire-and-forget**: hopstr spawns the agent with the message text on
+stdin (or as an argument) and does nothing with the result — no auto-reply, no output
+parsing. Events are still printed to stdout, so you see everything that's dispatched.
+
+```bash
+hopstr listen --agent claude          # pipe each message to `claude -p`
+hopstr listen --exec 'mytool run {}'  # or any command of your own
+```
+
+- `--agent <name>` — a built-in preset. Each knows the right headless flags and
+  whether its tool wants the prompt on **stdin** or as an **argument**:
+
+  | preset | invokes |
+  | --- | --- |
+  | `claude` | `claude -p --permission-mode acceptEdits` (stdin) |
+  | `codex` | `codex exec --dangerously-bypass-approvals-and-sandbox <text>` |
+  | `gemini` | `gemini --yolo` (stdin) |
+  | `copilot` | `copilot -p --allow-all-tools --no-ask-user` (stdin) |
+  | `aider` | `aider --yes-always --message <text>` |
+  | `cursor` | `cursor-agent -p <text> --force` |
+  | `amp` | `amp -x` (stdin) |
+  | `opencode` | `opencode run <text>` |
+
+- `--exec '<cmd>'` — forward to any command (mutually exclusive with `--agent`). Put
+  `{}` where the prompt text goes; **omit `{}` to pipe the prompt to stdin**. The
+  command is split on whitespace — **no shell is invoked**, so there's no quoting or
+  injection surface. `{}` may appear anywhere, even more than once.
+
+  ```bash
+  hopstr listen --exec 'mytool run {}'        # text passed as an argument
+  hopstr listen --exec 'mytool --headless'    # text piped to stdin
+  ```
+
+- `--max-concurrency <n>` — cap parallel agent processes (default **4**). Excess events
+  queue and run as slots free.
+
+If the agent binary is missing or exits non-zero, hopstr logs it to stderr and keeps
+listening — one bad run never stops the daemon. On `Ctrl-C`, in-flight agents are given
+a chance to finish before exit.
+
+> ⚠️ **Security.** Forwarding runs a coding agent with **auto-approve / edit
+> permissions** on text written by **strangers on Nostr** — a direct remote
+> prompt-injection vector. Run `hopstr listen --agent …` only in a **sandbox or a
+> throwaway working directory**, never against a repo or machine you can't afford to
+> have an agent modify. If a preset's baked-in flags ever drift from the tool's current
+> CLI, `--exec` is the always-correct fallback where you supply the flags yourself.
 
 ### Posting & interacting
 
@@ -162,6 +213,9 @@ hopstr profile set --name "Alice" --about "starting fresh" --replace
 | `--save` | for `id new`: write the new nsec to `~/.config/hopstr/config.json` |
 | `--relay <url>` | add a relay (repeatable); **replaces** the defaults when given |
 | `--since <when>` | for `listen`: where to start. Accepts a unix timestamp, relative (`1h`, `2d ago`, `30m`), ISO date (`2025-06-01`), or natural (`yesterday`, `last week`) |
+| `--agent <name>` | for `listen`: forward dm/mention/reply text to a coding-agent CLI (preset). See [Forward to a coding agent](#forward-to-a-coding-agent--agent--exec) |
+| `--exec '<cmd>'` | for `listen`: forward to any command. `{}` = prompt as arg; omit `{}` to pipe to stdin. Mutually exclusive with `--agent` |
+| `--max-concurrency <n>` | for `listen`: max parallel agent processes (default 4); excess events queue |
 | `--help`, `-h` | show help |
 
 ## License

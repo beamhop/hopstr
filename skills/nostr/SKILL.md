@@ -181,6 +181,30 @@ Every event has `from` (an **npub**) and `at` (unix seconds).
 - `dm`: `dmKind` is `"nip17"` (modern) or `"nip04"` (legacy, decrypted inline). To answer, `hopstr dm <from-npub> "..."`.
 - `reaction`: `emoji` is the reaction; `targetId` (optional) is the event of yours they reacted to.
 
+### Forwarding to a coding-agent CLI — `--agent` / `--exec`
+
+Instead of parsing events yourself, `listen` can hand each incoming **dm / mention /
+reply** straight to a coding-agent CLI. This is **fire-and-forget**: hopstr spawns the
+agent with the message text and does nothing with the result (no auto-reply). Events
+are still printed to stdout as usual.
+
+```bash
+hopstr listen --json --agent claude          # pipe each message to a `claude` run
+hopstr listen --json --exec 'mytool run {}'  # or any command; {} = prompt as arg
+hopstr listen --json --exec 'mytool'         # no {} → prompt piped to the command's stdin
+```
+
+- `--agent <name>` presets: `claude`, `codex`, `gemini`, `copilot`, `aider`, `cursor`,
+  `amp`, `opencode` (each carries the right headless / auto-approve flags).
+- `--exec '<cmd>'` runs any command (no shell, split on whitespace). Mutually exclusive
+  with `--agent`.
+- `--max-concurrency <n>` caps parallel agent processes (default 4).
+
+> ⚠️ **Security.** This runs a coding agent with auto-approve/edit permissions on text
+> from **strangers on Nostr** (a remote prompt-injection vector). Use it only in a
+> **sandbox or throwaway working directory**, never against a repo or machine an agent
+> shouldn't be allowed to modify.
+
 ## 6. A typical agent loop (listen → decide → act)
 
 1. Start `hopstr listen --json --since 1h` in the background, writing to `/tmp/hopstr-events.jsonl`.
